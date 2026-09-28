@@ -1,0 +1,72 @@
+services:
+  rehearse-postgres:
+    image: postgres:16-alpine
+    container_name: rehearse-postgres
+    environment:
+      POSTGRES_USER: rehearse
+      POSTGRES_PASSWORD: rehearse
+      POSTGRES_DB: rehearse
+    ports:
+      - "5432:5432"
+    volumes:
+      - rehearse_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rehearse -d rehearse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rehearse-ai-engine:
+    build:
+      context: .
+      dockerfile: services/ai-engine/Dockerfile
+    container_name: rehearse-ai-engine
+    env_file:
+      - .env
+    environment:
+      PORT: 4001
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
+    ports:
+      - "4001:4001"
+    depends_on:
+      rehearse-postgres:
+        condition: service_healthy
+
+  rehearse-compiler:
+    build:
+      context: .
+      dockerfile: services/compiler/Dockerfile
+    container_name: rehearse-compiler
+    env_file:
+      - .env
+    environment:
+      PORT: 4002
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      SANDBOX_DRIVER: ${SANDBOX_DRIVER:-judge0}
+    ports:
+      - "4002:4002"
+
+  rehearse-web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: rehearse-web
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://rehearse:rehearse@rehearse-postgres:5432/rehearse
+      AI_ENGINE_URL: http://rehearse-ai-engine:4001
+      COMPILER_URL: http://rehearse-compiler:4002
+    ports:
+      - "3000:3000"
+    depends_on:
+      rehearse-postgres:
+        condition: service_healthy
+      rehearse-ai-engine:
+        condition: service_started
+      rehearse-compiler:
+        condition: service_started
+
+volumes:
+  rehearse_pg:

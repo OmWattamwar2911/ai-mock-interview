@@ -1,0 +1,16 @@
+---
+description: Project rules for AI Mock Interview Platform
+alwaysApply: true
+---
+
+- Language: TypeScript everywhere (strict mode). No `any` unless justified in a comment.
+- Monorepo with pnpm workspaces: apps/web, services/ai-engine, services/compiler, packages/shared.
+- All request/response payloads are validated with Zod. Schemas live in packages/shared and are imported by all services.
+- UI is strictly black and white (plus grays). No colors except for a tiny functional exception: pass/fail states use white-on-black filled vs outlined styles plus icons, NOT green/red. See design system.
+- Use Tailwind CSS + shadcn/ui primitives, restyled to the design system. Use lucide-react icons, framer-motion for subtle motion.
+- Never hardcode secrets. Use .env files and provide .env.example for every app/service.
+- Every feature must work end to end with real data flow (no mock/placeholder UI, no TODO stubs left behind).
+- Every API route: auth check, input validation, error handling with consistent JSON error shape { error: { code, message } }.
+- Write small, modular files. Keep UI components, hooks, services, and API layers separated.
+- After each phase: run typecheck, lint, and tests; fix all errors before continuing.
+- Add concise comments only where logic is non-obvious.

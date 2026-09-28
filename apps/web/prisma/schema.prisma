@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CANDIDATE
+  ADMIN
+}
+
+enum SessionStatus {
+  CREATED
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum QuestionType {
+  CONCEPTUAL
+  BEHAVIOURAL
+  CODING
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum QuestionSource {
+  BANK
+  AI
+}
+
+enum SessionQuestionStatus {
+  PENDING
+  ANSWERED
+  SKIPPED
+}
+
+enum AnswerMode {
+  TYPED
+  VOICE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CANDIDATE)
+  createdAt    DateTime @default(now())
+
+  resumes   Resume[]
+  jobDescs  JobDescription[]
+  sessions  InterviewSession[]
+  questions Question[]
+  auditLogs AuditLog[]
+}
+
+model Resume {
+  id            String   @id @default(cuid())
+  userId        String
+  fileName      String
+  fileType      String
+  encryptedText String
+  parsed        Json
+  createdAt     DateTime @default(now())
+
+  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions InterviewSession[]
+}
+
+model JobDescription {
+  id            String   @id @default(cuid())
+  userId        String
+  title         String
+  encryptedText String
+  parsed        Json
+  createdAt     DateTime @default(now())
+
+  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions InterviewSession[]
+}
+
+model InterviewSession {
+  id          String        @id @default(cuid())
+  userId      String
+  resumeId    String
+  jdId        String
+  status      SessionStatus @default(CREATED)
+  config      Json
+  skillGap    Json
+  startedAt   DateTime?
+  endedAt     DateTime?
+  totalTimeSec Int?
+  createdAt   DateTime      @default(now())
+
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume    Resume            @relation(fields: [resumeId], references: [id])
+  jd        JobDescription    @relation(fields: [jdId], references: [id])
+  questions SessionQuestion[]
+  report    FeedbackReport?
+
+  @@index([userId, status])
+}
+
+model Question {
+  id            String         @id @default(cuid())
+  type          QuestionType
+  text          String
+  difficulty    Difficulty
+  skillTags     String[]
+  expectedPoints Json
+  source        QuestionSource @default(BANK)
+  createdById   String?
+  starterCode   Json?
+  testCases     Json?
+  constraints   String?
+  examples      Json?
+  deletedAt     DateTime?
+  createdAt     DateTime       @default(now())
+
+  createdBy User?             @relation(fields: [createdById], references: [id])
+  sessions  SessionQuestion[]
+
+  @@index([type, difficulty])
+}
+
+model SessionQuestion {
+  id           String                 @id @default(cuid())
+  sessionId    String
+  questionId   String?
+  snapshot     Json?
+  orderIndex   Int
+  timeLimitSec Int
+  answerText   String?
+  answerMode   AnswerMode?
+  timeSpentSec Int?
+  score        Float?
+  feedback     Json?
+  status       SessionQuestionStatus  @default(PENDING)
+
+  session     InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question    Question?        @relation(fields: [questionId], references: [id])
+  submissions CodeSubmission[]
+}
+
+model CodeSubmission {
+  id                String   @id @default(cuid())
+  sessionQuestionId String
+  language          String
+  sourceCode        String
+  testResults       Json?
+  passedCount       Int      @default(0)
+  totalCount        Int      @default(0)
+  compileError      String?
+  aiCodeReview      Json?
+  score             Float?
+  isFinal           Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  sessionQuestion SessionQuestion @relation(fields: [sessionQuestionId], references: [id], onDelete: Cascade)
+}
+
+model FeedbackReport {
+  id               String   @id @default(cuid())
+  sessionId        String   @unique
+  overallScore     Float
+  categoryScores   Json
+  strengths        String[]
+  weaknesses       String[]
+  improvementPlan  String[]
+  skillGapInsights Json
+  perQuestionSummary Json
+  shareToken       String?  @unique
+  createdAt        DateTime @default(now())
+
+  session InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}

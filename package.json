@@ -1,0 +1,19 @@
+{
+  "name": "rehearse",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "db:migrate": "pnpm --filter @rehearse/web exec prisma migrate dev",
+    "db:seed": "pnpm --filter @rehearse/web exec prisma db seed",
+    "docker:up": "docker compose up"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.2"
+  }
+}

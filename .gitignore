@@ -1,0 +1,13 @@
+node_modules
+.turbo
+.next
+dist
+.env
+.env.local
+*.log
+.DS_Store
+coverage
+playwright-report
+test-results
+apps/web/prisma/*.db
+apps/web/prisma/migrations
