@@ -47,6 +47,24 @@ enum AnswerMode {
   VOICE
 }
 
+enum AssessmentStatus {
+  DRAFT
+  READY
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum AssessmentSectionType {
+  MCQ_ROUND
+  CODING_ROUND
+}
+
+enum AssessmentQuestionType {
+  MCQ
+  MULTI_SELECT
+  NUMERIC
+}
+
 model User {
   id           String   @id @default(cuid())
   name         String
@@ -54,12 +72,16 @@ model User {
   passwordHash String
   role         Role     @default(CANDIDATE)
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  resumes   Resume[]
-  jobDescs  JobDescription[]
-  sessions  InterviewSession[]
-  questions Question[]
-  auditLogs AuditLog[]
+  resumes            Resume[]
+  jobDescs           JobDescription[]
+  sessions           InterviewSession[]
+  questions          Question[]
+  assessments        Assessment[]
+  assessmentBankQuestions AssessmentBankQuestion[]
+  auditLogs          AuditLog[]
+  assessmentAttempts AssessmentAttempt[]
 }
 
 model Resume {
@@ -71,8 +93,8 @@ model Resume {
   parsed        Json
   createdAt     DateTime @default(now())
 
-  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sessions InterviewSession[]
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions    InterviewSession[]
 }
 
 model JobDescription {
@@ -83,47 +105,204 @@ model JobDescription {
   parsed        Json
   createdAt     DateTime @default(now())
 
-  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sessions InterviewSession[]
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions    InterviewSession[]
+  assessments Assessment[]
 }
 
 model InterviewSession {
-  id          String        @id @default(cuid())
-  userId      String
-  resumeId    String
-  jdId        String
-  status      SessionStatus @default(CREATED)
-  config      Json
-  skillGap    Json
-  startedAt   DateTime?
-  endedAt     DateTime?
+  id           String        @id @default(cuid())
+  userId       String
+  resumeId     String
+  jdId         String
+  status       SessionStatus @default(CREATED)
+  config       Json
+  skillGap     Json
+  currentIndex Int           @default(0)
+  integrity    Json?
+  startedAt    DateTime?
+  endedAt      DateTime?
   totalTimeSec Int?
-  createdAt   DateTime      @default(now())
+  createdAt    DateTime      @default(now())
 
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  resume    Resume            @relation(fields: [resumeId], references: [id])
-  jd        JobDescription    @relation(fields: [jdId], references: [id])
-  questions SessionQuestion[]
-  report    FeedbackReport?
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume     Resume            @relation(fields: [resumeId], references: [id])
+  jd         JobDescription    @relation(fields: [jdId], references: [id])
+  questions  SessionQuestion[]
+  report     FeedbackReport?
+  assessment Assessment?
 
   @@index([userId, status])
 }
 
-model Question {
-  id            String         @id @default(cuid())
-  type          QuestionType
+model Assessment {
+  id          String           @id @default(cuid())
+  userId      String
+  jdId        String
+  sessionId   String?          @unique
+  title       String
+  durationSec Int
+  totalMarks  Int
+  status      AssessmentStatus @default(DRAFT)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  user                      User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jd                        JobDescription             @relation(fields: [jdId], references: [id], onDelete: Cascade)
+  session                   InterviewSession?          @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  sections                  AssessmentSection[]
+  attempts                  AssessmentAttempt[]
+  assessmentCodingQuestions AssessmentCodingQuestion[]
+
+  @@index([userId, status])
+}
+
+model AssessmentSection {
+  id           String                @id @default(cuid())
+  assessmentId String
+  type         AssessmentSectionType
+  title        String
+  durationSec  Int
+  orderIndex   Int
+
+  assessment Assessment                 @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  questions  AssessmentQuestion[]
+  coding     AssessmentCodingQuestion[]
+
+  @@unique([assessmentId, type])
+  @@index([assessmentId, orderIndex])
+}
+
+model AssessmentQuestion {
+  id            String                 @id @default(cuid())
+  sectionId     String
+  type          AssessmentQuestionType
   text          String
+  options       Json?
+  correctAnswer Json
+  marks         Int
+  topic         String
   difficulty    Difficulty
-  skillTags     String[]
+  source        QuestionSource         @default(BANK)
+  orderIndex    Int
+
+  section AssessmentSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  answers AssessmentAnswer[]
+
+  @@index([sectionId, orderIndex])
+}
+
+model AssessmentBankQuestion {
+  id               String                 @id @default(cuid())
+  type             AssessmentQuestionType
+  text             String
+  options          Json?
+  correctAnswer    Json
+  marks            Int                    @default(1)
+  topic            String
+  difficulty       Difficulty
+  source           QuestionSource         @default(BANK)
+  constraints      String?
+  examples         Json?
+  starterCode      Json?
+  testCases        Json?
+  referenceSolution Json?
+  createdById      String?
+  deletedAt        DateTime?
+  createdAt        DateTime               @default(now())
+
+  createdBy User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([type, difficulty, deletedAt])
+}
+
+model AssessmentCodingQuestion {
+  id                String         @id @default(cuid())
+  assessmentId      String
+  sectionId         String
+  statement         String
+  constraints       String?
+  examples          Json?
+  starterCode       Json
+  testCases         Json
+  referenceSolution Json
+  marks             Int
+  difficulty        Difficulty
+  source            QuestionSource @default(BANK)
+  orderIndex        Int
+
+  assessment  Assessment                   @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  section     AssessmentSection            @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  submissions AssessmentCodingSubmission[]
+
+  @@index([assessmentId, orderIndex])
+}
+
+model AssessmentAttempt {
+  id            String    @id @default(cuid())
+  assessmentId  String
+  userId        String
+  answers       Json
+  score         Float?
+  startedAt     DateTime  @default(now())
+  submittedAt   DateTime?
+  autoSubmitted Boolean   @default(false)
+
+  assessment        Assessment                   @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  user              User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submissions       AssessmentCodingSubmission[]
+  assessmentAnswers AssessmentAnswer[]
+
+  @@index([userId, assessmentId])
+}
+
+model AssessmentAnswer {
+  id         String   @id @default(cuid())
+  attemptId  String
+  questionId String
+  selected   Json
+  isCorrect  Boolean?
+  marks      Float?
+
+  attempt  AssessmentAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+}
+
+model AssessmentCodingSubmission {
+  id          String   @id @default(cuid())
+  attemptId   String
+  questionId  String
+  language    String
+  sourceCode  String
+  testResults Json
+  passedCount Int      @default(0)
+  totalCount  Int      @default(0)
+  score       Float    @default(0)
+  createdAt   DateTime @default(now())
+
+  attempt  AssessmentAttempt        @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question AssessmentCodingQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId, questionId])
+}
+
+model Question {
+  id             String         @id @default(cuid())
+  type           QuestionType
+  text           String
+  difficulty     Difficulty
+  skillTags      String[]
   expectedPoints Json
-  source        QuestionSource @default(BANK)
-  createdById   String?
-  starterCode   Json?
-  testCases     Json?
-  constraints   String?
-  examples      Json?
-  deletedAt     DateTime?
-  createdAt     DateTime       @default(now())
+  source         QuestionSource @default(BANK)
+  createdById    String?
+  starterCode    Json?
+  testCases      Json?
+  constraints    String?
+  examples       Json?
+  deletedAt      DateTime?
+  createdAt      DateTime       @default(now())
 
   createdBy User?             @relation(fields: [createdById], references: [id])
   sessions  SessionQuestion[]
@@ -132,18 +311,20 @@ model Question {
 }
 
 model SessionQuestion {
-  id           String                 @id @default(cuid())
+  id           String                @id @default(cuid())
   sessionId    String
   questionId   String?
   snapshot     Json?
   orderIndex   Int
   timeLimitSec Int
   answerText   String?
+  draftCode    String?
+  language     String?
   answerMode   AnswerMode?
   timeSpentSec Int?
   score        Float?
   feedback     Json?
-  status       SessionQuestionStatus  @default(PENDING)
+  status       SessionQuestionStatus @default(PENDING)
 
   session     InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   question    Question?        @relation(fields: [questionId], references: [id])
@@ -168,17 +349,17 @@ model CodeSubmission {
 }
 
 model FeedbackReport {
-  id               String   @id @default(cuid())
-  sessionId        String   @unique
-  overallScore     Float
-  categoryScores   Json
-  strengths        String[]
-  weaknesses       String[]
-  improvementPlan  String[]
-  skillGapInsights Json
+  id                 String   @id @default(cuid())
+  sessionId          String   @unique
+  overallScore       Float
+  categoryScores     Json
+  strengths          String[]
+  weaknesses         String[]
+  improvementPlan    String[]
+  skillGapInsights   Json
   perQuestionSummary Json
-  shareToken       String?  @unique
-  createdAt        DateTime @default(now())
+  shareToken         String?  @unique
+  createdAt          DateTime @default(now())
 
   session InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }

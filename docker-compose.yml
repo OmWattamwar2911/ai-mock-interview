@@ -44,6 +44,7 @@ services:
       PORT: 4002
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
       SANDBOX_DRIVER: ${SANDBOX_DRIVER:-judge0}
+      JUDGE0_URL: http://rehearse-judge0:2358
     ports:
       - "4002:4002"
 
@@ -66,6 +67,31 @@ services:
       rehearse-ai-engine:
         condition: service_started
       rehearse-compiler:
+        condition: service_started
+
+  # Start with `docker compose --profile judge0 up` for local code execution.
+  rehearse-judge0-redis:
+    profiles: ["judge0"]
+    image: redis:7-alpine
+    container_name: rehearse-judge0-redis
+
+  rehearse-judge0:
+    profiles: ["judge0"]
+    image: judge0/judge0:1.13.1
+    container_name: rehearse-judge0
+    privileged: true
+    environment:
+      REDIS_HOST: rehearse-judge0-redis
+      POSTGRES_HOST: rehearse-postgres
+      POSTGRES_DB: rehearse
+      POSTGRES_USER: rehearse
+      POSTGRES_PASSWORD: rehearse
+    ports:
+      - "2358:2358"
+    depends_on:
+      rehearse-postgres:
+        condition: service_healthy
+      rehearse-judge0-redis:
         condition: service_started
 
 volumes:

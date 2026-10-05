@@ -10,5 +10,4 @@ coverage
 playwright-report
 test-results
 apps/web/prisma/*.db
-apps/web/prisma/migrations
 powershell.cmd

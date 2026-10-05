@@ -11,11 +11,23 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "@fastify/multipart": "^10.1.2",
+    "@google/genai": "^1.7.0",
     "@rehearse/shared": "workspace:*",
-    "fastify": "^5.2.2"
+    "fastify": "^5.2.2",
+    "fastify-plugin": "^5.0.1",
+    "mammoth": "^1.9.0",
+    "dotenv": "^18.0.4",
+    "openai": "^4.100.0",
+    "p-retry": "^6.2.1",
+    "pdf-parse": "^1.1.1",
+    "pino": "^9.7.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^22.13.14",
+    "@types/pdf-parse": "^1.1.4",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   }
