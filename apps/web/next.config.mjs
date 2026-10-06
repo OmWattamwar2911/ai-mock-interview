@@ -6,7 +6,7 @@ loadEnv({ path: resolve(process.cwd(), ".env") });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  output: process.env.DOCKER_BUILD === "1" ? "standalone" : undefined,
   transpilePackages: ["@rehearse/shared"],
   experimental: {
     serverComponentsExternalPackages: ["bcryptjs", "@prisma/client"],

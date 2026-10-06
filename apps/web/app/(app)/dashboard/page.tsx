@@ -4,29 +4,42 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { resumeParsedSchema, jdParsedSchema } from "@rehearse/shared";
 
+type DashboardResume = Awaited<ReturnType<typeof prisma.resume.findMany>>[number];
+type DashboardJobDescription = Awaited<ReturnType<typeof prisma.jobDescription.findMany>>[number];
+type DashboardSession = {
+  id: string;
+  status: string;
+  createdAt: Date;
+  jd: { title: string };
+};
+
 export default async function DashboardPage() {
   const session = await auth();
   const userId = session?.user?.id;
-  const [resumes, jds, sessions] = userId
-    ? await Promise.all([
-        prisma.resume.findMany({
-          where: { userId },
-          orderBy: { createdAt: "desc" },
-          take: 5,
-        }),
-        prisma.jobDescription.findMany({
-          where: { userId },
-          orderBy: { createdAt: "desc" },
-          take: 5,
-        }),
-        prisma.interviewSession.findMany({
-          where: { userId },
-          orderBy: { createdAt: "desc" },
-          take: 5,
-          include: { jd: { select: { title: true } } },
-        }),
-      ])
-    : [[], [], []];
+  let resumes: DashboardResume[] = [];
+  let jds: DashboardJobDescription[] = [];
+  let sessions: DashboardSession[] = [];
+
+  if (userId) {
+    [resumes, jds, sessions] = await Promise.all([
+      prisma.resume.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      }),
+      prisma.jobDescription.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      }),
+      prisma.interviewSession.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: { jd: { select: { title: true } } },
+      }),
+    ]);
+  }
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">

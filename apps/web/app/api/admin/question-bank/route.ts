@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/http";
@@ -34,6 +33,7 @@ export async function POST(request: Request) {
   if (error || !user) return error;
   const parsed = questionSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return jsonError(400, "VALIDATION_ERROR", "Invalid assessment bank question");
-  const question = await prisma.assessmentBankQuestion.create({ data: { ...parsed.data, correctAnswer: parsed.data.correctAnswer as Prisma.InputJsonValue, options: parsed.data.options as Prisma.InputJsonValue | undefined, examples: parsed.data.examples as Prisma.InputJsonValue | undefined, starterCode: parsed.data.starterCode as Prisma.InputJsonValue | undefined, testCases: parsed.data.testCases as Prisma.InputJsonValue | undefined, referenceSolution: parsed.data.referenceSolution as Prisma.InputJsonValue | undefined, createdById: user.id } });
+  const data = { ...parsed.data, createdById: user.id } as unknown as Parameters<typeof prisma.assessmentBankQuestion.create>[0]["data"];
+  const question = await prisma.assessmentBankQuestion.create({ data });
   return jsonOk({ question: { ...question, correctAnswer: undefined, referenceSolution: undefined } }, 201);
 }

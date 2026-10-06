@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { jdParsedSchema, resumeParsedSchema } from "@rehearse/shared";
 import { Chip } from "@/components/ui/chip";
 
+type DocumentResume = Awaited<ReturnType<typeof prisma.resume.findMany>>[number];
+type DocumentJobDescription = Awaited<ReturnType<typeof prisma.jobDescription.findMany>>[number];
+
 export default async function DocumentsPage() {
   const session = await auth();
   const userId = session?.user?.id;
@@ -32,7 +35,7 @@ export default async function DocumentsPage() {
           <p className="text-sm text-muted">No resumes yet.</p>
         ) : (
           <ul className="grid gap-4 md:grid-cols-2">
-            {resumes.map((r) => {
+            {resumes.map((r: DocumentResume) => {
               const parsed = resumeParsedSchema.safeParse(r.parsed);
               const skills = parsed.success ? parsed.data.skills : [];
               return (
@@ -57,7 +60,7 @@ export default async function DocumentsPage() {
           <p className="text-sm text-muted">No job descriptions yet.</p>
         ) : (
           <ul className="grid gap-4 md:grid-cols-2">
-            {jds.map((j) => {
+            {jds.map((j: DocumentJobDescription) => {
               const parsed = jdParsedSchema.safeParse(j.parsed);
               const skills = parsed.success ? parsed.data.requiredSkills : [];
               return (

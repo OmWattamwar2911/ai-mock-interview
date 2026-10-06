@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { jsonError, jsonOk } from "@/lib/http";
@@ -12,7 +11,7 @@ export async function PATCH(request: Request, context: { params: { id: string } 
   const parsed = updateSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return jsonError(400, "VALIDATION_ERROR", "Invalid question update");
   const data = parsed.data;
-  const updateData = { ...data, ...(data.correctAnswer === undefined ? {} : { correctAnswer: data.correctAnswer as Prisma.InputJsonValue }), ...(data.options === undefined ? {} : { options: data.options as Prisma.InputJsonValue }), ...(data.examples === undefined ? {} : { examples: data.examples as Prisma.InputJsonValue }), ...(data.starterCode === undefined ? {} : { starterCode: data.starterCode as Prisma.InputJsonValue }), ...(data.testCases === undefined ? {} : { testCases: data.testCases as Prisma.InputJsonValue }), ...(data.referenceSolution === undefined ? {} : { referenceSolution: data.referenceSolution as Prisma.InputJsonValue }) } as Prisma.AssessmentBankQuestionUpdateInput;
+  const updateData = { ...data } as unknown as Parameters<typeof prisma.assessmentBankQuestion.update>[0]["data"];
   const question = await prisma.assessmentBankQuestion.update({ where: { id: context.params.id }, data: updateData });
   return jsonOk({ question: { ...question, correctAnswer: undefined, referenceSolution: undefined } });
 }
