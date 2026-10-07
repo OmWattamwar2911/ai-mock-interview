@@ -1,4 +1,5 @@
 import { config as loadEnv } from "dotenv";
+import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 import Fastify from "fastify";
 import { z } from "zod";
@@ -28,7 +29,7 @@ const app = Fastify({ logger: true });
 
 app.addHook("onRequest", async (request, reply) => {
   if (request.url === "/health" || request.url.startsWith("/health?")) return;
-  const key = request.headers["x-internal-key"];
+  const key = request.headers["x-internal-key"] ?? request.headers["x-internal-api-key"];
   if (!INTERNAL_API_KEY || key !== INTERNAL_API_KEY) {
     return reply.status(401).send(apiError("UNAUTHORIZED", "Invalid internal key"));
   }
@@ -98,6 +99,17 @@ app.post("/v1/questions/generate", async (request, reply) => {
   } catch {
     return { questions: body.data.bankHints };
   }
+});
+
+app.post("/interview", async () => {
+  return {
+    sessionId: randomUUID(),
+    questions: [
+      "Can you describe a challenging technical architecture decision you made recently and what tradeoffs were involved?",
+      "How do you approach database schema design and concurrency control under high traffic?",
+      "Walk me through how you identify, isolate, and mitigate performance bottlenecks in production services.",
+    ],
+  };
 });
 
 try {

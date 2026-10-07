@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { ClipboardCheck, LayoutDashboard, LogOut, Settings, Sparkles, BarChart3, Shield, FileText } from "lucide-react";
+import { ClipboardCheck, LayoutDashboard, LogOut, Settings, Sparkles, BarChart3, Shield, FileText, Video } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CommandPalette } from "@/components/command-palette";
@@ -14,6 +14,7 @@ const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/onboarding", label: "Prep", icon: Sparkles },
   { href: "/documents", label: "Documents", icon: FileText },
+  { href: "/interview", label: "Interview", icon: Video },
   { href: "/assessment", label: "Assessment", icon: ClipboardCheck },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },

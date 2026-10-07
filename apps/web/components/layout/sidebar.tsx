@@ -9,7 +9,7 @@ import { signOut } from "next-auth/react";
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Resumes & JDs", href: "/documents", icon: FileText },
-  { name: "Interviews", href: "/interviews", icon: TerminalSquare },
+  { name: "Interview", href: "/interview", icon: TerminalSquare },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 

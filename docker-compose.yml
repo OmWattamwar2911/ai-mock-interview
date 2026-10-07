@@ -16,60 +16,10 @@ services:
       timeout: 5s
       retries: 10
 
-  rehearse-ai-engine:
-    build:
-      context: .
-      dockerfile: services/ai-engine/Dockerfile
-    container_name: rehearse-ai-engine
-    env_file:
-      - .env
-    environment:
-      PORT: 4001
-      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
-      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
-    ports:
-      - "4001:4001"
-    depends_on:
-      rehearse-postgres:
-        condition: service_healthy
+  # Local development: only Postgres is run via Docker.
+  # The web app, AI engine, and compiler are started with `pnpm dev` locally.
+  # Judge0 can be started with the `judge0` profile: `docker compose --profile judge0 up -d`.
 
-  rehearse-compiler:
-    build:
-      context: .
-      dockerfile: services/compiler/Dockerfile
-    container_name: rehearse-compiler
-    env_file:
-      - .env
-    environment:
-      PORT: 4002
-      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
-      SANDBOX_DRIVER: ${SANDBOX_DRIVER:-judge0}
-      JUDGE0_URL: http://rehearse-judge0:2358
-    ports:
-      - "4002:4002"
-
-  rehearse-web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-    container_name: rehearse-web
-    env_file:
-      - .env
-    environment:
-      DATABASE_URL: postgresql://rehearse:rehearse@rehearse-postgres:5432/rehearse
-      AI_ENGINE_URL: http://rehearse-ai-engine:4001
-      COMPILER_URL: http://rehearse-compiler:4002
-    ports:
-      - "3000:3000"
-    depends_on:
-      rehearse-postgres:
-        condition: service_healthy
-      rehearse-ai-engine:
-        condition: service_started
-      rehearse-compiler:
-        condition: service_started
-
-  # Start with `docker compose --profile judge0 up` for local code execution.
   rehearse-judge0-redis:
     profiles: ["judge0"]
     image: redis:7-alpine
