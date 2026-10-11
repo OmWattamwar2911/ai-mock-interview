@@ -1,20 +1,31 @@
 "use client";
 
+/**
+ * /interview – Entry page for starting a new interview session.
+ *
+ * Calls POST /api/interview/start which:
+ *   1. Creates an InterviewSession row in the DB
+ *   2. Creates a LiveKit room
+ *   3. Returns a participant token for the browser
+ *
+ * The token is stored in sessionStorage so the [sessionId]/page.tsx
+ * can retrieve it without making a second API call.
+ */
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 export default function InterviewPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const loading = status === "loading";
 
-  const [sessionId, setSessionId] = useState<string>("");
-  const [questions, setQuestions] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isFetchingSession, setIsFetchingSession] = useState<boolean>(true);
+  const [starting, setStarting] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -23,117 +34,78 @@ export default function InterviewPage() {
     }
   }, [loading, session, router]);
 
-  // Fetch interview session via proxy API route
-  useEffect(() => {
-    if (loading || !session?.user) return;
+  const handleStart = async () => {
+    setError(null);
+    setStarting(true);
+    try {
+      const res = await fetch("/api/interview/start", { method: "POST" });
+      const data = await res.json();
 
-    let mounted = true;
-    async function fetchSession() {
-      try {
-        setIsFetchingSession(true);
-        const res = await fetch("/api/interview/session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
-        });
-        if (!res.ok) {
-          throw new Error(`Failed to initialize session (status ${res.status})`);
-        }
-        const data = await res.json();
-        if (mounted) {
-          setSessionId(data.sessionId);
-          setQuestions(data.questions || []);
-        }
-      } catch (e: any) {
-        if (mounted) {
-          setError(e.message || "Failed to start interview session");
-        }
-      } finally {
-        if (mounted) {
-          setIsFetchingSession(false);
-        }
+      if (!res.ok) {
+        throw new Error(data?.error?.message || `Failed to start interview (${res.status})`);
       }
+
+      const { sessionId, token, wsUrl } = data;
+
+      // Cache the token so the session page doesn't need to re-fetch
+      sessionStorage.setItem(`lk-token-${sessionId}`, token);
+      sessionStorage.setItem(`lk-url-${sessionId}`, wsUrl);
+
+      router.push(`/interview/${sessionId}`);
+    } catch (err: any) {
+      setError(err.message || "Failed to start interview. Please try again.");
+      setStarting(false);
     }
+  };
 
-    fetchSession();
-
-    return () => {
-      mounted = false;
-    };
-  }, [loading, session]);
-
-  if (loading || isFetchingSession) {
+  if (loading) {
     return (
-      <div className="mx-auto max-w-2xl py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Preparing Interview...</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted">
-              Generating tailored questions and setting up your mock interview session...
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="mx-auto max-w-2xl py-8">
-        <Card className="border-red-500/50">
-          <CardHeader>
-            <CardTitle className="text-red-500">Failed to load interview</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted">{error}</p>
-            <Button
-              onClick={() => {
-                setError(null);
-                setIsFetchingSession(true);
-                window.location.reload();
-              }}
-            >
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl py-8">
+    <div className="mx-auto max-w-2xl py-16 px-4">
       <Card>
         <CardHeader>
-          <CardTitle>AI Mock Interview Session</CardTitle>
+          <CardTitle>AI Mock Interview</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div>
-            <p className="text-xs font-mono text-muted uppercase tracking-wider">Session ID</p>
-            <p className="font-mono text-sm mt-1">{sessionId}</p>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-medium mb-2">Interview Questions:</h4>
-            <ul className="list-decimal space-y-2 pl-5 text-sm">
-              {questions.map((q, i) => (
-                <li key={i} className="text-foreground leading-relaxed">
-                  {q}
-                </li>
-              ))}
+          <div className="space-y-2 text-sm text-muted">
+            <p>
+              You are about to start a live AI-powered mock interview with <strong>Aria</strong>,
+              your personal interview coach.
+            </p>
+            <ul className="list-inside list-disc space-y-1">
+              <li>Grant camera &amp; microphone access when prompted</li>
+              <li>Aria will conduct the interview in real time using your resume and target JD</li>
+              <li>The session is recorded for feedback — results appear at the end</li>
+              <li>Default duration: 20 minutes</li>
             </ul>
           </div>
 
-          <div className="pt-2">
-            <Button
-              className="w-full sm:w-auto"
-              onClick={() => router.push(`/interview/${sessionId}`)}
-            >
-              Start Interview
-            </Button>
-          </div>
+          {error && (
+            <div className="rounded border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+              {error}
+            </div>
+          )}
+
+          <Button
+            className="w-full"
+            onClick={handleStart}
+            disabled={starting}
+          >
+            {starting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Preparing your interview room...
+              </>
+            ) : (
+              "Start Interview with Aria"
+            )}
+          </Button>
         </CardContent>
       </Card>
     </div>

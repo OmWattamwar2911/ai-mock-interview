@@ -124,6 +124,9 @@ model InterviewSession {
   endedAt      DateTime?
   totalTimeSec Int?
   createdAt    DateTime      @default(now())
+  livekitRoom  String?  // name of the LiveKit room for this session
+  transcript   Json?    // full conversation transcript posted by bot
+  botSummary   Json?    // { overallScore, strengths, weaknesses, perQuestion }
 
   user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   resume     Resume            @relation(fields: [resumeId], references: [id])
@@ -134,6 +137,7 @@ model InterviewSession {
 
   @@index([userId, status])
 }
+
 
 model Assessment {
   id          String           @id @default(cuid())

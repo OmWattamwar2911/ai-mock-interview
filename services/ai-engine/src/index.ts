@@ -101,15 +101,56 @@ app.post("/v1/questions/generate", async (request, reply) => {
   }
 });
 
-app.post("/interview", async () => {
-  return {
-    sessionId: randomUUID(),
-    questions: [
-      "Can you describe a challenging technical architecture decision you made recently and what tradeoffs were involved?",
-      "How do you approach database schema design and concurrency control under high traffic?",
-      "Walk me through how you identify, isolate, and mitigate performance bottlenecks in production services.",
-    ],
-  };
+app.post("/v1/interview/generate", async (request, reply) => {
+  const body = z.object({ resume: z.unknown(), jd: z.unknown(), skillGap: z.unknown() }).safeParse(request.body);
+  if (!body.success) return reply.status(400).send(apiError("VALIDATION_ERROR", "Invalid payload"));
+
+  const provider = createLlmProvider();
+  if (!provider) return { questions: [] };
+
+  const schema = z.object({ questions: z.array(z.string()).min(3).max(6) });
+  try {
+    const prompt = `Based on this resume: ${JSON.stringify(body.data.resume)} 
+and this job description: ${JSON.stringify(body.data.jd)}, 
+and this skill gap analysis: ${JSON.stringify(body.data.skillGap)}, 
+generate 4 personalized interview questions (a mix of conceptual, behavioural, and role-specific).
+Make sure to emphasize the missing and partial skills in the skill gap for learning opportunities. 
+Return only an array of question strings.`;
+    return await completeJson(provider, schema, prompt);
+  } catch (err: any) {
+    app.log.error(err);
+    return { questions: [] };
+  }
+});
+
+app.post("/v1/interview/evaluate", async (request, reply) => {
+  const body = z.object({ question: z.string(), transcript: z.string() }).safeParse(request.body);
+  if (!body.success) return reply.status(400).send(apiError("VALIDATION_ERROR", "Invalid payload"));
+
+  const provider = createLlmProvider();
+  if (!provider) return { overallScore: 5, feedback: "Estimated score (AI disabled)." };
+
+  const schema = z.object({
+    clarity: z.number().min(1).max(10),
+    relevance: z.number().min(1).max(10),
+    starMethod: z.number().min(1).max(10),
+    confidence: z.number().min(1).max(10),
+    overallScore: z.number().min(1).max(10),
+    feedback: z.string()
+  });
+
+  try {
+    const prompt = `Evaluate the following candidate interview transcript for natural language confidence, clarity, relevance to the question, and usage of the STAR method (if it's a behavioral question).
+Question asked: "${body.data.question}"
+Candidate Transcript: "${body.data.transcript}"
+Do NOT assume visual body language or facial expressions. Rely strictly on text timing/pauses (if apparent) or linguistic confidence.
+Return the scores out of 10, and a concise constructive feedback string.`;
+    
+    return await completeJson(provider, schema, prompt);
+  } catch (err: any) {
+    app.log.error(err);
+    return { overallScore: 5, feedback: "Error during AI evaluation. Estimated score." };
+  }
 });
 
 try {

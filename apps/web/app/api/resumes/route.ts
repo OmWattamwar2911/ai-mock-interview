@@ -40,6 +40,12 @@ export async function POST(request: Request) {
 
   const buf = Buffer.from(await file.arrayBuffer());
   try {
+    // Guard: verify the user still exists in DB (stale JWT after a DB reset would cause FK error)
+    const userExists = await prisma.user.findUnique({ where: { id: user.id }, select: { id: true } });
+    if (!userExists) {
+      return jsonError(401, "USER_NOT_FOUND", "Your session is outdated. Please sign out and sign in again.");
+    }
+
     const payload = (await callAiEngine("/v1/parse/resume", {
       fileBase64: buf.toString("base64"),
       mime: file.type || "application/octet-stream",
@@ -59,6 +65,10 @@ export async function POST(request: Request) {
     await writeAudit(user.id, "resume.upload", { resumeId: resume.id });
     return jsonOk({ resume }, 201);
   } catch (err) {
+    // Don't leak raw Prisma messages — map FK violations to a friendly message
+    if (err instanceof Error && err.message.includes("Foreign key constraint")) {
+      return jsonError(401, "USER_NOT_FOUND", "Your session references a user that no longer exists. Please sign out and sign in again.");
+    }
     const message = err instanceof Error ? err.message : "Failed to parse resume";
     return jsonError(502, "UPSTREAM_ERROR", message);
   }

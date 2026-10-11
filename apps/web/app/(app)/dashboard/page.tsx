@@ -20,29 +20,41 @@ export default async function DashboardPage() {
   let jds: DashboardJobDescription[] = [];
   let sessions: DashboardSession[] = [];
 
+  let dbError: string | null = null;
+
   if (userId) {
-    [resumes, jds, sessions] = await Promise.all([
-      prisma.resume.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      }),
-      prisma.jobDescription.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      }),
-      prisma.interviewSession.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        include: { jd: { select: { title: true } } },
-      }),
-    ]);
+    try {
+      [resumes, jds, sessions] = await Promise.all([
+        prisma.resume.findMany({
+          where: { userId },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+        }),
+        prisma.jobDescription.findMany({
+          where: { userId },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+        }),
+        prisma.interviewSession.findMany({
+          where: { userId },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          include: { jd: { select: { title: true } } },
+        }),
+      ]);
+    } catch (err: any) {
+      console.error("[Dashboard] DB error:", err?.message ?? err);
+      dbError = "Could not connect to the database. Please ensure the database server is running and try again.";
+    }
   }
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
+      {dbError && (
+        <div className="rounded border border-border bg-surface px-4 py-3 text-sm text-muted">
+          <strong>Database unavailable:</strong> {dbError}
+        </div>
+      )}
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>

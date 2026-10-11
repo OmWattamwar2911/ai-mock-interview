@@ -11,3 +11,8 @@ playwright-report
 test-results
 apps/web/prisma/*.db
 powershell.cmd
+
+__pycache__/
+*.pyc
+venv/
+.venv/
