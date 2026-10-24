@@ -1,59 +1,71 @@
-import Link from "next/link";
-import { MarketingHeader } from "@/components/marketing-header";
+"use client";
+
+import { useEffect, useRef } from "react";
+import { SplashScreen } from "@/components/landing/SplashScreen";
+import { Navbar } from "@/components/landing/Navbar";
+import { Hero } from "@/components/landing/Hero";
+import { About } from "@/components/landing/About";
+import { Products } from "@/components/landing/Products";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { Faq } from "@/components/landing/Faq";
+import { Footer } from "@/components/landing/Footer";
 
 export default function HomePage() {
+  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  // Pause video when tab is hidden or off-screen for performance
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (!bgVideoRef.current) return;
+      if (document.hidden) {
+        bgVideoRef.current.pause();
+      } else {
+        bgVideoRef.current.play().catch(() => {});
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <MarketingHeader
-        extra={
-          <Link href="/login" className="text-sm text-muted hover:text-foreground">
-            Sign in
-          </Link>
-        }
-      />
-      <section className="relative overflow-hidden">
-        <div className="grid-dot pointer-events-none absolute inset-0" />
-        <div className="relative mx-auto flex max-w-3xl flex-col gap-6 px-6 py-24">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted">Mock interviews from your resume</p>
-          <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
-            Practice the interview you&apos;ll actually get.
-          </h1>
-          <p className="max-w-xl text-base leading-relaxed text-muted">
-            Upload a resume and a job description. Rehearse maps the skill gap, generates personalised questions, runs a
-            timed session with an in-browser compiler, and scores every answer.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/register"
-              className="inline-flex h-10 items-center justify-center rounded bg-accent px-4 text-sm font-medium text-background transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
-            >
-              Get started
-            </Link>
-            <Link
-              href="#how"
-              className="inline-flex h-10 items-center justify-center rounded border border-border-strong px-4 text-sm font-medium transition-colors hover:bg-elevated focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
-            >
-              How it works
-            </Link>
-          </div>
-        </div>
-      </section>
-      <section id="how" className="mx-auto w-full max-w-4xl px-6 pb-24">
-        <ol className="grid gap-4 border-t border-border pt-10 sm:grid-cols-2">
-          {[
-            ["01", "Parse", "Resume and JD become editable skill chips."],
-            ["02", "Gap", "Matched, partial, and missing skills with a written summary."],
-            ["03", "Interview", "Timed conceptual, behavioural, and coding questions."],
-            ["04", "Report", "Rubric scores, compiler results, and an improvement plan."],
-          ].map(([n, title, copy]) => (
-            <li key={n} className="rounded border border-border bg-surface p-5">
-              <p className="font-mono text-xs text-muted">{n}</p>
-              <h2 className="mt-2 text-lg font-medium">{title}</h2>
-              <p className="mt-2 text-sm text-muted">{copy}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
+    <div className="relative w-full overflow-x-hidden selection:bg-[#F64302] selection:text-white">
+      {/* ── Fixed Background Video Layer ───────────────────────────────────── */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <video
+          ref={bgVideoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/assets/rehearse/hero-poster.webp"
+          className="h-full w-full object-cover"
+        >
+          <source src="/assets/rehearse/hero-atmosphere.mp4" type="video/mp4" />
+        </video>
+        {/* Absolute 30% black veil overlay */}
+        <div className="absolute inset-0 bg-black/30" />
+      </div>
+
+      {/* ── Splash Screen (SessionStorage once-only) ───────────────────────── */}
+      <SplashScreen />
+
+      {/* ── Fixed Navigation Bar ─────────────────────────────────────────── */}
+      <Navbar />
+
+      {/* ── Landing Sections (relative z-10) ──────────────────────────────── */}
+      <main className="relative z-10">
+        <Hero />
+        <About />
+        <Products />
+        <HowItWorks />
+        <Faq />
+      </main>
+
+      {/* ── Minimal Black Footer ─────────────────────────────────────────── */}
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </div>
   );
 }

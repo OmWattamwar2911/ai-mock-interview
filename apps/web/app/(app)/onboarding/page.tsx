@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CheckCircle2, FileText, UploadCloud } from "lucide-react";
+import { ArrowRight, CheckCircle2, FileText, UploadCloud, ChevronRight } from "lucide-react";
 import type { JdParsed, ResumeParsed, SkillGapResponse } from "@rehearse/shared";
 import { Button } from "@/components/ui/button";
 import { ChipList } from "@/components/chip-list";
@@ -134,31 +134,73 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl py-2">
-      <h1 className="text-3xl font-semibold tracking-tight">Prepare your interview</h1>
-      <p className="mt-2 text-sm text-muted">Upload a resume, add a job description, then review the skill gap.</p>
-      <div className="mt-4 flex items-center gap-2 text-sm text-muted">
-        <span className={step >= 1 ? "font-medium text-foreground" : ""}>1. Resume</span>
-        <ArrowRight className="h-4 w-4" />
-        <span className={step >= 2 ? "font-medium text-foreground" : ""}>2. Job description</span>
-        <ArrowRight className="h-4 w-4" />
-        <span className={step >= 3 ? "font-medium text-foreground" : ""}>3. Review</span>
-        <ArrowRight className="h-4 w-4" />
-        <span className={step >= 4 ? "font-medium text-foreground" : ""}>4. Gap</span>
+    <div className="space-y-3 font-mono">
+      {/* Header Banner */}
+      <div className="p-5 sm:p-6 rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/5 dark:border-white/10">
+        <div className="flex items-center gap-2">
+          <span className="font-bubbledot text-xs text-[#F64302] tracking-wider uppercase">01 / PREPARATION</span>
+          <span className="h-1.5 w-1.5 rounded-full bg-[#F64302] animate-pulse" />
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-bubbledot font-bold tracking-tight text-foreground mt-1">
+          SKILL GAP ONBOARDING
+        </h1>
+        <p className="text-xs text-muted-foreground mt-1">
+          Ingest resume and target job description to build an adaptive question bank.
+        </p>
+
+        {/* Step indicator */}
+        <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-black/5 dark:border-white/10 text-xs">
+          {[
+            { num: "01", label: "Resume" },
+            { num: "02", label: "Job Description" },
+            { num: "03", label: "Skill Chips" },
+            { num: "04", label: "Gap Matrix" },
+          ].map((s, idx) => {
+            const stepNum = idx + 1;
+            const active = step >= stepNum;
+            const current = step === stepNum;
+            return (
+              <div key={s.num} className="flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono transition-colors ${
+                    current
+                      ? "bg-[#F64302] text-white font-bold"
+                      : active
+                      ? "bg-black/10 dark:bg-white/10 text-foreground font-semibold"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  <span className="font-bubbledot">{s.num}</span> {s.label}
+                </span>
+                {idx < 3 && <ChevronRight className="h-3 w-3 text-muted-foreground" />}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="relative mt-8 overflow-hidden rounded border border-border bg-surface p-6">
-        {step === 1 ? <div className="grid-dot pointer-events-none absolute inset-0" /> : null}
-        {error ? <div className="relative mb-6 rounded border border-border-strong p-4 text-sm">{error}</div> : null}
+      {/* Main Form Card */}
+      <div className="rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/5 dark:border-white/10 p-5 sm:p-6 shadow-sm">
+        {error ? (
+          <div className="mb-4 rounded-xl border border-[#F64302]/30 bg-[#F64302]/10 p-3 text-xs text-[#F64302]">
+            {error}
+          </div>
+        ) : null}
 
         {step === 1 && (
-          <div className="relative space-y-6">
+          <div className="space-y-4">
             <div>
-              <h2 className="text-xl font-medium">Upload your resume</h2>
-              <p className="mt-1 text-sm text-muted">PDF, DOCX, or TXT. Max 5MB.</p>
+              <span className="font-bubbledot text-xs text-[#F64302]">STEP 01</span>
+              <h2 className="text-lg font-bold uppercase tracking-tight text-foreground">Upload Candidate Resume</h2>
+              <p className="text-xs text-muted-foreground">Supported: PDF, DOCX, TXT (Maximum 5MB). Parser extracts skills and projects.</p>
             </div>
+
             <label
-              className={`flex cursor-pointer flex-col items-center justify-center rounded border border-dashed border-border-strong p-12 transition-colors duration-200 hover:bg-elevated ${dragOver ? "bg-elevated" : ""}`}
+              className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 transition-all duration-200 ${
+                dragOver
+                  ? "border-[#F64302] bg-[#F64302]/5"
+                  : "border-black/15 dark:border-white/15 bg-white/40 dark:bg-black/30 hover:border-[#F64302]/60 hover:bg-white/60 dark:hover:bg-black/50"
+              }`}
               onDragOver={(e) => {
                 e.preventDefault();
                 setDragOver(true);
@@ -171,8 +213,13 @@ export default function OnboardingPage() {
                 if (file) void uploadResume(file);
               }}
             >
-              <UploadCloud className="mb-4 h-10 w-10 text-muted" />
-              <span className="font-medium">Drop a file or click to browse</span>
+              <div className="h-12 w-12 rounded-xl bg-[#F64302]/10 text-[#F64302] flex items-center justify-center mb-3">
+                <UploadCloud className="h-6 w-6" />
+              </div>
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-foreground">
+                Drop file here or click to browse
+              </span>
+              <span className="text-[11px] text-muted-foreground mt-1">Parses skills, work experience, and educational background</span>
               <input
                 type="file"
                 className="hidden"
@@ -184,28 +231,38 @@ export default function OnboardingPage() {
                 disabled={loading}
               />
             </label>
-            {loading ? <p className="text-center font-mono text-sm text-muted">Parsing resume…</p> : null}
+            {loading ? <p className="text-center font-mono text-xs text-[#F64302] animate-pulse">Parsing and extracting resume entities…</p> : null}
           </div>
         )}
 
         {step === 2 && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
-              <h2 className="text-xl font-medium">Add the job description</h2>
-              <p className="mt-1 text-sm text-muted">Paste text or upload a file. Saved JDs can be reused later.</p>
+              <span className="font-bubbledot text-xs text-[#F64302]">STEP 02</span>
+              <h2 className="text-lg font-bold uppercase tracking-tight text-foreground">Target Job Description</h2>
+              <p className="text-xs text-muted-foreground">Paste job description text or upload vacancy document.</p>
             </div>
-            <Input placeholder="Role title (optional)" value={jdTitle} onChange={(e) => setJdTitle(e.target.value)} />
+
+            <Input
+              className="rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 font-mono text-xs"
+              placeholder="Role title (e.g. Senior Backend Engineer - Python)"
+              value={jdTitle}
+              onChange={(e) => setJdTitle(e.target.value)}
+            />
             <Textarea
-              className="h-56"
-              placeholder="Paste job description here…"
+              className="h-48 rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 font-mono text-xs resize-none"
+              placeholder="Paste complete job specification, responsibilities, and qualifications here…"
               value={jdText}
               onChange={(e) => setJdText(e.target.value)}
               disabled={loading}
             />
-            <label className="block text-sm text-muted">
-              Or upload a JD file
+
+            <div className="space-y-1">
+              <label className="block text-[11px] uppercase tracking-wider text-muted-foreground">
+                Or upload JD document
+              </label>
               <Input
-                className="mt-2"
+                className="rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 font-mono text-xs"
                 type="file"
                 accept=".pdf,.docx,.txt"
                 onChange={(e) => {
@@ -213,34 +270,46 @@ export default function OnboardingPage() {
                   if (file) void uploadJdFile(file);
                 }}
               />
-            </label>
-            <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setStep(1)} disabled={loading}>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                className="rounded-xl font-mono text-xs"
+                onClick={() => setStep(1)}
+                disabled={loading}
+              >
                 Back
               </Button>
-              <Button onClick={() => void submitJd()} disabled={loading || jdText.trim().length < 20}>
-                {loading ? "Parsing…" : "Next"}
+              <Button
+                className="rounded-xl bg-[#F64302] hover:bg-[#d93800] text-white font-mono text-xs font-bold uppercase tracking-wider"
+                onClick={() => void submitJd()}
+                disabled={loading || jdText.trim().length < 20}
+              >
+                {loading ? "Parsing JD…" : "Extract Requirements →"}
               </Button>
             </div>
           </div>
         )}
 
         {step === 3 && resumeParsed && jdParsed && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
-              <h2 className="text-xl font-medium">Review extracted chips</h2>
-              <p className="mt-1 text-sm text-muted">Add or remove skills before the gap analysis.</p>
+              <span className="font-bubbledot text-xs text-[#F64302]">STEP 03</span>
+              <h2 className="text-lg font-bold uppercase tracking-tight text-foreground">Verify Extracted Skill Chips</h2>
+              <p className="text-xs text-muted-foreground">Review and edit candidate vs role attributes before computing gap.</p>
             </div>
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-3">
-                <h3 className="flex items-center gap-2 font-medium">
-                  <FileText className="h-4 w-4" /> Your skills
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-3 p-4 rounded-xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-black/30">
+                <h3 className="flex items-center gap-2 text-xs font-bold uppercase text-foreground">
+                  <FileText className="h-4 w-4 text-[#F64302]" /> Candidate Skill Profile
                 </h3>
                 <ChipList
                   values={resumeParsed.skills}
                   onChange={(skills) => setResumeParsed({ ...resumeParsed, skills })}
                 />
-                <p className="text-xs uppercase tracking-wide text-muted">Experience</p>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground pt-2">Experience Highlights</p>
                 <ChipList
                   values={experienceChips}
                   onChange={(chips) =>
@@ -254,104 +323,100 @@ export default function OnboardingPage() {
                   }
                   placeholder="Title @ Company"
                 />
-                <p className="text-xs uppercase tracking-wide text-muted">Education</p>
-                <ChipList
-                  values={educationChips}
-                  onChange={(chips) =>
-                    setResumeParsed({
-                      ...resumeParsed,
-                      education: chips.map((chip) => {
-                        const [degree, school] = chip.split(", ");
-                        return { degree: degree ?? chip, school: school ?? "" };
-                      }),
-                    })
-                  }
-                  placeholder="Degree, School"
-                />
               </div>
-              <div className="space-y-3">
-                <h3 className="flex items-center gap-2 font-medium">
-                  <FileText className="h-4 w-4" /> Required skills
+
+              <div className="space-y-3 p-4 rounded-xl border border-black/5 dark:border-white/10 bg-white/50 dark:bg-black/30">
+                <h3 className="flex items-center gap-2 text-xs font-bold uppercase text-foreground">
+                  <FileText className="h-4 w-4 text-[#F64302]" /> Target Role Requirements
                 </h3>
                 <ChipList
                   values={jdParsed.requiredSkills}
                   onChange={(requiredSkills) => setJdParsed({ ...jdParsed, requiredSkills })}
                 />
-                <p className="text-xs uppercase tracking-wide text-muted">Preferred</p>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground pt-2">Preferred Additional Skills</p>
                 <ChipList
                   values={jdParsed.preferredSkills}
                   onChange={(preferredSkills) => setJdParsed({ ...jdParsed, preferredSkills })}
                 />
               </div>
             </div>
-            <div className="flex justify-end gap-3 pt-2">
-              <Button variant="outline" onClick={() => setStep(2)} disabled={loading}>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" className="rounded-xl font-mono text-xs" onClick={() => setStep(2)} disabled={loading}>
                 Back
               </Button>
-              <Button onClick={() => void analyze()} disabled={loading}>
-                {loading ? "Analyzing…" : "Analyze skill gap"}
+              <Button
+                className="rounded-xl bg-[#F64302] hover:bg-[#d93800] text-white font-mono text-xs font-bold uppercase tracking-wider"
+                onClick={() => void analyze()}
+                disabled={loading}
+              >
+                {loading ? "Computing Matrix…" : "Compute Skill Gap →"}
               </Button>
             </div>
           </div>
         )}
 
         {step === 4 && gap && (
-          <div className="space-y-8">
-            <div className="space-y-2 text-center">
-              <div className="mb-2 inline-flex h-16 w-16 items-center justify-center rounded-full border border-foreground bg-elevated">
-                <span className="font-mono text-2xl">{gap.matchScore}%</span>
+          <div className="space-y-6">
+            <div className="text-center space-y-2 py-4">
+              <div className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-black text-white border-2 border-[#F64302] shadow-xl">
+                <span className="font-bubbledot text-3xl font-bold text-[#F64302]">{gap.matchScore}%</span>
               </div>
-              <h2 className="text-2xl font-medium">Match score</h2>
-              <p className="mx-auto max-w-lg text-muted">{gap.narrative}</p>
+              <h2 className="font-bubbledot text-xl font-bold uppercase tracking-tight text-foreground">
+                MATCH SCORE EVALUATION
+              </h2>
+              <p className="mx-auto max-w-lg text-xs text-muted-foreground">{gap.narrative}</p>
             </div>
-            <div className="grid gap-4 text-sm md:grid-cols-3">
-              <div className="space-y-3 rounded border border-border bg-background p-4">
-                <div className="flex items-center gap-2 font-medium">
-                  <CheckCircle2 className="h-4 w-4 fill-foreground text-background" />
+
+            <div className="grid gap-2.5 md:grid-cols-3 text-xs">
+              <div className="rounded-xl border border-black/5 dark:border-white/10 bg-white/60 dark:bg-black/40 p-4 space-y-2">
+                <div className="flex items-center gap-2 font-bold uppercase text-foreground">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                   Matched ({gap.matched.length})
                 </div>
-                <ul className="space-y-1 text-muted">
+                <ul className="space-y-1 text-muted-foreground">
                   {gap.matched.map((s) => (
-                    <li key={s}>{s}</li>
+                    <li key={s} className="truncate">• {s}</li>
                   ))}
                 </ul>
               </div>
-              <div className="space-y-3 rounded border border-border bg-background p-4">
-                <div className="flex items-center gap-2 font-medium">
-                  <span className="inline-block h-4 w-4 rounded-full border-2 border-muted" />
+
+              <div className="rounded-xl border border-black/5 dark:border-white/10 bg-white/60 dark:bg-black/40 p-4 space-y-2">
+                <div className="flex items-center gap-2 font-bold uppercase text-[#F64302]">
+                  <span className="h-3 w-3 rounded-full border-2 border-[#F64302]" />
                   Missing ({gap.missing.length})
                 </div>
-                <ul className="space-y-1 text-muted">
+                <ul className="space-y-1 text-muted-foreground">
                   {gap.missing.map((s) => (
-                    <li key={s}>{s}</li>
+                    <li key={s} className="truncate">• {s}</li>
                   ))}
                 </ul>
               </div>
-              <div className="space-y-3 rounded border border-border bg-background p-4">
-                <div className="flex items-center gap-2 font-medium">
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border-2 border-foreground">
-                    <span className="h-1.5 w-1.5 rounded-full bg-foreground" />
-                  </span>
+
+              <div className="rounded-xl border border-black/5 dark:border-white/10 bg-white/60 dark:bg-black/40 p-4 space-y-2">
+                <div className="flex items-center gap-2 font-bold uppercase text-amber-500">
+                  <span className="h-3 w-3 rounded-full bg-amber-500/20 border border-amber-500" />
                   Partial ({gap.partial.length})
                 </div>
-                <ul className="space-y-1 text-muted">
+                <ul className="space-y-1 text-muted-foreground">
                   {gap.partial.map((s) => (
-                    <li key={s}>{s}</li>
+                    <li key={s} className="truncate">• {s}</li>
                   ))}
                 </ul>
               </div>
             </div>
-            <div className="flex justify-end gap-3 pt-2">
-              <Button variant="outline" onClick={() => router.push("/documents")}>
-                Saved documents
+
+            <div className="flex flex-wrap justify-end gap-2 pt-2">
+              <Button variant="outline" className="rounded-xl font-mono text-xs" onClick={() => router.push("/documents")}>
+                Saved Documents
               </Button>
-              <Button onClick={() => router.push("/dashboard")} className="gap-2">
-                Go to dashboard <ArrowRight className="h-4 w-4" />
+              <Button
+                className="rounded-xl bg-[#F64302] hover:bg-[#d93800] text-white font-mono text-xs font-bold uppercase tracking-wider gap-2"
+                onClick={() => router.push("/dashboard")}
+              >
+                Go to Candidate Dashboard <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-center text-xs text-muted">
-              Interview question generation is the next step after this onboarding flow.
-            </p>
           </div>
         )}
       </div>

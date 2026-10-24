@@ -68,9 +68,9 @@ function AriaAvatar({
 
   if (speaking) {
     statusText = "Speaking";
-    statusColor = "text-violet-400 font-semibold";
+    statusColor = "text-[#F64302] font-semibold";
     ringClasses =
-      "border-violet-500 shadow-[0_0_30px_rgba(139,92,246,0.6)] ring-4 ring-violet-500/30 animate-pulse motion-reduce:animate-none motion-reduce:ring-4";
+      "border-[#F64302] shadow-[0_0_30px_rgba(246,67,2,0.6)] ring-4 ring-[#F64302]/30 animate-pulse motion-reduce:animate-none motion-reduce:ring-4";
   } else if (thinking) {
     statusText = "Thinking...";
     statusColor = "text-amber-400 font-semibold";
@@ -105,8 +105,8 @@ function AriaAvatar({
       >
         {speaking && (
           <>
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-500/20 motion-reduce:hidden" />
-            <span className="absolute inline-flex h-3/4 w-3/4 animate-ping rounded-full bg-violet-500/10 delay-150 motion-reduce:hidden" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#F64302]/20 motion-reduce:hidden" />
+            <span className="absolute inline-flex h-3/4 w-3/4 animate-ping rounded-full bg-[#F64302]/10 delay-150 motion-reduce:hidden" />
           </>
         )}
         {thinking && (
@@ -126,7 +126,7 @@ function AriaAvatar({
           <span
             className={`inline-block h-2 w-2 rounded-full ${
               speaking
-                ? "bg-violet-400 animate-pulse motion-reduce:animate-none"
+                ? "bg-[#F64302] animate-pulse motion-reduce:animate-none"
                 : thinking
                 ? "bg-amber-400 animate-bounce motion-reduce:animate-none"
                 : "bg-muted/60"
@@ -153,11 +153,11 @@ function CandidateTile({
   }).filter((t) => t.participant.identity === localParticipant?.identity);
 
   const ringClasses = speaking
-    ? "border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.55)] ring-4 ring-emerald-500/30 animate-pulse motion-reduce:animate-none motion-reduce:ring-4"
+    ? "border-white shadow-[0_0_25px_rgba(255,255,255,0.6)] ring-4 ring-white/30 animate-pulse motion-reduce:animate-none motion-reduce:ring-4"
     : "border-border shadow-none";
 
   const statusLabel = speaking ? "Speaking" : "Listening";
-  const statusColor = speaking ? "text-emerald-400 font-semibold" : "text-muted";
+  const statusColor = speaking ? "text-white font-semibold" : "text-muted";
 
   if (!tracks.length) {
     return (
@@ -176,7 +176,7 @@ function CandidateTile({
           <div className="flex items-center justify-center gap-1.5 mt-2">
             <span
               className={`inline-block h-2 w-2 rounded-full ${
-                speaking ? "bg-emerald-400 animate-pulse motion-reduce:animate-none" : "bg-muted/60"
+                speaking ? "bg-white animate-pulse shadow-[0_0_8px_white] motion-reduce:animate-none" : "bg-muted/60"
               }`}
             />
             <span className={`text-xs font-mono ${statusColor}`}>You ({statusLabel})</span>
@@ -209,7 +209,7 @@ function CandidateTile({
         <div className="flex items-center justify-center gap-1.5 mt-2">
           <span
             className={`inline-block h-2 w-2 rounded-full ${
-              speaking ? "bg-emerald-400 animate-pulse motion-reduce:animate-none" : "bg-muted/60"
+              speaking ? "bg-white animate-pulse shadow-[0_0_8px_white] motion-reduce:animate-none" : "bg-muted/60"
             }`}
           />
           <span className={`text-xs font-mono ${statusColor}`}>You ({statusLabel})</span>
@@ -331,22 +331,22 @@ function LiveTranscriptPanel({
             return (
               <div
                 key={item.id}
-                className={`rounded-lg p-2.5 transition-all ${
+                className={`rounded-xl p-3 transition-all ${
                   hintMatch
-                    ? "bg-purple-500/10 border border-purple-500/30 mr-4"
+                    ? "bg-[#F64302]/15 border border-[#F64302]/40 mr-4"
                     : isBot
-                    ? "bg-violet-500/5 border border-violet-500/20 mr-4"
-                    : "bg-emerald-500/5 border border-emerald-500/20 ml-4 text-foreground"
+                    ? "bg-[#F64302]/10 border border-[#F64302]/25 mr-4"
+                    : "bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/20 ml-4 text-foreground"
                 } ${item.isInterim ? "opacity-75 italic" : ""}`}
               >
                 <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider mb-1">
                   <div className="flex items-center gap-1.5">
                     {hintMatch ? (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono text-[9px] font-bold border border-purple-500/40">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#F64302]/20 text-[#F64302] font-mono text-[9px] font-bold border border-[#F64302]/40">
                         <Sparkles className="h-2.5 w-2.5" /> Hint Level {hintMatch[1]}
                       </span>
                     ) : (
-                      <span className={isBot ? "text-violet-400 font-bold" : "text-emerald-400 font-bold"}>
+                      <span className={isBot ? "text-[#F64302] font-bold" : "text-foreground font-bold"}>
                         {item.name}
                       </span>
                     )}

@@ -1,7 +1,6 @@
 import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   CheckCircle2,
   AlertTriangle,
@@ -12,7 +11,9 @@ import {
   Award,
   Sparkles,
   Quote,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 import { ReportStatusChecker } from "./report-status-checker";
 
 function getVerdictBadge(verdict: string) {
@@ -20,24 +21,24 @@ function getVerdictBadge(verdict: string) {
   if (v.includes("strong hire")) {
     return {
       label: "Strong Hire",
-      className: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+      className: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30",
     };
   }
   if (v.includes("lean hire")) {
     return {
       label: "Lean Hire",
-      className: "bg-teal-500/15 text-teal-400 border-teal-500/30",
+      className: "bg-[#F64302]/15 text-[#F64302] border-[#F64302]/30",
     };
   }
   if (v.includes("no hire") || v.includes("needs practice") || v.includes("failed")) {
     return {
       label: "Needs Practice",
-      className: "bg-rose-500/15 text-rose-400 border-rose-500/30",
+      className: "bg-rose-500/15 text-rose-500 border-rose-500/30",
     };
   }
   return {
     label: "Hire",
-    className: "bg-primary/15 text-primary border-primary/30",
+    className: "bg-[#F64302]/15 text-[#F64302] border-[#F64302]/30",
   };
 }
 
@@ -131,83 +132,91 @@ export default async function InterviewReportPage({ params }: { params: { sessio
   ];
 
   return (
-    <div className="mx-auto max-w-5xl py-8 px-4 space-y-8">
-      {/* Header with Title & Verdict */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-6">
+    <div className="space-y-3 font-mono">
+      {/* Top Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 sm:p-6 rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/5 dark:border-white/10">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-extrabold tracking-tight">Interview Evaluation Report</h1>
-            <span
-              className={`text-xs font-semibold px-3 py-1 rounded-full border ${verdictInfo.className}`}
-            >
+          <div className="flex items-center gap-2">
+            <span className="font-bubbledot text-xs text-[#F64302] tracking-wider uppercase">01 / EVALUATION</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#F64302] animate-pulse" />
+          </div>
+          <div className="flex items-center gap-3 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bubbledot font-bold tracking-tight text-foreground">
+              PERFORMANCE AUDIT
+            </h1>
+            <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${verdictInfo.className}`}>
               {verdictInfo.label}
             </span>
           </div>
-          <p className="text-xs text-muted font-mono mt-1">Session ID: {params.sessionId}</p>
+          <p className="text-xs text-muted-foreground mt-1 font-mono">
+            Session: <span className="text-foreground">{params.sessionId}</span>
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="text-right">
-            <p className="text-xs text-muted uppercase font-mono tracking-wider">Candidate Score</p>
-            <p className="text-2xl font-bold font-mono text-primary">{score100} / 100</p>
-          </div>
+
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard"
+            className="h-10 px-4 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-[#F64302] hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+          >
+            ← Candidate Dashboard
+          </Link>
         </div>
       </div>
 
-      {/* Main Scorecard Overview */}
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Score Ring / Hero Card */}
-        <Card className="md:col-span-1 flex flex-col justify-between border-primary/20 bg-gradient-to-b from-primary/5 to-surface">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted flex items-center gap-2">
-              <Award className="h-4 w-4 text-primary" /> Overall Performance
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center py-6 text-center">
-            <div className="relative flex items-center justify-center w-36 h-36 rounded-full border-4 border-primary/30 bg-surface shadow-inner">
-              <div className="text-center">
-                <span className="text-4xl font-extrabold font-mono text-primary">{score100}</span>
-                <span className="block text-xs text-muted font-mono">/ 100</span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <p className="text-sm font-semibold">{verdictInfo.label}</p>
-              <p className="text-xs text-muted mt-0.5">
-                {score100 >= 80
-                  ? "Exceeded performance standards across core competencies."
-                  : score100 >= 65
-                  ? "Demonstrated solid foundation with specific improvement areas."
-                  : "Additional targeted practice recommended before next round."}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Main Scorecard Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5">
+        {/* Score Ring Hero (4 cols) */}
+        <div className="md:col-span-4 rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/5 dark:border-white/10 p-6 flex flex-col items-center justify-between text-center space-y-4">
+          <span className="text-[10px] tracking-wider text-muted-foreground uppercase self-start">
+            AGGREGATE SCORE
+          </span>
 
-        {/* 8 Competency Breakdown Progress Bars */}
-        <Card className="md:col-span-2">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" /> Competency Breakdown (Score / 10)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3.5">
+          <div className="relative flex items-center justify-center w-40 h-40 rounded-full border-4 border-[#F64302] bg-black text-white shadow-xl shadow-[#F64302]/10">
+            <div className="text-center">
+              <span className="font-bubbledot text-5xl font-bold text-[#F64302]">{score100}</span>
+              <span className="block text-[11px] text-white/60 font-mono tracking-widest mt-1">/ 100</span>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-sm font-bold uppercase tracking-wide text-foreground">{verdictInfo.label}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {score100 >= 80
+                ? "Exceeded performance benchmarks across core evaluation vectors."
+                : score100 >= 65
+                ? "Solid candidate baseline with targeted opportunities for improvement."
+                : "Additional practice recommended before corporate interview round."}
+            </p>
+          </div>
+        </div>
+
+        {/* 8 Competency Breakdown Progress Bars (8 cols) */}
+        <div className="md:col-span-8 rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/5 dark:border-white/10 p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="font-bubbledot text-xs text-[#F64302]">02</span>
+              <h2 className="text-sm font-bold uppercase tracking-wider text-foreground">
+                Competency Breakdown
+              </h2>
+            </div>
+            <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Base 10.0</span>
+          </div>
+
+          <div className="space-y-3">
             {standardCategories.map((cat) => {
               const pct = Math.min(100, Math.max(0, cat.score * 10));
               return (
                 <div key={cat.key} className="space-y-1">
                   <div className="flex justify-between text-xs">
                     <span className="font-medium text-foreground">{cat.label}</span>
-                    <span className="font-mono font-semibold text-muted">
+                    <span className="font-bubbledot text-xs font-bold text-[#F64302]">
                       {cat.score.toFixed(1)} <span className="text-[10px] opacity-60">/ 10</span>
                     </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-muted/30 overflow-hidden">
+                  <div className="h-2 w-full rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
-                        pct >= 80
-                          ? "bg-emerald-500"
-                          : pct >= 65
-                          ? "bg-primary"
-                          : "bg-amber-500"
+                        pct >= 80 ? "bg-emerald-500" : pct >= 65 ? "bg-[#F64302]" : "bg-amber-500"
                       }`}
                       style={{ width: `${pct}%` }}
                     />
@@ -215,231 +224,180 @@ export default async function InterviewReportPage({ params }: { params: { sessio
                 </div>
               );
             })}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Top Strengths and Areas for Growth */}
-      <div className="grid md:grid-cols-2 gap-6">
+      {/* Strengths and Growth Areas (Bento Row 2) */}
+      <div className="grid md:grid-cols-2 gap-2.5">
         {/* Strengths */}
-        <Card className="border-emerald-500/20 bg-emerald-500/[0.02]">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold text-emerald-400 flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5" /> Top Key Strengths
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm">
-            {strengths && strengths.length > 0 ? (
-              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
-                {strengths.map((s, i) => (
-                  <li key={i} className="leading-relaxed">
-                    <span className="text-foreground font-medium">{s}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-muted">Clear communication and active listening.</p>
-            )}
-          </CardContent>
-        </Card>
+        <div className="rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/5 dark:border-white/10 p-5 space-y-3">
+          <div className="flex items-center gap-2 text-emerald-500 border-b border-black/5 dark:border-white/10 pb-2.5">
+            <CheckCircle2 className="h-4 w-4" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Key Demonstrated Strengths</h3>
+          </div>
+          {strengths && strengths.length > 0 ? (
+            <ul className="space-y-2 text-xs text-muted-foreground">
+              {strengths.map((s, i) => (
+                <li key={i} className="leading-relaxed flex items-start gap-2">
+                  <span className="text-emerald-500 font-bold">•</span>
+                  <span className="text-foreground">{s}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-xs text-muted-foreground">Clear technical articulation and steady cadence.</p>
+          )}
+        </div>
 
         {/* Growth Areas */}
-        <Card className="border-amber-500/20 bg-amber-500/[0.02]">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold text-amber-400 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" /> Areas for Growth & Polish
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm">
-            {weaknesses && weaknesses.length > 0 ? (
-              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
-                {weaknesses.map((w, i) => (
-                  <li key={i} className="leading-relaxed">
-                    <span className="text-foreground font-medium">{w}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-muted">Include more measurable business metrics in STAR responses.</p>
-            )}
-          </CardContent>
-        </Card>
+        <div className="rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/5 dark:border-white/10 p-5 space-y-3">
+          <div className="flex items-center gap-2 text-[#F64302] border-b border-black/5 dark:border-white/10 pb-2.5">
+            <AlertTriangle className="h-4 w-4" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Targeted Areas for Growth</h3>
+          </div>
+          {weaknesses && weaknesses.length > 0 ? (
+            <ul className="space-y-2 text-xs text-muted-foreground">
+              {weaknesses.map((w, i) => (
+                <li key={i} className="leading-relaxed flex items-start gap-2">
+                  <span className="text-[#F64302] font-bold">•</span>
+                  <span className="text-foreground">{w}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-xs text-muted-foreground">Incorporate deeper edge case reasoning and complexity analysis.</p>
+          )}
+        </div>
       </div>
 
-      {/* Specific Candidate Quotes Supporting Assessment */}
+      {/* Supporting Candidate Quotes */}
       {quotesList.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Quote className="h-4 w-4 text-primary" /> Key Candidate Quotes & Observations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {quotesList.map((q, idx) => (
-                <div
-                  key={idx}
-                  className="rounded-lg border border-border/80 bg-muted/20 p-3.5 text-xs text-muted-foreground italic relative"
-                >
-                  <span className="text-primary font-serif text-lg leading-none absolute top-2 left-2">&ldquo;</span>
-                  <p className="pl-4 leading-relaxed">&ldquo;{q}&rdquo;</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/5 dark:border-white/10 p-5 space-y-3">
+          <div className="flex items-center gap-2 border-b border-black/5 dark:border-white/10 pb-2.5">
+            <Quote className="h-4 w-4 text-[#F64302]" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+              Supporting Spoken Utterances
+            </h3>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {quotesList.map((q, idx) => (
+              <div
+                key={idx}
+                className="rounded-xl border border-black/5 dark:border-white/10 bg-white/70 dark:bg-black/40 p-3.5 text-xs text-muted-foreground italic"
+              >
+                &ldquo;{q}&rdquo;
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Technical Round Execution / Code Analysis */}
       {testResults && (
-        <Card className="border-border/80">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <Code2 className="h-5 w-5 text-primary" /> Technical Coding Performance
+        <div className="rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/5 dark:border-white/10 p-5 space-y-4">
+          <div className="flex items-center justify-between border-b border-black/5 dark:border-white/10 pb-2.5">
+            <div className="flex items-center gap-2">
+              <Code2 className="h-4 w-4 text-[#F64302]" />
+              <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                Technical Execution Metrics
+              </h3>
+            </div>
+            {testResults.status && (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/10 dark:bg-white/10 text-foreground">
+                STATUS: {testResults.status}
               </span>
-              {testResults.status && (
-                <span className="text-xs font-mono font-medium px-2.5 py-0.5 rounded bg-muted">
-                  Status: {testResults.status}
-                </span>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-              <div className="p-3 rounded-lg border border-border bg-surface">
-                <div className="text-xs text-muted">Test Cases Passed</div>
-                <div className="text-xl font-bold font-mono text-primary mt-1">
-                  {testResults.passedCount ?? 0} / {testResults.totalCount ?? 0}
-                </div>
-              </div>
-              <div className="p-3 rounded-lg border border-border bg-surface">
-                <div className="text-xs text-muted">Code Language</div>
-                <div className="text-xl font-bold font-mono text-foreground mt-1 uppercase">
-                  {testResults.language || "Python"}
-                </div>
-              </div>
-              <div className="p-3 rounded-lg border border-border bg-surface">
-                <div className="text-xs text-muted">Hints Provided</div>
-                <div className="text-xl font-bold font-mono text-muted mt-1">
-                  {testResults.hintsGiven ?? 0}
-                </div>
-              </div>
-              <div className="p-3 rounded-lg border border-border bg-surface">
-                <div className="text-xs text-muted">Total Runs</div>
-                <div className="text-xl font-bold font-mono text-foreground mt-1">
-                  {testResults.runCount ?? 1}
-                </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+            <div className="p-3 rounded-xl border border-black/5 dark:border-white/10 bg-white/70 dark:bg-black/40">
+              <div className="text-[10px] text-muted-foreground uppercase">Tests Passed</div>
+              <div className="font-bubbledot text-xl font-bold text-[#F64302] mt-1">
+                {testResults.passedCount ?? 0} / {testResults.totalCount ?? 0}
               </div>
             </div>
-
-            {testResults.sourceCode && (
-              <div className="rounded-lg border border-border bg-black/60 p-3 font-mono text-xs overflow-x-auto text-emerald-400">
-                <p className="text-[10px] text-muted uppercase font-sans mb-1">Final Submitted Solution</p>
-                <pre>{testResults.sourceCode}</pre>
+            <div className="p-3 rounded-xl border border-black/5 dark:border-white/10 bg-white/70 dark:bg-black/40">
+              <div className="text-[10px] text-muted-foreground uppercase">Language</div>
+              <div className="font-mono text-sm font-bold text-foreground mt-2 uppercase">
+                {testResults.language || "Python"}
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+            </div>
+            <div className="p-3 rounded-xl border border-black/5 dark:border-white/10 bg-white/70 dark:bg-black/40">
+              <div className="text-[10px] text-muted-foreground uppercase">Hints Given</div>
+              <div className="font-bubbledot text-xl font-bold text-muted-foreground mt-1">
+                {testResults.hintsGiven ?? 0}
+              </div>
+            </div>
+            <div className="p-3 rounded-xl border border-black/5 dark:border-white/10 bg-white/70 dark:bg-black/40">
+              <div className="text-[10px] text-muted-foreground uppercase">Run Count</div>
+              <div className="font-bubbledot text-xl font-bold text-foreground mt-1">
+                {testResults.runCount ?? 1}
+              </div>
+            </div>
+          </div>
 
-      {/* Question-by-Question Deep Dive with Suggested Better Answers */}
-      {perQuestionBot.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold tracking-tight">Question-by-Question Analysis</h2>
-          {perQuestionBot.map((qItem: any, idx: number) => (
-            <Card key={idx} className="border-border">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <span className="font-semibold text-muted uppercase text-xs border border-border rounded px-2 py-0.5 font-mono">
-                      Q{idx + 1}
-                    </span>
-                    <span className="font-semibold text-foreground">
-                      {qItem.question || `Interview Question ${idx + 1}`}
-                    </span>
-                  </span>
-                  {qItem.score !== undefined && (
-                    <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-muted/50 border border-border">
-                      {qItem.score} / 10
-                    </span>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-xs leading-relaxed">
-                {qItem.summary && (
-                  <p className="text-muted-foreground">
-                    <strong className="text-foreground">Candidate Response:</strong> {qItem.summary}
-                  </p>
-                )}
-                {qItem.feedback && (
-                  <div className="p-3 rounded-lg border border-border/80 bg-muted/10 text-muted-foreground">
-                    <strong className="text-primary block mb-1">AI Evaluator Feedback:</strong>
-                    {qItem.feedback}
-                  </div>
-                )}
-                {qItem.suggestedAnswer && (
-                  <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 text-muted-foreground">
-                    <strong className="text-emerald-400 block mb-1">Recommended Model Answer:</strong>
-                    {qItem.suggestedAnswer}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+          {testResults.sourceCode && (
+            <div className="rounded-xl border border-black/10 dark:border-white/10 bg-black p-4 font-mono text-xs overflow-x-auto text-emerald-400">
+              <p className="text-[10px] text-white/50 uppercase font-mono mb-2">Final Submitted Code</p>
+              <pre>{testResults.sourceCode}</pre>
+            </div>
+          )}
         </div>
       )}
 
       {/* 7-Day Actionable Practice Plan */}
-      <Card className="border-blue-500/20 bg-blue-500/[0.02]">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold text-blue-400 flex items-center gap-2">
-            <Calendar className="h-5 w-5" /> 7-Day Targeted Practice Roadmap
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2.5">
-            {practicePlan.map((step, i) => (
-              <div key={i} className="flex items-start gap-3 text-xs text-muted-foreground">
-                <span className="flex-shrink-0 flex items-center justify-center h-5 w-5 rounded-full bg-blue-500/20 text-blue-400 font-mono text-[10px] font-bold">
-                  {i + 1}
-                </span>
-                <span className="leading-relaxed text-foreground">{step}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/5 dark:border-white/10 p-5 space-y-3">
+        <div className="flex items-center gap-2 border-b border-black/5 dark:border-white/10 pb-2.5">
+          <Calendar className="h-4 w-4 text-[#F64302]" />
+          <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+            7-Day Targeted Remediation Plan
+          </h3>
+        </div>
+        <div className="space-y-2">
+          {practicePlan.map((step, i) => (
+            <div key={i} className="flex items-start gap-3 text-xs text-muted-foreground p-2 rounded-lg bg-white/50 dark:bg-black/30">
+              <span className="font-bubbledot text-xs font-bold text-[#F64302] shrink-0">
+                DAY {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="leading-relaxed text-foreground">{step}</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Real-time Dialogue Transcript */}
       {transcript.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base font-semibold">
-              <MessageSquareQuote className="h-5 w-5 text-primary" /> Full Conversation Transcript
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+        <div className="rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/5 dark:border-white/10 p-5 space-y-3">
+          <div className="flex items-center gap-2 border-b border-black/5 dark:border-white/10 pb-2.5">
+            <MessageSquareQuote className="h-4 w-4 text-[#F64302]" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+              Transcript Archive
+            </h3>
+          </div>
+          <div className="space-y-2 max-h-[450px] overflow-y-auto pr-1">
             {transcript.map((msg, i) => (
               <div
                 key={i}
-                className={`p-3 rounded-lg text-xs leading-relaxed ${
+                className={`p-3 rounded-xl text-xs leading-relaxed ${
                   msg.role === "assistant" || msg.speaker === "bot"
-                    ? "bg-muted/30 border border-border mr-8"
-                    : "bg-primary/5 border border-primary/20 ml-8 text-foreground"
+                    ? "bg-[#F64302]/10 border border-[#F64302]/20 mr-8"
+                    : "bg-white/70 dark:bg-black/40 border border-black/5 dark:border-white/10 ml-8 text-foreground"
                 }`}
               >
-                <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-muted mb-1">
-                  <span>{msg.role === "assistant" || msg.speaker === "bot" ? "Aria (Interviewer)" : "Candidate"}</span>
+                <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider mb-1">
+                  <span className={msg.role === "assistant" || msg.speaker === "bot" ? "text-[#F64302] font-bold" : "text-foreground font-bold"}>
+                    {msg.role === "assistant" || msg.speaker === "bot" ? "Aria (Voice Agent)" : "Candidate"}
+                  </span>
                   {msg.timestamp && (
-                    <span className="font-mono text-muted/60">{msg.timestamp}</span>
+                    <span className="font-mono text-muted-foreground text-[9px]">{msg.timestamp}</span>
                   )}
                 </div>
                 <p className="whitespace-pre-wrap">{msg.text}</p>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   );

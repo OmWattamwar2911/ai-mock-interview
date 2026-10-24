@@ -34,30 +34,51 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-8 space-y-4">
-      <label className="block text-sm">
-        Email
-        <Input className="mt-1" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-      </label>
-      <label className="block text-sm">
-        Password
+    <form onSubmit={onSubmit} className="mt-6 space-y-4 font-mono">
+      <div className="space-y-1.5">
+        <label className="block text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+          Email Address
+        </label>
         <Input
-          className="mt-1"
+          className="rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-1 focus:ring-[#F64302] transition-colors"
+          type="email"
+          autoComplete="email"
+          placeholder="candidate@university.edu"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
+      <div className="space-y-1.5">
+        <label className="block text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+          Password
+        </label>
+        <Input
+          className="rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-1 focus:ring-[#F64302] transition-colors"
           type="password"
           autoComplete="current-password"
+          placeholder="••••••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-      </label>
-      {error ? <p className="text-sm text-muted">{error}</p> : null}
-      <Button type="submit" disabled={pending} className="w-full">
-        {pending ? "Signing in…" : "Sign in"}
+      </div>
+      {error ? (
+        <div className="rounded-xl bg-[#F64302]/10 border border-[#F64302]/20 p-2.5 text-xs text-[#F64302]">
+          {error}
+        </div>
+      ) : null}
+      <Button
+        type="submit"
+        disabled={pending}
+        className="w-full h-11 rounded-xl bg-[#F64302] hover:bg-[#d93800] text-white font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-md shadow-[#F64302]/20"
+      >
+        {pending ? "Authenticating…" : "Sign In to Rehearse →"}
       </Button>
-      <p className="text-sm text-muted">
-        No account?{" "}
-        <Link href="/register" className="underline">
-          Create one
+      <p className="pt-2 text-center text-xs text-muted-foreground font-mono">
+        New candidate?{" "}
+        <Link href="/register" className="text-foreground hover:text-[#F64302] underline transition-colors">
+          Register new account
         </Link>
       </p>
     </form>
