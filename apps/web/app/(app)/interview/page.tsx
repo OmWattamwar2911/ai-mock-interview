@@ -26,6 +26,7 @@ export default function InterviewPage() {
 
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -38,7 +39,11 @@ export default function InterviewPage() {
     setError(null);
     setStarting(true);
     try {
-      const res = await fetch("/api/interview/start", { method: "POST" });
+      const res = await fetch("/api/interview/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language: selectedLanguage }),
+      });
       const data = await res.json();
 
       if (!res.ok) {
@@ -84,6 +89,30 @@ export default function InterviewPage() {
               <li>The session is recorded for feedback — results appear at the end</li>
               <li>Default duration: 20 minutes</li>
             </ul>
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="interview-lang" className="text-xs font-semibold uppercase tracking-wider text-muted">
+              Interview Language
+            </label>
+            <select
+              id="interview-lang"
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            >
+              <option value="en">English (US / UK / Global)</option>
+              <option value="es">Spanish (Español)</option>
+              <option value="fr">French (Français)</option>
+              <option value="de">German (Deutsch)</option>
+              <option value="hi">Hindi (हिन्दी)</option>
+              <option value="zh">Mandarin Chinese (中文)</option>
+              <option value="ja">Japanese (日本語)</option>
+              <option value="pt">Portuguese (Português)</option>
+            </select>
+            <p className="text-[11px] text-muted">
+              Aria will greet you, conduct the conversation, ask questions, and evaluate your responses in this language.
+            </p>
           </div>
 
           {error && (

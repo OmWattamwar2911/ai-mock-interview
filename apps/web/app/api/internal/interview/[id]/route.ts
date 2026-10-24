@@ -6,7 +6,8 @@ import { safeDecrypt } from "@/lib/crypto";
 /** Shared-secret guard used by the bot worker */
 function requireBotSecret(request: NextRequest): boolean {
     const secret = request.headers.get("x-internal-secret");
-    return secret === process.env.INTERNAL_BOT_SECRET;
+    const expected = process.env.INTERNAL_BOT_SECRET || process.env.INTERNAL_API_KEY;
+    return Boolean(expected && secret === expected);
 }
 
 /**
@@ -41,6 +42,9 @@ export async function GET(
     return jsonOk({
         sessionId: session.id,
         config: session.config,
+        language: session.language,
+        codingProblem: session.codingProblem,
+        activeCode: session.activeCode,
         skillGap: session.skillGap,
         resume: {
             text: resumeText,

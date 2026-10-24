@@ -1,0 +1,158 @@
+{
+ "network": {
+  "dns_ms": 23.894299985840917,
+  "tcp_connect_ms": 14.286199933849275,
+  "tls_handshake_ms": 24.542299914173782
+ },
+ "stt": {
+  "impl": "FasterWhisperSTT(unknown)",
+  "rows": [
+   {
+    "sec": 2.002533100079745,
+    "audio_sec": 8.568,
+    "text": "Hi Arya, yes I am ready to start. I am a backend developer with three years of experience in Python and PostgreSQL."
+   },
+   {
+    "sec": 2.7943043999839574,
+    "audio_sec": 9.576,
+    "text": "I built a pizza ordering app with Flask and PostgreSQL. It served around 200 users and handled orders, payments, and live order tracking."
+   },
+   {
+    "sec": 2.016541099990718,
+    "audio_sec": 8.928,
+    "text": "For concurrency we use database transactions with row-level locking in post-grisql, so two users could not order the last pizza at the same time."
+   },
+   {
+    "sec": 2.167108600027859,
+    "audio_sec": 9.36,
+    "text": "When the connection pull saturated during the lunch peak, I introduced PG Bonsor and added indexes on the orders table, which cut wait time by about 80%."
+   },
+   {
+    "sec": 2.287477600038983,
+    "audio_sec": 9.888,
+    "text": "The main trade-off was consistency versus speed. I cached the menu and redis with a short expiry but always red stock levels directly from the database."
+   },
+   {
+    "sec": 1.789492000010796,
+    "audio_sec": 8.136,
+    "text": "I would say my biggest weakness is system design at larger scale because most of my projects so far had under a thousand daily active users."
+   },
+   {
+    "sec": 2.167456299997866,
+    "audio_sec": 10.992,
+    "text": "In a previous team we disagreed on using microservices. I proposed a modular monolith first, wrote a short design document, and the team agreed after a two week spike."
+   },
+   {
+    "sec": 2.6008920000167564,
+    "audio_sec": 8.712,
+    "text": "For testing I wrote unit tests with Pytist for the pricing rules, and integration tests that spin up a temporary post-gress QL container for the order flow."
+   }
+  ]
+ },
+ "tts": {
+  "impl": "EdgeTTS(edge-tts)",
+  "rows": [
+   {
+    "first_audio": 1.4260277999565005,
+    "total": 1.4857553999172524
+   },
+   {
+    "first_audio": 1.3931452000979334,
+    "total": 1.4900155001087114
+   },
+   {
+    "first_audio": 1.9559733999194577,
+    "total": 2.045541299972683
+   },
+   {
+    "first_audio": 1.594325099955313,
+    "total": 1.7012601000024006
+   },
+   {
+    "first_audio": 1.4341245000250638,
+    "total": 1.5276285000145435
+   },
+   {
+    "first_audio": 1.1340989000163972,
+    "total": 1.2010428999783471
+   },
+   {
+    "first_audio": 1.7670769999967888,
+    "total": 1.8454691000515595
+   },
+   {
+    "first_audio": 1.6201824999880046,
+    "total": 1.714787100092508
+   }
+  ]
+ },
+ "llm_actual_env_model": {
+  "model": "llama-3.3-70b-versatile",
+  "rows": [
+   {
+    "wall": 1.6031282999319956,
+    "ok": false,
+    "model_used": "none",
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "calls": 1
+   },
+   {
+    "wall": 0.7285948999924585,
+    "ok": false,
+    "model_used": "none",
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "calls": 1
+   },
+   {
+    "wall": 0.9145849000196904,
+    "ok": false,
+    "model_used": "none",
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "calls": 1
+   },
+   {
+    "wall": 0.761614799965173,
+    "ok": false,
+    "model_used": "none",
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "calls": 1
+   },
+   {
+    "wall": 0.7097271999809891,
+    "ok": false,
+    "model_used": "none",
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "calls": 1
+   },
+   {
+    "wall": 0.7060661000432447,
+    "ok": false,
+    "model_used": "none",
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "calls": 1
+   },
+   {
+    "wall": 0.7326661000261083,
+    "ok": false,
+    "model_used": "none",
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "calls": 1
+   },
+   {
+    "wall": 0.7303433999186382,
+    "ok": false,
+    "model_used": "none",
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "calls": 1
+   }
+  ]
+ }
+}

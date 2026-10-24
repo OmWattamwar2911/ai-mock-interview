@@ -2,9 +2,10 @@
 health_check.py – Verifies the local dev environment is ready.
 
 Checks:
-  1. LiveKit server is reachable at LIVEKIT_URL
-  2. Bot worker process can be imported without errors
-  3. (Optional) A test token can be generated
+  1. Core env vars and LLM provider configuration
+  2. Bot module imports
+  3. Groq Startup Self-Test
+  4. LiveKit server reachability
 
 Run: python health_check.py
 """
@@ -12,6 +13,12 @@ Run: python health_check.py
 import asyncio
 import os
 import sys
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 import aiohttp
 from dotenv import load_dotenv
 
@@ -24,7 +31,6 @@ async def check_livekit():
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
-                # LiveKit server returns 426 (Upgrade Required) on plain HTTP – that's expected
                 if resp.status in (200, 426):
                     print(f"  ✅ LiveKit server is reachable (HTTP {resp.status})")
                     return True
@@ -33,7 +39,7 @@ async def check_livekit():
                     return False
     except Exception as e:
         print(f"  ❌ LiveKit not reachable: {e}")
-        print("     → Run: docker compose up -d livekit")
+        print("     → Run: docker compose up -d rehearse-postgres livekit")
         return False
 
 
@@ -59,7 +65,22 @@ def check_env():
         print("     → Copy .env.example to .env and fill in values")
         return False
     profile = os.getenv("PROFILE", "cloud")
-    print(f"  ✅ Core env vars present | PROFILE={profile}")
+    provider = os.getenv("LLM_PROVIDER", "groq")
+    print(f"  ✅ Core env vars present | PROFILE={profile} | LLM_PROVIDER={provider}")
+    return True
+
+
+def check_llm_provider():
+    provider = os.getenv("LLM_PROVIDER", "groq").lower().strip()
+    print(f"  Checking LLM provider ({provider}) ...")
+    if provider == "groq":
+        from plugins.llm import run_groq_self_test
+        passed, msg, latency = run_groq_self_test()
+        if passed:
+            print(f"  ✅ Groq LLM Self-Test PASSED ({latency:.1f}ms): {msg}")
+        else:
+            print(f"  ⚠️ Groq LLM Self-Test reported: {msg}")
+            print("     (Agent will gracefully fall back to next available provider if unconfigured)")
     return True
 
 
@@ -68,6 +89,7 @@ async def main():
     results = [
         check_env(),
         check_imports(),
+        check_llm_provider(),
         await check_livekit(),
     ]
     print()

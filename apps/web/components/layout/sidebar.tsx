@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Settings, LogOut, TerminalSquare } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, LogOut, TerminalSquare, Sparkles, Code2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut } from "next-auth/react";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "ATS Resume Analyzer", href: "/resume-analyzer", icon: Sparkles },
+  { name: "OA Practice", href: "/oa", icon: Code2 },
   { name: "Resumes & JDs", href: "/documents", icon: FileText },
   { name: "Interview", href: "/interview", icon: TerminalSquare },
   { name: "Settings", href: "/settings", icon: Settings },

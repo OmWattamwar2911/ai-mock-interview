@@ -8,14 +8,13 @@ Requires Piper binary and a voice ONNX model:
 """
 
 import asyncio
-import io
-import wave
 import logging
 import os
-import subprocess
+import uuid
 from typing import Optional
+from livekit import rtc
 from livekit.agents import tts
-from livekit.agents.utils import AudioBuffer
+from livekit.agents.types import APIConnectOptions
 
 logger = logging.getLogger("plugins.piper")
 
@@ -37,24 +36,33 @@ class PiperTTS(tts.TTS):
 
     def _verify_installed(self):
         if not os.path.exists(self._voice_model) and not os.path.isabs(self._voice_model):
-            # Check relative to cwd or script dir
             script_dir = os.path.dirname(__file__)
             candidate = os.path.join(script_dir, "..", "models", self._voice_model)
             if os.path.exists(candidate):
                 self._voice_model = candidate
 
-    async def _synthesize_impl(
+    def synthesize(
         self,
         text: str,
         *,
-        conn_options: Optional[tts.APIConnectOptions] = None,
-    ) -> tts.SynthesizedAudio:
-        self._verify_installed()
+        conn_options: Optional[APIConnectOptions] = None,
+    ) -> tts.ChunkedStream:
+        return PiperChunkedStream(
+            tts=self,
+            input_text=text,
+            conn_options=conn_options or APIConnectOptions(),
+        )
 
-        # Run piper as subprocess piping text to stdin and capturing wav on stdout
+
+class PiperChunkedStream(tts.ChunkedStream):
+    async def _main_task(self) -> None:
+        tts_inst: PiperTTS = self._tts  # type: ignore
+        tts_inst._verify_installed()
+
         cmd = [
-            self._executable,
-            "--model", self._voice_model,
+            tts_inst._executable,
+            "--model",
+            tts_inst._voice_model,
             "--output-raw",
         ]
 
@@ -65,25 +73,33 @@ class PiperTTS(tts.TTS):
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-            raw_pcm, stderr = await process.communicate(input=text.encode("utf-8"))
+            raw_pcm, stderr = await process.communicate(input=self._input_text.encode("utf-8"))
 
             if process.returncode != 0:
                 err_msg = stderr.decode("utf-8", errors="replace")
                 logger.error(f"Piper error: {err_msg}")
-                raise RuntimeError(f"Piper synthesis failed (code {process.returncode}): {err_msg}")
+                return
 
-            # Return SynthesizedAudio with raw PCM
-            return tts.SynthesizedAudio(
-                text=text,
-                data=AudioBuffer(
-                    data=raw_pcm,
-                    sample_rate=self.sample_rate,
-                    num_channels=self.num_channels,
-                ),
-            )
+            if raw_pcm:
+                samples_per_channel = len(raw_pcm) // 2
+                if samples_per_channel > 0:
+                    frame = rtc.AudioFrame(
+                        data=raw_pcm,
+                        sample_rate=tts_inst.sample_rate,
+                        num_channels=tts_inst.num_channels,
+                        samples_per_channel=samples_per_channel,
+                    )
+                    self._event_ch.send_nowait(
+                        tts.SynthesizedAudio(
+                            frame=frame,
+                            request_id=str(uuid.uuid4()),
+                            is_final=True,
+                        )
+                    )
         except FileNotFoundError:
-            raise RuntimeError(
-                f"Piper executable '{self._executable}' not found on system PATH.\n"
-                "Install Piper on Windows from https://github.com/rhasspy/piper/releases\n"
-                "Or set PROFILE=cloud in .env to use OpenAI / ElevenLabs TTS."
+            logger.warning(
+                f"Piper executable '{tts_inst._executable}' not found on system PATH.\n"
+                "Install Piper from https://github.com/rhasspy/piper/releases or use PROFILE=cloud."
             )
+        except Exception as e:
+            logger.error(f"Piper synthesis unexpected error: {e}")

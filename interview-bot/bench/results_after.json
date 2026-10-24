@@ -1,0 +1,285 @@
+{
+ "network": {
+  "dns_ms": 11.559300008229911,
+  "tcp_connect_ms": 12.583000003360212,
+  "tls_handshake_ms": 26.224400033243
+ },
+ "stt": {
+  "impl": "STT(whisper-large-v3-turbo)",
+  "rows": [
+   {
+    "sec": 0.3909183999057859,
+    "audio_sec": 8.568,
+    "text": " Hi Aria, yes I am ready to start. I am a backend developer with three years of experience in Python and PostgreSQL."
+   },
+   {
+    "sec": 0.4527910000178963,
+    "audio_sec": 9.576,
+    "text": " I built a pizza ordering app with Flask and PostgreSQL. It served around 200 users and handled orders, payments, and live order tracking."
+   },
+   {
+    "sec": 0.8235248998971656,
+    "audio_sec": 8.928,
+    "text": " For concurrency we use database transactions with row-level locking in PostgreSQL, so two users could not order the last pizza at the same time."
+   },
+   {
+    "sec": 0.37674420000985265,
+    "audio_sec": 9.36,
+    "text": " When the connection pool saturated during the lunch peak, I introduced pgbouncer and added indexes on the orders table, which cut wait time by about 80%."
+   },
+   {
+    "sec": 0.8483949999790639,
+    "audio_sec": 9.888,
+    "text": " The main trade-off was consistency versus speed. I cached the menu in Redis with a short expiry but always read stock levels directly from the database."
+   },
+   {
+    "sec": 0.6629376999335364,
+    "audio_sec": 8.136,
+    "text": " I would say my biggest weakness is system design at larger scale, because most of my projects so far had under a thousand daily active users."
+   },
+   {
+    "sec": 0.46334929997101426,
+    "audio_sec": 10.992,
+    "text": " In a previous team we disagreed on using microservices. I proposed a modular monolith first, wrote a short design document, and the team agreed after a two-week spike."
+   },
+   {
+    "sec": 0.32424210000317544,
+    "audio_sec": 8.712,
+    "text": " For testing I wrote unit tests with Pytest for the pricing rules, and integration tests that spin up a temporary PostgreSQL container for the order flow."
+   }
+  ]
+ },
+ "tts": {
+  "impl": "EdgeTTS(edge-tts)",
+  "rows": [
+   {
+    "first_audio": 1.1077781999483705,
+    "total": 1.3333704998949543
+   },
+   {
+    "first_audio": 1.4940318000735715,
+    "total": 2.6589467000449076
+   },
+   {
+    "first_audio": 1.3225995999528095,
+    "total": 1.922535500023514
+   },
+   {
+    "first_audio": 0.8687186000170186,
+    "total": 1.4486173000186682
+   },
+   {
+    "first_audio": 1.0770718000130728,
+    "total": 1.3762685999972746
+   },
+   {
+    "first_audio": 1.0732465999899432,
+    "total": 1.4006383999949321
+   },
+   {
+    "first_audio": 0.8623207999626175,
+    "total": 1.212454600026831
+   },
+   {
+    "first_audio": 1.0684289999771863,
+    "total": 1.7209364000009373
+   }
+  ]
+ },
+ "llm_turn_engine": [
+  {
+   "ttft": 1792838925.8201325,
+   "total": 0.5704279999481514,
+   "model_used": "qwen/qwen3.8-27b",
+   "prompt_tokens": 486,
+   "completion_tokens": 113,
+   "spoken_reply": "Three years with Python and PostgreSQL. Which specific PostgreSQL features did you use to optimize your pizza app's queries?",
+   "analysis": {
+    "summary": "Candidate introduces themselves as a backend developer with three years of experience in Python and PostgreSQL.",
+    "key_points": [
+     "3 years experience",
+     "Python",
+     "PostgreSQL"
+    ],
+    "quality": "vague",
+    "correctness_notes": "",
+    "resume_consistency": "consistent",
+    "missing": "Specific projects, technical details, or metrics.",
+    "next_move": "probe_detail",
+    "next_question": "Which specific PostgreSQL features did you use to optimize your pizza app's queries?"
+   },
+   "calls": 1
+  },
+  {
+   "ttft": 1792838926.123176,
+   "total": 0.4564409999875352,
+   "model_used": "qwen/qwen3.8-27b",
+   "prompt_tokens": 488,
+   "completion_tokens": 124,
+   "spoken_reply": "Two hundred users is a good scale. What specific payment provider did you integrate?",
+   "analysis": {
+    "summary": "Candidate built a pizza ordering app with Flask and PostgreSQL serving 200 users, handling orders, payments, and tracking.",
+    "key_points": [
+     "Flask",
+     "PostgreSQL",
+     "200 users",
+     "orders",
+     "payments",
+     "live order tracking"
+    ],
+    "quality": "vague",
+    "correctness_notes": "",
+    "resume_consistency": "consistent",
+    "missing": "Specific payment gateway, database schema details, or concurrency handling for live tracking.",
+    "next_move": "probe_detail",
+    "next_question": "What specific payment provider did you integrate?"
+   },
+   "calls": 1
+  },
+  {
+   "ttft": 1792838926.5725045,
+   "total": 0.36933909996878356,
+   "model_used": "qwen/qwen3.8-27b",
+   "prompt_tokens": 488,
+   "completion_tokens": 115,
+   "spoken_reply": "Row level locking is a solid choice. How did you handle the timeout if a transaction hung?",
+   "analysis": {
+    "summary": "Candidate used PostgreSQL row-level locking within transactions to prevent concurrent overselling of inventory.",
+    "key_points": [
+     "database transactions",
+     "row level locking",
+     "PostgreSQL",
+     "concurrency control"
+    ],
+    "quality": "okay",
+    "correctness_notes": "",
+    "resume_consistency": "consistent",
+    "missing": "Details on lock timeout configuration, deadlock handling, or specific SQL constraints used.",
+    "next_move": "probe_detail",
+    "next_question": "How did you handle the timeout if a transaction hung?"
+   },
+   "calls": 1
+  },
+  {
+   "ttft": 1792838927.0183086,
+   "total": 0.451312999939546,
+   "model_used": "qwen/qwen3.8-27b",
+   "prompt_tokens": 493,
+   "completion_tokens": 145,
+   "spoken_reply": "Regarding the eighty percent reduction, what specific metrics did you monitor to confirm that wait times actually dropped?",
+   "analysis": {
+    "summary": "The candidate introduced PgBouncer and added indexes to the orders table, claiming an 80% reduction in wait times during peak load.",
+    "key_points": [
+     "PgBouncer",
+     "indexes on orders table",
+     "80% reduction in wait time",
+     "lunch peak saturation"
+    ],
+    "quality": "okay",
+    "correctness_notes": "",
+    "resume_consistency": "consistent",
+    "missing": "Specific metrics (e.g., p99 latency, connection queue length) used to validate the improvement.",
+    "next_move": "probe_detail",
+    "next_question": "What specific metrics did you monitor to confirm that wait times actually dropped?"
+   },
+   "calls": 1
+  },
+  {
+   "ttft": 1792838927.4016461,
+   "total": 0.4192031000275165,
+   "model_used": "qwen/qwen3.8-27b",
+   "prompt_tokens": 490,
+   "completion_tokens": 143,
+   "spoken_reply": "Short Redis expiry. How long did you set that TTL, and how did you handle cache misses during peak hours?",
+   "analysis": {
+    "summary": "The candidate described a trade-off between consistency and speed, using Redis for menu caching with short expiry and direct database reads for stock levels.",
+    "key_points": [
+     "Redis caching",
+     "short expiry",
+     "direct DB read for stock",
+     "consistency vs speed trade-off"
+    ],
+    "quality": "okay",
+    "correctness_notes": "",
+    "resume_consistency": "consistent",
+    "missing": "Specific TTL duration, cache invalidation strategy, or load metrics during misses.",
+    "next_move": "probe_detail",
+    "next_question": "How long did you set that TTL, and how did you handle cache misses during peak hours?"
+   },
+   "calls": 1
+  },
+  {
+   "ttft": 1792838927.9379418,
+   "total": 0.37769190000835806,
+   "model_used": "qwen/qwen3.8-27b",
+   "prompt_tokens": 489,
+   "completion_tokens": 114,
+   "spoken_reply": "Under a thousand daily active users. What specific scaling challenge did you face with your Flask app?",
+   "analysis": {
+    "summary": "Candidate identifies system design at scale as a weakness due to limited project traffic.",
+    "key_points": [
+     "system design weakness",
+     "under 1000 DAU",
+     "Flask app"
+    ],
+    "quality": "vague",
+    "correctness_notes": "",
+    "resume_consistency": "consistent",
+    "missing": "Specific example of a scaling bottleneck or attempted solution.",
+    "next_move": "ask_example",
+    "next_question": "What specific scaling challenge did you face with your Flask app?"
+   },
+   "calls": 1
+  },
+  {
+   "ttft": 1792838928.3224666,
+   "total": 0.5379086000612006,
+   "model_used": "qwen/qwen3.8-27b",
+   "prompt_tokens": 496,
+   "completion_tokens": 139,
+   "spoken_reply": "That two-week spike was a good call. What specific metric did you use to decide if the modular monolith was holding up?",
+   "analysis": {
+    "summary": "The candidate described proposing a modular monolith over microservices, supported by a design doc and a two-week spike.",
+    "key_points": [
+     "modular monolith",
+     "microservices",
+     "design document",
+     "two week spike"
+    ],
+    "quality": "okay",
+    "correctness_notes": "",
+    "resume_consistency": "unverifiable",
+    "missing": "Specific metrics or criteria used to validate the architectural decision during or after the spike.",
+    "next_move": "probe_detail",
+    "next_question": "What specific metric did you use to decide if the modular monolith was holding up?"
+   },
+   "calls": 1
+  },
+  {
+   "ttft": 1792838928.738535,
+   "total": 0.44191930000670254,
+   "model_used": "qwen/qwen3.8-27b",
+   "prompt_tokens": 489,
+   "completion_tokens": 142,
+   "spoken_reply": "Spinning up a temporary Postgres container. How did you manage the database schema and test data isolation between those integration tests?",
+   "analysis": {
+    "summary": "The candidate described using pytest for unit tests on pricing rules and integration tests that utilize a temporary PostgreSQL container for the order flow.",
+    "key_points": [
+     "pytest",
+     "unit tests",
+     "pricing rules",
+     "integration tests",
+     "temporary PostgreSQL container",
+     "order flow"
+    ],
+    "quality": "okay",
+    "correctness_notes": "",
+    "resume_consistency": "consistent",
+    "missing": "Details on how the schema was initialized or how data isolation was handled in the temporary container.",
+    "next_move": "probe_detail",
+    "next_question": "How did you manage the database schema and test data isolation between those integration tests?"
+   },
+   "calls": 1
+  }
+ ]
+}

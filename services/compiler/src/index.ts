@@ -1,12 +1,30 @@
 import Fastify from "fastify";
 import { healthResponseSchema, apiError } from "@rehearse/shared";
 import { Judge0Driver } from "./judge0.js";
-import { executeRequestSchema, runTestsRequestSchema } from "./types.js";
+import { SandboxDriver } from "./sandbox.js";
+import { executeRequestSchema, runTestsRequestSchema, type ExecutionResult, type Language, type Limits } from "./types.js";
 
 const PORT = Number(process.env.PORT ?? 4002);
 const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY ?? "";
 const JUDGE0_URL = process.env.JUDGE0_URL ?? "http://localhost:2358";
-const driver = new Judge0Driver(JUDGE0_URL);
+
+const judge0Driver = new Judge0Driver(JUDGE0_URL);
+const sandboxDriver = new SandboxDriver();
+
+async function runExecution(language: Language, source: string, stdin: string, limits: Limits): Promise<ExecutionResult> {
+  const preferSandbox = process.env.SANDBOX_DRIVER === "docker" || process.env.SANDBOX_DRIVER === "sandbox";
+  if (preferSandbox) {
+    return await sandboxDriver.execute(language, source, stdin, limits);
+  }
+
+  try {
+    return await judge0Driver.execute(language, source, stdin, limits);
+  } catch (err: any) {
+    console.warn(`[compiler] Judge0 driver unavailable (${err?.message}). Running in sandboxed driver fallback.`);
+    return await sandboxDriver.execute(language, source, stdin, limits);
+  }
+}
+
 const requestCounts = new Map<string, { count: number; resetAt: number }>();
 
 const app = Fastify({ logger: true });
@@ -42,7 +60,12 @@ app.post("/v1/execute", async (request, reply) => {
   const parsed = executeRequestSchema.safeParse(request.body);
   if (!parsed.success) return reply.status(400).send(apiError("VALIDATION_ERROR", "Invalid execution payload"));
   try {
-    return await driver.execute(parsed.data.language, parsed.data.source, parsed.data.stdin, parsed.data.limits ?? { cpuTimeSec: 2, memoryKb: 128_000 });
+    return await runExecution(
+      parsed.data.language,
+      parsed.data.source,
+      parsed.data.stdin,
+      parsed.data.limits ?? { cpuTimeSec: 2, memoryKb: 128_000 }
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Compiler execution failed";
     return reply.status(502).send(apiError("UPSTREAM_ERROR", message));
@@ -56,13 +79,31 @@ app.post("/v1/run-tests", async (request, reply) => {
   try {
     const results = [];
     for (const test of parsed.data.tests) {
-      const result = await driver.execute(parsed.data.language, parsed.data.source, test.input, parsed.data.limits ?? { cpuTimeSec: 2, memoryKb: 128_000 });
+      const result = await runExecution(
+        parsed.data.language,
+        parsed.data.source,
+        test.input,
+        parsed.data.limits ?? { cpuTimeSec: 2, memoryKb: 128_000 }
+      );
       const passed = result.status === "ACCEPTED" && result.stdout.trim() === test.expected.trim();
-      results.push({ ...test, ...result, passed, status: passed ? "ACCEPTED" : result.status === "ACCEPTED" ? "WRONG_ANSWER" : result.status });
+      results.push({
+        ...test,
+        ...result,
+        passed,
+        status: passed ? "ACCEPTED" : result.status === "ACCEPTED" ? "WRONG_ANSWER" : result.status,
+      });
       if (result.status === "COMPILE_ERROR") break;
     }
     const passedCount = results.filter((result) => result.passed).length;
-    return { status: passedCount === parsed.data.tests.length ? "ACCEPTED" : results.find((result) => result.status !== "ACCEPTED")?.status ?? "WRONG_ANSWER", passedCount, totalCount: parsed.data.tests.length, tests: results };
+    return {
+      status:
+        passedCount === parsed.data.tests.length
+          ? "ACCEPTED"
+          : results.find((result) => result.status !== "ACCEPTED")?.status ?? "WRONG_ANSWER",
+      passedCount,
+      totalCount: parsed.data.tests.length,
+      tests: results,
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Compiler test run failed";
     return reply.status(502).send(apiError("UPSTREAM_ERROR", message));

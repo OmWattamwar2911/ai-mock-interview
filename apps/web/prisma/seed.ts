@@ -4,6 +4,7 @@ import { hash } from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { SKILLS_TAXONOMY } from "@rehearse/shared";
 import { BANK_QUESTIONS } from "./bank-questions";
+import { COMPANY_OA_QUESTIONS } from "./company-oa-questions";
 
 loadEnv({ path: resolve(process.cwd(), "../../.env") });
 loadEnv({ path: resolve(process.cwd(), ".env") });
@@ -17,6 +18,53 @@ async function upsertUser(email: string, name: string, password: string, role: "
     update: { name, passwordHash, role },
     create: { email, name, passwordHash, role },
   });
+}
+
+async function seedOaQuestions() {
+  for (const q of COMPANY_OA_QUESTIONS) {
+    const existing = await prisma.question.findFirst({
+      where: { title: q.title, source: "BANK" },
+    });
+    if (existing) {
+      await prisma.question.update({
+        where: { id: existing.id },
+        data: {
+          type: q.type,
+          text: q.text,
+          difficulty: q.difficulty,
+          skillTags: q.skillTags,
+          companyTags: q.companyTags,
+          roleTags: q.roleTags,
+          constraints: q.constraints,
+          examples: q.examples,
+          starterCode: q.starterCode,
+          testCases: q.testCases,
+          referenceSolution: q.referenceSolution,
+          expectedPoints: q.expectedPoints,
+          deletedAt: null,
+        },
+      });
+      continue;
+    }
+    await prisma.question.create({
+      data: {
+        type: q.type,
+        title: q.title,
+        text: q.text,
+        difficulty: q.difficulty,
+        skillTags: q.skillTags,
+        companyTags: q.companyTags,
+        roleTags: q.roleTags,
+        constraints: q.constraints,
+        examples: q.examples,
+        starterCode: q.starterCode,
+        testCases: q.testCases,
+        referenceSolution: q.referenceSolution,
+        expectedPoints: q.expectedPoints,
+        source: "BANK",
+      },
+    });
+  }
 }
 
 async function seedBank() {
@@ -74,6 +122,7 @@ async function main() {
   const admin = await upsertUser(adminEmail, "Rehearse Admin", adminPassword, "ADMIN");
   const candidate = await upsertUser(candidateEmail, "Demo Candidate", candidatePassword, "CANDIDATE");
   await seedBank();
+  await seedOaQuestions();
 
   const bankCount = await prisma.question.count({ where: { source: "BANK", deletedAt: null } });
 

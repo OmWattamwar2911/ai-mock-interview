@@ -46,14 +46,22 @@ export class Judge0Driver {
     });
     const payload = (await response.json()) as Judge0Response;
     if (!response.ok) throw new Error(`Judge0 request failed with ${response.status}`);
+    const rawStdout = payload.stdout ?? "";
+    const rawStderr = payload.stderr ?? "";
+    const cap = (text: string) =>
+      Buffer.byteLength(text, "utf8") > 64 * 1024
+        ? Buffer.from(text, "utf8").subarray(0, 64 * 1024).toString("utf8") + "\n[Output capped at 64KB]"
+        : text;
+
     const status = normaliseStatus(payload);
+
     return {
       status,
-      stdout: payload.stdout ?? "",
-      stderr: payload.stderr ?? "",
+      stdout: cap(rawStdout),
+      stderr: cap(rawStderr),
       timeMs: Math.round(Number(payload.time ?? 0) * 1000),
       memoryKb: payload.memory ?? null,
-      compileError: payload.compile_output ?? null,
+      compileError: payload.compile_output ? cap(payload.compile_output) : null,
     };
   }
 }

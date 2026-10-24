@@ -27,11 +27,15 @@ export async function GET(
     }));
 
     return jsonOk({
+        status: session.status,
         session: {
             id: session.id,
             status: session.status,
-            integrity: session.integrity
+            errorMessage: session.errorMessage,
+            integrity: session.integrity,
+            transcript: session.transcript,
         },
+        transcript: session.transcript,
         questions: formattedQuestions
     });
 }

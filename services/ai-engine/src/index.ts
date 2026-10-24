@@ -18,6 +18,8 @@ import { parseResumeDocument } from "./parse-resume.js";
 import { parseJdDocument } from "./parse-jd.js";
 import { analyzeSkillGap } from "./analyze-gap.js";
 import { completeJson } from "./llm/json.js";
+import { analyzeResumeAts } from "./analyze-ats.js";
+import { resumeParsedSchema } from "@rehearse/shared";
 
 loadEnv({ path: resolve(process.cwd(), "../../.env") });
 loadEnv({ path: resolve(process.cwd(), ".env") });
@@ -49,6 +51,37 @@ app.post("/v1/parse/resume", async (request, reply) => {
   const llm = createLlmProvider();
   const resume = await parseResumeDocument(text, llm);
   return parseResumeResponseSchema.parse({ parsed: resume, text });
+});
+
+app.post("/v1/analyze/ats", async (request, reply) => {
+  const reqSchema = z.object({
+    resumeText: z.string().optional(),
+    fileBase64: z.string().optional(),
+    mime: z.string().optional(),
+    parsedResume: resumeParsedSchema.optional(),
+    jobRole: z.string().min(1),
+    jobDescriptionText: z.string().min(1),
+  });
+
+  const parsed = reqSchema.safeParse(request.body);
+  if (!parsed.success) {
+    return reply.status(400).send(apiError("VALIDATION_ERROR", "jobRole and jobDescriptionText are required"));
+  }
+
+  let text = parsed.data.resumeText ?? "";
+  if (!text && parsed.data.fileBase64) {
+    text = await extractText({ fileBase64: parsed.data.fileBase64, mime: parsed.data.mime });
+  }
+
+  if (!text.trim()) {
+    return reply.status(400).send(apiError("BAD_REQUEST", "Could not extract or find resume text"));
+  }
+
+  const llm = createLlmProvider();
+  const resume = parsed.data.parsedResume ?? (await parseResumeDocument(text, llm));
+  const analysis = await analyzeResumeAts(text, resume, parsed.data.jobRole, parsed.data.jobDescriptionText, llm);
+
+  return { atsAnalysis: analysis, parsedResume: resume, text };
 });
 
 app.post("/v1/parse/jd", async (request, reply) => {

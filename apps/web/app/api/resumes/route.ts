@@ -17,7 +17,7 @@ export async function GET() {
   const resumes = await prisma.resume.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
-    select: { id: true, fileName: true, fileType: true, parsed: true, createdAt: true },
+    select: { id: true, fileName: true, fileType: true, parsed: true, atsAnalysis: true, createdAt: true },
   });
   return jsonOk({ resumes });
 }

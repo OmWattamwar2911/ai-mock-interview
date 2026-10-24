@@ -39,13 +39,30 @@ export default async function DocumentsPage() {
               const parsed = resumeParsedSchema.safeParse(r.parsed);
               const skills = parsed.success ? parsed.data.skills : [];
               return (
-                <li key={r.id} className="rounded border border-border bg-surface p-4">
-                  <p className="font-medium">{r.fileName}</p>
-                  <p className="mt-1 font-mono text-xs text-muted">{r.createdAt.toISOString().slice(0, 10)}</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {skills.slice(0, 8).map((s) => (
-                      <Chip key={s} label={s} />
-                    ))}
+                <li key={r.id} className="rounded border border-border bg-surface p-4 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">{r.fileName}</p>
+                      {(r as any).atsAnalysis?.overallAtsScore !== undefined && (
+                        <span className="rounded bg-primary/10 border border-primary/20 px-2 py-0.5 text-xs font-mono font-semibold text-primary">
+                          ATS {(r as any).atsAnalysis.overallAtsScore}%
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1 font-mono text-xs text-muted">{r.createdAt.toISOString().slice(0, 10)}</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {skills.slice(0, 8).map((s) => (
+                        <Chip key={s} label={s} />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-border flex justify-end">
+                    <Link
+                      href="/resume-analyzer"
+                      className="text-xs text-primary hover:underline font-medium"
+                    >
+                      {(r as any).atsAnalysis ? "View ATS Breakdown →" : "Run ATS Analysis →"}
+                    </Link>
                   </div>
                 </li>
               );

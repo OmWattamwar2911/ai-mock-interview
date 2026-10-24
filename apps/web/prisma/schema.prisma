@@ -15,7 +15,9 @@ enum Role {
 enum SessionStatus {
   CREATED
   IN_PROGRESS
+  EVALUATING
   COMPLETED
+  FAILED
   ABANDONED
 }
 
@@ -82,6 +84,7 @@ model User {
   assessmentBankQuestions AssessmentBankQuestion[]
   auditLogs          AuditLog[]
   assessmentAttempts AssessmentAttempt[]
+  oaSubmissions      OaSubmission[]
 }
 
 model Resume {
@@ -91,6 +94,7 @@ model Resume {
   fileType      String
   encryptedText String
   parsed        Json
+  atsAnalysis   Json?
   createdAt     DateTime @default(now())
 
   user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -124,9 +128,13 @@ model InterviewSession {
   endedAt      DateTime?
   totalTimeSec Int?
   createdAt    DateTime      @default(now())
-  livekitRoom  String?  // name of the LiveKit room for this session
-  transcript   Json?    // full conversation transcript posted by bot
-  botSummary   Json?    // { overallScore, strengths, weaknesses, perQuestion }
+  livekitRoom   String?  // name of the LiveKit room for this session
+  language      String   @default("en")
+  codingProblem Json?    // Technical round problem details
+  activeCode    Json?    // Real-time synced code snapshot
+  transcript    Json?    // full conversation transcript posted by bot
+  botSummary    Json?    // { overallScore, strengths, weaknesses, perQuestion }
+  errorMessage  String?  // Error details if interview or evaluation failed
 
   user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   resume     Resume            @relation(fields: [resumeId], references: [id])
@@ -295,21 +303,26 @@ model AssessmentCodingSubmission {
 model Question {
   id             String         @id @default(cuid())
   type           QuestionType
+  title          String?
   text           String
   difficulty     Difficulty
   skillTags      String[]
+  companyTags    String[]       @default([])
+  roleTags       String[]       @default([])
   expectedPoints Json
   source         QuestionSource @default(BANK)
   createdById    String?
-  starterCode    Json?
-  testCases      Json?
-  constraints    String?
-  examples       Json?
-  deletedAt      DateTime?
-  createdAt      DateTime       @default(now())
+  starterCode       Json?
+  testCases         Json?
+  referenceSolution Json?
+  constraints       String?
+  examples          Json?
+  deletedAt         DateTime?
+  createdAt         DateTime       @default(now())
 
-  createdBy User?             @relation(fields: [createdById], references: [id])
-  sessions  SessionQuestion[]
+  createdBy     User?             @relation(fields: [createdById], references: [id])
+  sessions      SessionQuestion[]
+  oaSubmissions OaSubmission[]
 
   @@index([type, difficulty])
 }
@@ -362,6 +375,9 @@ model FeedbackReport {
   improvementPlan    String[]
   skillGapInsights   Json
   perQuestionSummary Json
+  mistakesWithQuotes Json?
+  codeAnalysis       Json?
+  proctoringReview   Json?
   shareToken         String?  @unique
   createdAt          DateTime @default(now())
 
@@ -377,3 +393,24 @@ model AuditLog {
 
   user User? @relation(fields: [userId], references: [id])
 }
+
+model OaSubmission {
+  id          String   @id @default(cuid())
+  userId      String
+  questionId  String
+  language    String
+  sourceCode  String
+  testResults Json
+  passedCount Int      @default(0)
+  totalCount  Int      @default(0)
+  score       Float    @default(0)
+  status      String   @default("ACCEPTED")
+  createdAt   DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, questionId])
+  @@index([createdAt])
+}
+

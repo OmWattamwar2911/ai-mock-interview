@@ -12,6 +12,7 @@ export default auth((req) => {
   const isPublicRoute =
     nextUrl.pathname === "/" ||
     nextUrl.pathname.startsWith("/api/auth") ||
+    nextUrl.pathname.startsWith("/api/internal") || // bot worker uses shared-secret, no session needed
     isAuthRoute;
 
   if (isAuthRoute && isLoggedIn) {
