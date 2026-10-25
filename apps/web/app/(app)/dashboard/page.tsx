@@ -69,7 +69,7 @@ export default async function DashboardPage() {
             <span className="font-bubbledot text-xs text-[#F64302] tracking-wider uppercase">01 / DASHBOARD</span>
             <span className="h-1.5 w-1.5 rounded-full bg-[#F64302] animate-pulse" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bubbledot font-bold tracking-tight text-foreground">
+          <h1 className="text-2xl sm:text-3xl font-jetbrains font-bold tracking-tight text-foreground">
             CANDIDATE WORKSPACE
           </h1>
           <p className="text-xs text-muted-foreground">
@@ -237,8 +237,8 @@ export default async function DashboardPage() {
                         Resume
                       </span>
                     </div>
-                    <p className="mt-1 font-bubbledot text-xs text-[#F64302]">
-                      {parsed.success ? parsed.data.skills.length : 0} SKILLS PARSED
+                    <p className="mt-1 font-jetbrains text-xs text-[#F64302]">
+                      <span className="font-bubbledot font-bold">{parsed.success ? parsed.data.skills.length : 0}</span> SKILLS PARSED
                     </p>
                   </div>
                 );
@@ -258,8 +258,8 @@ export default async function DashboardPage() {
                         Target JD
                       </span>
                     </div>
-                    <p className="mt-1 font-bubbledot text-xs text-[#F64302]">
-                      {parsed.success ? parsed.data.requiredSkills.length : 0} REQUIRED SKILLS
+                    <p className="mt-1 font-jetbrains text-xs text-[#F64302]">
+                      <span className="font-bubbledot font-bold">{parsed.success ? parsed.data.requiredSkills.length : 0}</span> REQUIRED SKILLS
                     </p>
                   </div>
                 );

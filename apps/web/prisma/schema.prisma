@@ -85,6 +85,8 @@ model User {
   auditLogs          AuditLog[]
   assessmentAttempts AssessmentAttempt[]
   oaSubmissions      OaSubmission[]
+  analyzerResults    AnalyzerResult[]
+  profileContext     UserProfileContext?
 }
 
 model Resume {
@@ -132,9 +134,11 @@ model InterviewSession {
   language      String   @default("en")
   codingProblem Json?    // Technical round problem details
   activeCode    Json?    // Real-time synced code snapshot
-  transcript    Json?    // full conversation transcript posted by bot
-  botSummary    Json?    // { overallScore, strengths, weaknesses, perQuestion }
-  errorMessage  String?  // Error details if interview or evaluation failed
+  transcript           Json?    // full conversation transcript posted by bot
+  botSummary           Json?    // { overallScore, strengths, weaknesses, perQuestion }
+  errorMessage         String?  // Error details if interview or evaluation failed
+  candidateDisplayName String?  // Extracted / verified candidate display name
+  endReason            String?  // candidate_ended, disconnected, time_up, completed
 
   user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   resume     Resume            @relation(fields: [resumeId], references: [id])
@@ -413,4 +417,32 @@ model OaSubmission {
   @@index([userId, questionId])
   @@index([createdAt])
 }
+
+model AnalyzerResult {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String   // "RESUME" | "LINKEDIN" | "GITHUB" | "CODING" | "PORTFOLIO"
+  subject    String   // file name, handle, or URL
+  targetRole String?
+  score      Float
+  resultJson Json
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@index([userId, createdAt])
+}
+
+model UserProfileContext {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  targetRole         String?
+  jobDescriptionText String?  @db.Text
+  updatedAt          DateTime @updatedAt
+  createdAt          DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 

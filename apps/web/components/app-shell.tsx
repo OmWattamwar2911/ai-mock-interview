@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
-  ClipboardCheck,
   LayoutDashboard,
   LogOut,
   Settings,
@@ -27,8 +26,7 @@ const links = [
   { href: "/documents", label: "Documents", icon: FileText },
   { href: "/interview", label: "Interview", icon: Video },
   { href: "/oa", label: "OA Practice", icon: Code2 },
-  { href: "/assessment", label: "Assessment", icon: ClipboardCheck },
-  { href: "/resume-analyzer", label: "ATS Analyzer", icon: Sparkles },
+  { href: "/analyzer", label: "Analyzer", icon: Sparkles },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

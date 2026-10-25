@@ -37,6 +37,10 @@ import {
   Play,
   User,
   Sparkles,
+  Edit2,
+  Check,
+  X,
+  ChevronRight,
 } from "lucide-react";
 import { CodeEditorPanel, type Language, type Result } from "@/components/code-editor/code-editor-panel";
 
@@ -494,6 +498,43 @@ function RoomContent({
   // Rate limit delay notice from provider
   const [rateLimitNotice, setRateLimitNotice] = useState<string | null>(null);
 
+  // Progress tracker & phase tracking
+  const [currentPhase, setCurrentPhase] = useState<string>("GREETING");
+  const [completedParts, setCompletedParts] = useState<number>(0);
+
+  // Candidate name hearing & correction
+  const [heardName, setHeardName] = useState<string | null>(null);
+  const [nameNeedsCorrection, setNameNeedsCorrection] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+
+  // End interview confirmation modal
+  const [showEndModal, setShowEndModal] = useState(false);
+
+  const handleSaveName = async () => {
+    if (!nameInput.trim()) return;
+    const clean = nameInput.trim();
+    setHeardName(clean);
+    setNameNeedsCorrection(false);
+    setIsEditingName(false);
+
+    try {
+      if (room?.localParticipant) {
+        const payload = new TextEncoder().encode(
+          JSON.stringify({ type: "name_correction", name: clean })
+        );
+        room.localParticipant.publishData(payload, { reliable: true, topic: "name_correction" });
+      }
+      await fetch(`/api/interview/${sessionId}/name`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: clean }),
+      });
+    } catch (e) {
+      console.warn("Could not save name correction:", e);
+    }
+  };
+
   useEffect(() => {
     if (botParticipant) {
       setBotWaitTimeout(false);
@@ -623,6 +664,18 @@ function RoomContent({
           if (msg.state === "speaking" || msg.state === "thinking" || msg.state === "listening") {
             setAgentState(msg.state);
           }
+        } else if (msg.type === "name_detected" || topic === "name_detected") {
+          const fn = msg.firstName || msg.name;
+          if (fn) {
+            setHeardName(fn);
+            setNameInput(fn);
+            setNameNeedsCorrection(!!msg.needsCorrection);
+          }
+        } else if (msg.type === "progress_update" || topic === "progress_update") {
+          if (msg.currentPhase) setCurrentPhase(msg.currentPhase);
+          if (typeof msg.completedParts === "number") setCompletedParts(msg.completedParts);
+        } else if (msg.type === "phase_change" || topic === "phase_change") {
+          if (msg.newPhase) setCurrentPhase(msg.newPhase);
         } else if (msg.type === "switch_layout") {
           if (msg.layout === "split" || msg.layout === "technical" || msg.layout === "conversation") {
             setLayout(msg.layout);
@@ -1019,12 +1072,129 @@ function RoomContent({
           <Button
             variant="outline"
             className="gap-2 border-red-500/40 text-red-400 hover:bg-red-500/10 text-xs h-9"
-            onClick={onEnd}
+            onClick={() => setShowEndModal(true)}
           >
             <PhoneOff className="h-3.5 w-3.5" /> End Interview
           </Button>
         </div>
       </div>
+
+      {/* Progress Tracker (PART 3) & Name Correction Pill (PART 2) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 font-mono text-xs">
+        {/* 5-Step Phase Tracker */}
+        <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+          {[
+            { id: "intro", label: "01 Intro", phases: ["GREETING", "SMALL_TALK", "INTRODUCTION", "WALKTHROUGH"] },
+            { id: "resume", label: "02 Resume & JD", phases: ["RESUME_JD", "resume_deep_dive", "jd_match"] },
+            { id: "tech", label: "03 Technical", phases: ["TECHNICAL_CODING", "technical_round"] },
+            { id: "beh", label: "04 Behavioral", phases: ["BEHAVIOURAL", "behavioral_round"] },
+            { id: "report", label: "05 Report", phases: ["CLOSING", "EVALUATION"] },
+          ].map((step, idx) => {
+            const isActive = step.phases.includes(currentPhase);
+            const isCompleted =
+              (idx === 0 && !step.phases.includes(currentPhase) && currentPhase !== "GREETING") ||
+              (idx === 1 && (currentPhase.includes("TECHNICAL") || currentPhase.includes("BEHAVIOUR") || currentPhase === "CLOSING" || currentPhase === "EVALUATION")) ||
+              (idx === 2 && (currentPhase.includes("BEHAVIOUR") || currentPhase === "CLOSING" || currentPhase === "EVALUATION")) ||
+              (idx === 3 && (currentPhase === "CLOSING" || currentPhase === "EVALUATION"));
+
+            return (
+              <div key={step.id} className="flex items-center gap-1.5 shrink-0">
+                <span
+                  className={`px-2 py-0.5 rounded font-mono text-[10px] font-bold transition-all ${
+                    isActive
+                      ? "bg-[#F64302] text-white shadow-sm shadow-[#F64302]/30 ring-1 ring-[#F64302]"
+                      : isCompleted
+                      ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30"
+                      : "bg-black/5 dark:bg-white/5 text-muted-foreground"
+                  }`}
+                >
+                  {isCompleted ? `✓ ${step.label.slice(3)}` : step.label}
+                </span>
+                {idx < 4 && <ChevronRight className="h-3 w-3 text-muted-foreground/40 shrink-0" />}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Name Hearing & Correction Banner */}
+        {heardName && (
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            {isEditingName ? (
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  className="h-7 px-2 text-xs rounded bg-white dark:bg-black border border-[#F64302] text-foreground focus:outline-none"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveName}
+                  className="h-7 px-2 rounded bg-[#F64302] text-white text-[11px] font-bold hover:bg-[#F64302]/90 flex items-center gap-1"
+                >
+                  <Check className="h-3 w-3" /> Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingName(false)}
+                  className="h-7 px-2 rounded bg-black/10 dark:bg-white/10 text-muted-foreground text-[11px] hover:text-foreground"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/70 dark:bg-black/40 border border-black/10 dark:border-white/10 text-[11px]">
+                <span className="text-muted-foreground">Aria heard:</span>
+                <span className="font-bold text-foreground">{heardName}</span>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingName(true)}
+                  className="ml-1 text-[10px] text-[#F64302] hover:underline font-semibold flex items-center gap-0.5"
+                >
+                  <Edit2 className="h-2.5 w-2.5" /> Tap to correct
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Confirmation Modal: End Interview Early */}
+      {showEndModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="w-full max-w-md rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/10 dark:border-white/20 p-6 shadow-2xl font-mono space-y-4">
+            <div className="flex items-center gap-2 text-amber-500">
+              <PhoneOff className="h-5 w-5" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">
+                End Interview Early?
+              </h3>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Are you sure you want to conclude the session now? You will still receive a comprehensive
+              evaluation report for all the parts you have completed so far.
+            </p>
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowEndModal(false)}
+                className="h-9 px-4 text-xs font-medium"
+              >
+                Continue Interview
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowEndModal(false);
+                  onEnd();
+                }}
+                className="h-9 px-4 text-xs font-bold bg-[#F64302] hover:bg-[#F64302]/90 text-white"
+              >
+                End & View Report
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 20s Bot Timeout Alert */}
       {botWaitTimeout && !botParticipant && (
@@ -1261,11 +1431,15 @@ export default function InterviewSessionPage() {
     if (ending) return;
     setEnding(true);
     try {
-      await fetch(`/api/interview/${sessionId}/end`, { method: "POST" });
+      await fetch(`/api/interview/${sessionId}/end`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ endReason: "candidate_ended" }),
+      });
     } catch {}
     let attempts = 0;
-    while (attempts < 20) {
-      await new Promise((r) => setTimeout(r, 2000));
+    while (attempts < 15) {
+      await new Promise((r) => setTimeout(r, 1500));
       try {
         const res = await fetch(`/api/interview/${sessionId}`);
         const data = await res.json();

@@ -135,6 +135,32 @@ export async function POST(request: Request) {
       savedResumeId = createdResume.id;
     }
 
+    // Record in unified AnalyzerResult
+    await prisma.analyzerResult.create({
+      data: {
+        userId: user.id,
+        type: "RESUME",
+        subject: fileName || existingResume?.fileName || "Resume ATS Audit",
+        targetRole: jobRole,
+        score: validatedAts.overallAtsScore,
+        resultJson: {
+          type: "RESUME",
+          subject: fileName || existingResume?.fileName || "Resume ATS Audit",
+          score: validatedAts.overallAtsScore,
+          targetRole: jobRole,
+          atsAnalysis: validatedAts,
+          parsedResume: validatedParsed,
+        } as any,
+      },
+    }).catch((e) => console.error("[api/resumes/analyze] AnalyzerResult record error:", e));
+
+    // Update shared profile context
+    await prisma.userProfileContext.upsert({
+      where: { userId: user.id },
+      create: { userId: user.id, targetRole: jobRole, jobDescriptionText },
+      update: { targetRole: jobRole, jobDescriptionText },
+    }).catch(() => {});
+
     await writeAudit(user.id, "resume.ats_analysis", {
       resumeId: savedResumeId,
       jobRole,

@@ -28,6 +28,7 @@ export async function GET(
         include: {
             resume: { select: { encryptedText: true, parsed: true } },
             jd: { select: { title: true, encryptedText: true, parsed: true } },
+            user: { select: { name: true, email: true } },
         },
     });
 
@@ -41,6 +42,11 @@ export async function GET(
 
     return jsonOk({
         sessionId: session.id,
+        candidateDisplayName: session.candidateDisplayName,
+        user: {
+            name: session.user?.name || null,
+            email: session.user?.email || null,
+        },
         config: session.config,
         language: session.language,
         codingProblem: session.codingProblem,

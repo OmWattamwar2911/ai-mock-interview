@@ -16,7 +16,7 @@ export default async function SettingsPage() {
           <span className="font-bubbledot text-xs text-[#F64302] tracking-wider uppercase">01 / PREFERENCES</span>
           <span className="h-1.5 w-1.5 rounded-full bg-[#F64302] animate-pulse" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bubbledot font-bold tracking-tight text-foreground mt-1">
+        <h1 className="text-2xl sm:text-3xl font-jetbrains font-bold tracking-tight text-foreground mt-1">
           SYSTEM SETTINGS
         </h1>
         <p className="text-xs text-muted-foreground mt-1">

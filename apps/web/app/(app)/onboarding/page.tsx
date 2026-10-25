@@ -141,7 +141,7 @@ export default function OnboardingPage() {
           <span className="font-bubbledot text-xs text-[#F64302] tracking-wider uppercase">01 / PREPARATION</span>
           <span className="h-1.5 w-1.5 rounded-full bg-[#F64302] animate-pulse" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bubbledot font-bold tracking-tight text-foreground mt-1">
+        <h1 className="text-2xl sm:text-3xl font-jetbrains font-bold tracking-tight text-foreground mt-1">
           SKILL GAP ONBOARDING
         </h1>
         <p className="text-xs text-muted-foreground mt-1">
@@ -362,7 +362,7 @@ export default function OnboardingPage() {
               <div className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-black text-white border-2 border-[#F64302] shadow-xl">
                 <span className="font-bubbledot text-3xl font-bold text-[#F64302]">{gap.matchScore}%</span>
               </div>
-              <h2 className="font-bubbledot text-xl font-bold uppercase tracking-tight text-foreground">
+              <h2 className="font-jetbrains text-xl font-bold uppercase tracking-tight text-foreground">
                 MATCH SCORE EVALUATION
               </h2>
               <p className="mx-auto max-w-lg text-xs text-muted-foreground">{gap.narrative}</p>

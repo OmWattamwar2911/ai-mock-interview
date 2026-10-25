@@ -7,6 +7,8 @@ import { useSession } from "next-auth/react";
 
 const routes = [
   { href: "/dashboard", label: "Dashboard", hint: "overview" },
+  { href: "/analyzer", label: "Analyzer", hint: "resume linkedin github coding portfolio profile" },
+  { href: "/oa", label: "OA Practice", hint: "coding online assessment problems" },
   { href: "/documents", label: "Documents", hint: "resumes job descriptions" },
   { href: "/analytics", label: "Analytics", hint: "scores history" },
   { href: "/settings", label: "Settings", hint: "profile theme export" },

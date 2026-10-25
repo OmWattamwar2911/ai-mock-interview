@@ -1,14 +1,12 @@
 "use client";
 
-import { Monitor, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-const order = ["system", "light", "dark"] as const;
-
 export function ThemeToggle({ className }: { className?: string }) {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -16,26 +14,29 @@ export function ThemeToggle({ className }: { className?: string }) {
   }, []);
 
   if (!mounted) {
-    return <div className={cn("h-9 w-9 rounded border border-border", className)} aria-hidden />;
+    return <div className={cn("h-9 w-9 rounded-xl border border-black/10 dark:border-white/10", className)} aria-hidden />;
   }
 
-  const current = (theme as (typeof order)[number]) ?? "system";
-  const Icon = current === "dark" ? Moon : current === "light" ? Sun : Monitor;
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button
       type="button"
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded border border-border text-foreground transition-colors hover:bg-elevated focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent",
+        "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-black/50 text-foreground transition-all hover:bg-black/5 dark:hover:bg-white/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#F64302]",
         className,
       )}
-      aria-label={`Theme: ${current}. Click to cycle.`}
+      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      title={isDark ? "Switch to light theme" : "Switch to dark theme"}
       onClick={() => {
-        const next = order[(order.indexOf(current) + 1) % order.length];
-        setTheme(next);
+        setTheme(isDark ? "light" : "dark");
       }}
     >
-      <Icon className="h-4 w-4" />
+      {isDark ? (
+        <Sun className="h-4 w-4 text-[#F64302] transition-transform hover:rotate-45" />
+      ) : (
+        <Moon className="h-4 w-4 text-foreground transition-transform hover:-rotate-12" />
+      )}
     </button>
   );
 }

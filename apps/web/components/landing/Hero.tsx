@@ -22,7 +22,7 @@ export function Hero() {
         </p>
         <h1
           style={{ animationDelay: "500ms" }}
-          className="mt-6 animate-fade-up font-bubbledot text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[0.95]"
+          className="mt-6 animate-fade-up font-jetbrains text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.05]"
         >
           Rehearse the Interview.
           <br />

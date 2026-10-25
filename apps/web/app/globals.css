@@ -44,6 +44,17 @@ body {
   font-family: var(--font-jetbrains), monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv05", "calt";
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.025em;
+}
+
+.font-bubbledot {
+  letter-spacing: 0.04em;
+  font-feature-settings: "tnum";
 }
 
 .grid-dot {

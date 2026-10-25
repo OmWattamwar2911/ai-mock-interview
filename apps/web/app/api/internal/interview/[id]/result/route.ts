@@ -40,6 +40,7 @@ const resultSchema = z
         timeline: z.array(z.any()).optional().default([]),
         testResults: z.record(z.any()).optional().default({}),
         status: z.enum(["COMPLETED", "FAILED", "EVALUATING"]).optional().default("COMPLETED"),
+        endReason: z.string().optional().nullable(),
         errorMessage: z.string().optional().nullable(),
     })
     .passthrough();
@@ -63,7 +64,7 @@ export async function POST(
         return jsonError(400, "VALIDATION_ERROR", `Invalid result payload: ${parsed.error.message}`);
     }
 
-    const { transcript, botSummary, observations, timeline, testResults, status, errorMessage } = parsed.data;
+    const { transcript, botSummary, observations, timeline, testResults, status, endReason, errorMessage } = parsed.data;
 
     const session = await prisma.interviewSession.findUnique({ where: { id: params.id } });
     if (!session) {
@@ -77,6 +78,7 @@ export async function POST(
         observations,
         timeline,
         testResults,
+        endReason: endReason ?? session.endReason ?? "completed",
     };
 
     await prisma.interviewSession.update({
@@ -85,6 +87,7 @@ export async function POST(
             transcript: transcript as any,
             botSummary: enrichedSummary as any,
             status: finalStatus,
+            endReason: endReason ?? session.endReason ?? "completed",
             errorMessage: errorMessage ?? null,
             endedAt: new Date(),
         },

@@ -30,17 +30,28 @@ from livekit.plugins import silero
 
 from interview_state import (
     InterviewStateMachine,
+    PHASE_GREETING,
+    PHASE_SMALL_TALK,
+    PHASE_INTRODUCTION,
+    PHASE_WALKTHROUGH,
+    PHASE_RESUME_JD,
+    PHASE_TECHNICAL_CODING,
+    PHASE_BEHAVIOURAL,
+    PHASE_CLOSING,
+    PHASE_EVALUATION,
     PHASE_READINESS,
     PHASE_WARMUP,
     PHASE_RESUME,
     PHASE_JD_MATCH,
     PHASE_TECHNICAL,
     PHASE_BEHAVIORAL,
-    PHASE_CLOSING,
     STATE_AGENT_SPEAKING,
     STATE_USER_SPEAKING,
     STATE_USER_TURN_COMPLETE,
     STATE_AGENT_THINKING,
+    AFFIRMATIVE_REGEX,
+    extract_candidate_name,
+    enforce_name_in_reply,
 )
 from plugins.stt import build_stt
 from plugins.llm import build_llm_async
@@ -152,11 +163,92 @@ class InterviewerAgent:
 
     async def stream_single_call_turn(self, user_text: str, chat_ctx: llm.ChatContext):
         """
-        Executes a SINGLE streaming call per turn:
+        Executes a SINGLE streaming call per turn with 9-phase state machine & name enforcement:
         - Yields spoken reply sentences immediately to TTS.
         - Parses hidden analysis JSON at end of turn.
-        - Dispatches grounding validator and DB persistence off the critical path.
+        - Enforces candidate's first name in every spoken reply after introduction.
         """
+        sm = self.state_machine
+        if not sm:
+            return
+
+        # ── PART 1: Candidate replied to Greeting ───────────────────────────
+        if sm.current_phase == PHASE_GREETING or sm.current_phase == PHASE_SMALL_TALK:
+            sm.is_greeting_acknowledged = True
+            sm.transition_to(PHASE_SMALL_TALK, reason="Candidate responded to greeting")
+            lang = sm.language
+            if lang == "es":
+                reply = "¡Qué bueno! ¿Podrías presentarte, comenzando por tu nombre?"
+            elif lang == "hi":
+                reply = "बहुत अच्छा! क्या आप अपना नाम बताते हुए अपना संक्षिप्त परिचय दे सकते हैं?"
+            elif lang == "fr":
+                reply = "Ravi de vous rencontrer ! Pourriez-vous vous présenter, en commençant par votre nom ?"
+            elif lang == "de":
+                reply = "Schön dich kennenzulernen! Könntest du dich kurz vorstellen und mit deinem Namen beginnen?"
+            else:
+                reply = "Lovely! Could you introduce yourself, starting with your name?"
+            sm.transition_to(PHASE_INTRODUCTION, reason="Prompted candidate for name and introduction")
+            yield reply
+            return
+
+        # ── PART 2: Candidate Introduction & Name Extraction ─────────────────
+        if sm.current_phase == PHASE_INTRODUCTION:
+            name_data = extract_candidate_name(user_text, fallback_name=sm.candidate_name, language=sm.language)
+            sm.set_candidate_name(name_data["full_name"], name_data["first_name"], name_data["confidence"])
+            asyncio.create_task(self._persist_candidate_name(sm.candidate_first_name))
+
+            ack = f"Nice to meet you, {sm.candidate_first_name}."
+            if name_data.get("needs_correction"):
+                ack += " Feel free to correct your name on screen anytime if I misheard."
+
+            sm.transition_to(PHASE_WALKTHROUGH, reason="Candidate introduction received")
+            walkthrough = sm.get_walkthrough_speech()
+            yield f"{ack} {walkthrough}"
+            return
+
+        # ── PART 3: Candidate Walkthrough Confirmation ───────────────────────
+        if sm.current_phase == PHASE_WALKTHROUGH:
+            if AFFIRMATIVE_REGEX.search(user_text) or len(user_text.split()) <= 5:
+                sm.walkthrough_confirmed = True
+                sm.transition_to(PHASE_RESUME_JD, reason="Candidate confirmed walkthrough readiness")
+                q = sm.get_phase_opening(PHASE_RESUME_JD)
+                yield f"Great, let's start with your resume, {sm.candidate_first_name}. {q}"
+                return
+            else:
+                yield f"Take your time, {sm.candidate_first_name}. Whenever you're ready to start with your resume, just let me know."
+                return
+
+        # ── Transition Checks between Core Phases ───────────────────────────
+        if sm.current_phase == PHASE_RESUME_JD:
+            turns_in_resume = sm.phase_turn_count.get(PHASE_RESUME_JD, 0)
+            if turns_in_resume >= 3:
+                sm.transition_to(PHASE_TECHNICAL_CODING, reason="Resume & JD section completed")
+                tech_q = sm.get_phase_opening(PHASE_TECHNICAL_CODING)
+                yield f"Thank you for sharing your background, {sm.candidate_first_name}. Now let's move on to the technical round on your screen. {tech_q}"
+                return
+
+        elif sm.current_phase == PHASE_TECHNICAL_CODING:
+            turns_in_tech = sm.phase_turn_count.get(PHASE_TECHNICAL_CODING, 0)
+            if turns_in_tech >= 3 and sm.last_test_results:
+                sm.transition_to(PHASE_BEHAVIOURAL, reason="Technical coding discussion completed")
+                beh_q = sm.get_phase_opening(PHASE_BEHAVIOURAL)
+                yield f"Great effort working through the coding problem, {sm.candidate_first_name}. Next, let's move to a couple of behavioral scenarios. {beh_q}"
+                return
+
+        elif sm.current_phase == PHASE_BEHAVIOURAL:
+            turns_in_beh = sm.phase_turn_count.get(PHASE_BEHAVIOURAL, 0)
+            if turns_in_beh >= 2:
+                sm.transition_to(PHASE_CLOSING, reason="Behavioral questions completed")
+                close_q = sm.get_phase_opening(PHASE_CLOSING)
+                yield f"Thank you for walking me through those scenarios, {sm.candidate_first_name}. {close_q}"
+                return
+
+        elif sm.current_phase == PHASE_CLOSING:
+            yield f"It was wonderful speaking with you today, {sm.candidate_first_name}! Your comprehensive performance audit is ready now. Have a great rest of your day!"
+            sm.transition_to(PHASE_EVALUATION, reason="Interview concluded")
+            return
+
+        # ── General Dialogue Turns with Groq Engine ─────────────────────────
         if not self.turn_engine:
             self.turn_engine = GroqTurnEngine()
             await self.turn_engine.startup()
@@ -164,13 +256,9 @@ class InterviewerAgent:
         self.turn_timer.mark_llm_start()
 
         brief = self._build_context_block(self._cached_context)
-        notes = ""
+        notes = f"\nCurrent Phase: {sm.current_phase}.\nCandidate First Name: {sm.candidate_first_name}."
         if self._grounding_problems:
-            notes = f"Grounding feedback from your prior response: {'; '.join(self._grounding_problems)}. Address this directly."
-        if self.state_machine:
-            notes += f"\nCurrent Phase: {self.state_machine.current_phase}."
-
-        # Always inject live problem & code context whenever coach is available
+            notes += f"\nGrounding feedback: {'; '.join(self._grounding_problems)}."
         if self.technical_coach:
             notes += "\n" + self.technical_coach.build_llm_technical_brief()
 
@@ -191,13 +279,17 @@ class InterviewerAgent:
                     self.turn_timer.mark_llm_first_token()
                 elif kind == "sentence":
                     self.turn_timer.mark_tts_start()
+                    # Enforce candidate's first name in spoken sentence if name is captured
+                    if sm.name_captured and sm.candidate_first_name.lower() not in payload.lower():
+                        payload = enforce_name_in_reply(payload, sm.candidate_first_name, sm.current_turn)
                     spoken_sentences.append(payload)
                     yield payload
                 elif kind == "done":
                     res_obj = payload
         except Exception as e:
             logger.error(f"[Turn Error] Single-call stream failed: {e}")
-            yield "Understood. Could you elaborate further on your technical implementation?"
+            fallback_reply = sm.generate_spoken_reply(user_text)
+            yield fallback_reply
             return
 
         self.turn_timer.mark_llm_end()
@@ -207,7 +299,6 @@ class InterviewerAgent:
         self._last_analysis = analysis
         self._previous_reply = full_reply
 
-        # Extract asked question
         for s in spoken_sentences:
             if s.strip().endswith("?"):
                 self._asked_questions.append(s.strip())
@@ -249,18 +340,44 @@ class InterviewerAgent:
                 self._cached_context = data
                 return data
 
-    async def _persist_transcript_line(self, line: dict) -> None:
-        """POST /api/internal/interview/:id/transcript → incremental DB save."""
-        url = f"{self.app_url}/api/internal/interview/{self.session_id}/transcript"
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.post(url, headers=self._headers(), json=line, timeout=aiohttp.ClientTimeout(total=5)) as resp:
-                    if resp.status not in (200, 201):
-                        logger.debug(f"Incremental transcript post status: {resp.status}")
-        except Exception as e:
-            logger.debug(f"Could not persist incremental transcript line: {e}")
+    async def _persist_candidate_name(self, name: str) -> bool:
+        """PATCH /api/internal/interview/:id/name → persist candidate name in DB."""
+        url = f"{self.app_url}/api/internal/interview/{self.session_id}/name"
+        for attempt in range(1, 4):
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.patch(
+                        url,
+                        headers=self._headers(),
+                        json={"name": name},
+                        timeout=aiohttp.ClientTimeout(total=5)
+                    ) as resp:
+                        if resp.status in (200, 201):
+                            logger.info(f"Persisted candidate name '{name}' to session {self.session_id}")
+                            return True
+                        logger.debug(f"Candidate name persistence status (attempt {attempt}): {resp.status}")
+            except Exception as e:
+                logger.debug(f"Candidate name persistence network error (attempt {attempt}): {e}")
+            if attempt < 3:
+                await asyncio.sleep(0.5 * attempt)
+        return False
 
-    async def _post_result(self, summary: dict, status: str = "COMPLETED") -> bool:
+    async def _persist_transcript_line(self, line: dict) -> None:
+        """POST /api/internal/interview/:id/transcript → incremental DB save with retry."""
+        url = f"{self.app_url}/api/internal/interview/{self.session_id}/transcript"
+        for attempt in range(1, 4):
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(url, headers=self._headers(), json=line, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                        if resp.status in (200, 201):
+                            return
+                        logger.debug(f"Incremental transcript post status (attempt {attempt}): {resp.status}")
+            except Exception as e:
+                logger.debug(f"Could not persist incremental transcript line (attempt {attempt}): {e}")
+            if attempt < 3:
+                await asyncio.sleep(0.5 * attempt)
+
+    async def _post_result(self, summary: dict, status: str = "COMPLETED", end_reason: str = "completed") -> bool:
         """POST /api/internal/interview/:id/result → full evaluation report."""
         if self._has_posted_result:
             return True
@@ -276,6 +393,7 @@ class InterviewerAgent:
             "timeline": timeline_data,
             "testResults": test_results,
             "status": status,
+            "endReason": end_reason,
         }
         url = f"{self.app_url}/api/internal/interview/{self.session_id}/result"
 
@@ -337,12 +455,12 @@ class InterviewerAgent:
 
         return summary
 
-    async def on_shutdown(self) -> None:
+    async def on_shutdown(self, reason: str = "completed") -> None:
         """Graceful shutdown callback invoked when worker is cleaning up."""
-        logger.info(f"Executing shutdown callback for session {self.session_id}")
+        logger.info(f"Executing shutdown callback for session {self.session_id} (reason: {reason})")
         if not self._has_posted_result:
             summary = await self._generate_evaluation_summary()
-            await self._post_result(summary, status="COMPLETED")
+            await self._post_result(summary, status="COMPLETED", end_reason=reason)
 
     # ─── Dual Data & Transcription Broadcasting ────────────────────────────────
 
@@ -430,13 +548,15 @@ class InterviewerAgent:
 - Constraints: {coding_constraints}
 """
 
+        cand_name = self.state_machine.candidate_first_name if (self.state_machine and self.state_machine.candidate_first_name != "there") else "the candidate"
+
         return f"""
 ## Mandatory Language Requirement
 - The candidate explicitly selected: **{lang_name} ({language})**.
 - Conduct the entire interview exclusively in **{lang_name}**.
 
 ## Candidate Resume Summary (Key Facts)
-- Candidate: {parsed_resume.get('name', 'the candidate')} | Experience: {parsed_resume.get('experienceYears', '?')} yrs | Recent Role: {parsed_resume.get('recentRole', 'N/A')}
+- Candidate: {parsed_resume.get('name', cand_name)} | Experience: {parsed_resume.get('experienceYears', '?')} yrs | Recent Role: {parsed_resume.get('recentRole', 'N/A')}
 - Skills: {', '.join(parsed_resume.get('skills', [])[:12])}
 - Highlights: {parsed_resume.get('summary', 'Experienced developer')}
 
@@ -446,10 +566,11 @@ class InterviewerAgent:
 - Core Responsibilities: {'; '.join(parsed_jd.get('responsibilities', [])[:2])}
 - Target Gaps: {gaps_str}
 {technical_section}
-## Pacing Rules
-- Keep spoken replies concise (1 to 3 sentences).
+## Pacing & Personalization Rules
+- Keep spoken replies concise (1 to 3 short sentences).
 - Brief specific acknowledgement (at most 6 words, zero generic praise).
 - Exactly ONE question per turn grounded in candidate's words.
+- Personalization: Address candidate by first name ({cand_name}) exactly once per reply, varying placement (opening, middle, or closing).
 """
 
     # ─── Main Run Loop ─────────────────────────────────────────────────────────
@@ -621,6 +742,8 @@ class InterviewerAgent:
                 )
 
                 if is_final:
+                    if sm.current_phase == PHASE_GREETING:
+                        sm.is_greeting_acknowledged = True
                     self.turn_timer.mark_stt_final()
                     if conf < 0.35 and len(transcript.split()) <= 2:
                         logger.info(
@@ -753,6 +876,22 @@ class InterviewerAgent:
                         )
                         asyncio.create_task(session.say(hint_speech))
 
+                # (e) Candidate Name Correction event from web page
+                elif topic == "name_correction" or msg_type == "correct_name" or msg_type == "name_correction":
+                    corrected_name = data.get("name") or data.get("firstName") or ""
+                    if corrected_name:
+                        sm.set_candidate_name(corrected_name, corrected_name, confidence=1.0)
+                        asyncio.create_task(self._persist_candidate_name(corrected_name))
+                        ack_speech = f"Got it, {corrected_name}!"
+                        self._broadcast_transcript(
+                            f"aria_name_ack_{int(time.time()*1000)}",
+                            role="assistant",
+                            speaker="Aria",
+                            text=ack_speech,
+                            is_final=True,
+                        )
+                        asyncio.create_task(session.say(ack_speech))
+
                 # Legacy code_sync backwards compatibility
                 elif msg_type == "code_sync":
                     if self.technical_coach:
@@ -821,17 +960,17 @@ class InterviewerAgent:
                 break
             await asyncio.sleep(0.4)
 
-        # Initial greeting from Aria (one time only)
+        # Initial greeting from Aria (one time only, 1-2 short sentences, one question)
         if language == "es":
-            greeting = f"¡Hola {candidate_name}! Soy Aria, tu entrevistadora de IA. ¿Listo para comenzar?"
+            greeting = "¡Hola! Te damos la bienvenida a tu entrevista en Rehearse. ¿Cómo estás hoy?"
         elif language == "fr":
-            greeting = f"Bonjour {candidate_name}! Je suis Aria, votre intervieweuse IA. Êtes-vous prêt?"
+            greeting = "Bonjour, bienvenue à votre entretien Rehearse. Comment allez-vous aujourd'hui ?"
         elif language == "de":
-            greeting = f"Hallo {candidate_name}! Ich bin Aria, deine KI-Interviewer. Bist du bereit?"
+            greeting = "Hallo, willkommen zu deinem Rehearse-Interview. Wie geht es dir heute?"
         elif language == "hi":
-            greeting = f"नमस्ते {candidate_name}! मैं आरिया हूँ। क्या आप शुरू करने के लिए तैयार हैं?"
+            greeting = "नमस्ते, रीहर्स इंटरव्यू में आपका स्वागत है। आज आप कैसे हैं?"
         else:
-            greeting = f"Hi {candidate_name}! I'm Aria, your AI interviewer. Ready to get started?"
+            greeting = "Hi, welcome to your Rehearse interview! How are you doing today?"
 
         try:
             logger.info(f"[Turn Log] Dispatching initial greeting: '{greeting}'")
@@ -840,6 +979,26 @@ class InterviewerAgent:
             self._broadcast_transcript(f"aria_greet_{int(time.time()*1000)}", role="assistant", speaker="Aria", text=greeting, is_final=True)
             asyncio.create_task(session.say(greeting))
             logger.info(f"First greeting dispatched by Aria in room {self._room.name}")
+
+            # PART 1: 8s + 8s silence timer watcher for initial greeting
+            async def _watch_greeting_silence():
+                while sm.current_phase == PHASE_GREETING and not sm.is_greeting_acknowledged:
+                    await asyncio.sleep(1.0)
+                    reprompt = sm.check_greeting_silence()
+                    if reprompt:
+                        logger.info(f"[Greeting Silence Handler] Dispatching: '{reprompt}'")
+                        self._broadcast_transcript(
+                            f"aria_silence_{int(time.time()*1000)}",
+                            role="assistant",
+                            speaker="Aria",
+                            text=reprompt,
+                            is_final=True,
+                        )
+                        asyncio.create_task(session.say(reprompt))
+                        if sm.auto_advanced_to_intro:
+                            break
+
+            asyncio.create_task(_watch_greeting_silence())
         except Exception as e:
             logger.error(f"[Turn Error] Could not synthesize greeting: {e}")
             self._broadcast_data({"type": "agent_error", "message": f"Greeting synthesis error: {e}"})

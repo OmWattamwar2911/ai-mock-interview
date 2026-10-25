@@ -27,7 +27,7 @@ export default async function DocumentsPage() {
             <span className="font-bubbledot text-xs text-[#F64302] tracking-wider uppercase">01 / DOSSIER</span>
             <span className="h-1.5 w-1.5 rounded-full bg-[#F64302] animate-pulse" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bubbledot font-bold tracking-tight text-foreground">
+          <h1 className="text-2xl sm:text-3xl font-jetbrains font-bold tracking-tight text-foreground">
             DOCUMENT REGISTRY
           </h1>
           <p className="text-xs text-muted-foreground">
@@ -80,7 +80,7 @@ export default async function DocumentsPage() {
                       )}
                     </div>
                     <p className="mt-1 font-mono text-[11px] text-muted-foreground">
-                      Added: {r.createdAt.toISOString().slice(0, 10)} · <span className="font-bubbledot text-[#F64302]">{skills.length} skills</span>
+                      Added: {r.createdAt.toISOString().slice(0, 10)} · <span className="text-[#F64302] font-semibold"><span className="font-bubbledot font-bold">{skills.length}</span> skills</span>
                     </p>
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {skills.slice(0, 8).map((s) => (
@@ -90,7 +90,7 @@ export default async function DocumentsPage() {
                   </div>
                   <div className="mt-4 pt-3 border-t border-black/5 dark:border-white/10 flex justify-end">
                     <Link
-                      href="/resume-analyzer"
+                      href="/analyzer/resume"
                       className="text-xs text-[#F64302] hover:underline font-semibold flex items-center gap-1"
                     >
                       <Sparkles className="w-3 h-3" />
@@ -129,7 +129,7 @@ export default async function DocumentsPage() {
                 >
                   <p className="font-semibold text-sm text-foreground">{j.title}</p>
                   <p className="mt-1 font-mono text-[11px] text-muted-foreground">
-                    Added: {j.createdAt.toISOString().slice(0, 10)} · <span className="font-bubbledot text-[#F64302]">{skills.length} requirements</span>
+                    Added: {j.createdAt.toISOString().slice(0, 10)} · <span className="text-[#F64302] font-semibold"><span className="font-bubbledot font-bold">{skills.length}</span> requirements</span>
                   </p>
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {skills.slice(0, 8).map((s) => (

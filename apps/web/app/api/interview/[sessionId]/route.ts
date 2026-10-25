@@ -11,7 +11,7 @@ export async function GET(
 
     const session = await prisma.interviewSession.findFirst({
         where: { id: params.sessionId, userId: user.id },
-        include: { questions: true }
+        include: { questions: true, report: { select: { id: true } } }
     });
 
     if (!session) {
@@ -32,8 +32,12 @@ export async function GET(
             id: session.id,
             status: session.status,
             errorMessage: session.errorMessage,
+            endReason: session.endReason,
+            candidateDisplayName: session.candidateDisplayName,
             integrity: session.integrity,
             transcript: session.transcript,
+            botSummary: session.botSummary,
+            hasReport: Boolean(session.report),
         },
         transcript: session.transcript,
         questions: formattedQuestions

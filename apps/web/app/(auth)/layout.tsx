@@ -36,10 +36,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
 
             <div className="relative z-10 space-y-3">
-              <span className="font-bubbledot text-xs tracking-widest text-[#F64302] uppercase">
-                V/01 CANDIDATE ACCESS
+              <span className="text-xs tracking-widest text-[#F64302] uppercase font-mono">
+                <span className="font-bubbledot">V/01</span> CANDIDATE ACCESS
               </span>
-              <h2 className="font-bubbledot text-2xl font-bold tracking-tight text-white leading-tight">
+              <h2 className="font-jetbrains text-2xl font-bold tracking-tight text-white leading-tight">
                 REAL-TIME CONVERSATIONAL EVALUATION.
               </h2>
             </div>

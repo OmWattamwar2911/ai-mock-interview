@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "tsx lib/oa.test.ts"
+    "test": "tsx lib/oa.test.ts",
+    "test:analyzer": "tsx lib/analyzer.test.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.9.1",

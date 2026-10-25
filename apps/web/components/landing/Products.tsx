@@ -70,7 +70,7 @@ export function Products() {
                 <p className="font-mono text-[11px] leading-snug text-black/70 dark:text-white/70">
                   The question is not whether you can code, but whether you can explain it.
                 </p>
-                <span className="mt-4 font-bubbledot text-3xl sm:text-4xl font-bold text-black dark:text-white">
+                <span className="mt-4 font-jetbrains text-2xl sm:text-3xl font-bold tracking-tight text-black dark:text-white">
                   Profile
                 </span>
               </div>
@@ -161,7 +161,7 @@ export function Products() {
 
             <div className="relative z-10">
               <span className="font-mono text-[10px] uppercase tracking-wider text-white/50">
-                Live Assessment
+                Live Evaluation
               </span>
             </div>
 
