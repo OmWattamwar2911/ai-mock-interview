@@ -41,13 +41,13 @@ export function RegisterForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-6 space-y-4 font-mono">
+    <form onSubmit={onSubmit} className="space-y-4 font-mono">
       <div className="space-y-1.5">
         <label className="block text-xs font-semibold tracking-wider text-muted-foreground uppercase">
           Full Name
         </label>
         <Input
-          className="rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-1 focus:ring-[#F64302] transition-colors"
+          className="h-11 rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-2 focus:ring-[#F64302]/30 outline-none transition-all"
           placeholder="Candidate Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -59,7 +59,7 @@ export function RegisterForm() {
           Email Address
         </label>
         <Input
-          className="rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-1 focus:ring-[#F64302] transition-colors"
+          className="h-11 rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-2 focus:ring-[#F64302]/30 outline-none transition-all"
           type="email"
           autoComplete="email"
           placeholder="candidate@university.edu"
@@ -73,7 +73,7 @@ export function RegisterForm() {
           Password (min 8 characters)
         </label>
         <Input
-          className="rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-1 focus:ring-[#F64302] transition-colors"
+          className="h-11 rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-2 focus:ring-[#F64302]/30 outline-none transition-all"
           type="password"
           autoComplete="new-password"
           minLength={8}
@@ -84,7 +84,7 @@ export function RegisterForm() {
         />
       </div>
       {error ? (
-        <div className="rounded-xl bg-[#F64302]/10 border border-[#F64302]/20 p-2.5 text-xs text-[#F64302]">
+        <div className="rounded-xl bg-[#F64302]/10 border border-[#F64302]/30 p-3 text-xs text-[#F64302]">
           {error}
         </div>
       ) : null}
@@ -93,11 +93,11 @@ export function RegisterForm() {
         disabled={pending}
         className="w-full h-11 rounded-xl bg-[#F64302] hover:bg-[#d93800] text-white font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-md shadow-[#F64302]/20"
       >
-        {pending ? "Creating Account…" : "Create Rehearse Account →"}
+        {pending ? "Creating account…" : "Create Account →"}
       </Button>
       <p className="pt-2 text-center text-xs text-muted-foreground font-mono">
         Already registered?{" "}
-        <Link href="/login" className="text-foreground hover:text-[#F64302] underline transition-colors">
+        <Link href="/login" className="text-foreground hover:text-[#F64302] underline font-semibold transition-colors">
           Sign in
         </Link>
       </p>

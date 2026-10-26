@@ -34,13 +34,13 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-6 space-y-4 font-mono">
+    <form onSubmit={onSubmit} className="space-y-4 font-mono">
       <div className="space-y-1.5">
         <label className="block text-xs font-semibold tracking-wider text-muted-foreground uppercase">
           Email Address
         </label>
         <Input
-          className="rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-1 focus:ring-[#F64302] transition-colors"
+          className="h-11 rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-2 focus:ring-[#F64302]/30 outline-none transition-all"
           type="email"
           autoComplete="email"
           placeholder="candidate@university.edu"
@@ -54,7 +54,7 @@ export function LoginForm() {
           Password
         </label>
         <Input
-          className="rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-1 focus:ring-[#F64302] transition-colors"
+          className="h-11 rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 text-foreground font-mono text-sm focus:border-[#F64302] focus:ring-2 focus:ring-[#F64302]/30 outline-none transition-all"
           type="password"
           autoComplete="current-password"
           placeholder="••••••••••••"
@@ -64,7 +64,7 @@ export function LoginForm() {
         />
       </div>
       {error ? (
-        <div className="rounded-xl bg-[#F64302]/10 border border-[#F64302]/20 p-2.5 text-xs text-[#F64302]">
+        <div className="rounded-xl bg-[#F64302]/10 border border-[#F64302]/30 p-3 text-xs text-[#F64302]">
           {error}
         </div>
       ) : null}
@@ -73,11 +73,11 @@ export function LoginForm() {
         disabled={pending}
         className="w-full h-11 rounded-xl bg-[#F64302] hover:bg-[#d93800] text-white font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-md shadow-[#F64302]/20"
       >
-        {pending ? "Authenticating…" : "Sign In to Rehearse →"}
+        {pending ? "Signing in…" : "Sign In →"}
       </Button>
       <p className="pt-2 text-center text-xs text-muted-foreground font-mono">
         New candidate?{" "}
-        <Link href="/register" className="text-foreground hover:text-[#F64302] underline transition-colors">
+        <Link href="/register" className="text-foreground hover:text-[#F64302] underline font-semibold transition-colors">
           Register new account
         </Link>
       </p>

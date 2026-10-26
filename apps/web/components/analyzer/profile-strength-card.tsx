@@ -73,11 +73,11 @@ export function ProfileStrengthCard({
   return (
     <div className="space-y-3 font-mono">
       {/* ── UNIFIED PROFILE STRENGTH HEADER ───────────────────────────────── */}
-      <div className="rounded-2xl border border-black/5 dark:border-white/10 bg-[#EBE8EB] dark:bg-[#141414] p-5 sm:p-6 shadow-sm">
+      <div className="rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] p-5 sm:p-6 shadow-sm border border-black/[0.04] dark:border-white/[0.06]">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
             <div
-              className={`flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-2xl border-2 transition-all ${getScoreColor(
+              className={`flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-2xl border transition-all ${getScoreColor(
                 strength?.overallScore ?? null
               )}`}
             >
@@ -93,14 +93,14 @@ export function ProfileStrengthCard({
 
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="font-bubbledot text-xs text-[#F64302] uppercase tracking-wider">
-                  01 / PROFESSIONAL PRESENCE
+                <span className="text-[11px] font-mono tracking-widest text-[#F64302] uppercase">
+                  Profile strength
                 </span>
                 <span className="h-1.5 w-1.5 rounded-full bg-[#F64302] animate-pulse" />
               </div>
-              <h1 className="text-xl sm:text-2xl font-jetbrains font-bold tracking-tight text-foreground">
-                UNIFIED PROFILE STRENGTH
-              </h1>
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                Recruiter presence score
+              </h2>
               <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
                 {strength?.completedCount === 0
                   ? "Run your first analysis below to compute your weighted recruiter presence score."
@@ -114,7 +114,7 @@ export function ProfileStrengthCard({
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-muted-foreground text-[10px]">
                 <Briefcase className="w-3.5 h-3.5 text-[#F64302]" />
-                <span>Shared Role Target</span>
+                <span>Shared role target</span>
               </div>
               <button
                 type="button"

@@ -19,6 +19,7 @@ import { GitHubPanel } from "@/components/analyzer/github-panel";
 import { CodingPanel } from "@/components/analyzer/coding-panel";
 import { PortfolioPanel } from "@/components/analyzer/portfolio-panel";
 import { AnalyzerHistoryDrawer } from "@/components/analyzer/analyzer-history-drawer";
+import { PageHeader } from "@/components/ui/page-header";
 import type { AnalyzerType, ProfileStrengthSummary, UnifiedAnalyzerResult } from "@/lib/analyzer/types";
 
 function AnalyzerContent() {
@@ -89,6 +90,22 @@ function AnalyzerContent() {
 
   return (
     <div className="space-y-6 font-mono pb-12">
+      <PageHeader
+        eyebrow="Profile intelligence"
+        title="Analyzer"
+        subtitle="Check how your resume, LinkedIn, GitHub and coding profiles read to a recruiter, and get concrete fixes."
+        action={
+          <button
+            type="button"
+            onClick={() => setHistoryOpen(true)}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/70 dark:bg-black/40 hover:bg-white dark:hover:bg-black/60 border border-black/5 dark:border-white/10 text-foreground transition-all shadow-sm"
+          >
+            <History className="w-3.5 h-3.5 text-[#F64302]" />
+            <span>Past runs</span>
+          </button>
+        }
+      />
+
       {/* ── TOP BANNER & STRENGTH OVERVIEW ───────────────────────────────── */}
       <ProfileStrengthCard
         strength={strength}

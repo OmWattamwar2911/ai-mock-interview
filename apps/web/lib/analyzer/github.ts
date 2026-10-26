@@ -107,7 +107,7 @@ export async function fetchGitHubProfileViaHtml(normUser: string): Promise<GitHu
   });
 
   const reposHtml = reposRes.ok ? await reposRes.text() : "";
-  const repoBlocks = [...reposHtml.matchAll(/<li[^>]*itemprop="owns"[^>]*>([\s\S]*?)<\/li>/gi)];
+  const repoBlocks = Array.from(reposHtml.matchAll(/<li[^>]*itemprop="owns"[^>]*>([\s\S]*?)<\/li>/gi));
   const repos: GitHubRepoItem[] = [];
   const languages: Record<string, number> = {};
 

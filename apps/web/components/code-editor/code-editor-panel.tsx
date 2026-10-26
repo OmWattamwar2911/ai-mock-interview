@@ -55,7 +55,7 @@ export function CodeEditorPanel({
   examples,
   difficulty,
   topicTags = [],
-  starterCode,
+  starterCode = {},
   tests = [],
   synced = false,
   statusMessage = null,
@@ -74,8 +74,8 @@ export function CodeEditorPanel({
   examples?: unknown;
   difficulty?: string;
   topicTags?: string[];
-  starterCode: Record<string, string>;
-  tests: TestCase[];
+  starterCode?: Record<string, string> | null;
+  tests?: TestCase[];
   synced?: boolean;
   statusMessage?: string | null;
   hintsUsed?: number;
@@ -87,8 +87,11 @@ export function CodeEditorPanel({
   onRequestHint?: () => void;
   onExplainApproach?: () => void;
 }) {
+  const safeStarter = starterCode || {};
   const [language, setLanguage] = useState<Language>("python");
-  const [source, setSource] = useState(starterCode.python ?? "");
+  const [source, setSource] = useState(
+    safeStarter.python ?? safeStarter.javascript ?? safeStarter.typescript ?? ""
+  );
   const [input, setInput] = useState("");
   const [tab, setTab] = useState<"tests" | "custom" | "output">("tests");
   const [result, setResult] = useState<Result | null>(null);
@@ -111,7 +114,7 @@ export function CodeEditorPanel({
   };
 
   useEffect(() => {
-    const next = starterCode[language] ?? "";
+    const next = (starterCode || {})[language] ?? "";
     setSource(next);
     onChange?.(language, next, 1);
   }, [language, starterCode, onChange]);

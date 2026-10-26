@@ -1221,37 +1221,37 @@ function RoomContent({
       {/* Mode 1: Conversation / Video View */}
       {layout === "conversation" && (
         <div className="space-y-6">
-          <div className={`grid gap-6 ${showTranscript ? "lg:grid-cols-[1fr_360px]" : "grid-cols-1"}`}>
+          <div className={`grid gap-6 ${showTranscript ? "lg:grid-cols-[1fr_380px]" : "grid-cols-1"}`}>
             {/* Left Column: Avatars */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-surface p-10 min-h-[300px]">
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-black/5 dark:border-white/10 bg-[#EBE8EB] dark:bg-[#141414] p-8 min-h-[320px] shadow-sm">
                   <AriaAvatar speaking={botSpeakingSmooth} thinking={agentState === "thinking"} />
                 </div>
 
-                <div className="rounded-xl border border-border bg-surface p-4 flex flex-col items-center justify-center min-h-[300px]">
+                <div className="rounded-2xl border border-black/5 dark:border-white/10 bg-[#EBE8EB] dark:bg-[#141414] p-4 flex flex-col items-center justify-center min-h-[320px] shadow-sm">
                   <CandidateTile speaking={candidateSpeakingSmooth} />
                 </div>
               </div>
 
               {caption && (
-                <div className="rounded-lg border border-border bg-elevated px-4 py-3 text-sm font-mono text-muted">
+                <div className="rounded-2xl border border-black/5 dark:border-white/10 bg-white/80 dark:bg-black/60 px-5 py-3 text-sm font-mono text-foreground shadow-sm">
                   &ldquo;{caption}&rdquo;
                 </div>
               )}
 
               {codingProblem && (
-                <div className="rounded-xl border border-border/80 bg-surface/80 p-4 flex items-center justify-between">
+                <div className="rounded-2xl border border-black/5 dark:border-white/10 bg-[#EBE8EB] dark:bg-[#141414] p-4 flex items-center justify-between shadow-sm">
                   <div>
-                    <p className="text-xs uppercase font-semibold tracking-wider text-primary">Technical Problem Ready</p>
-                    <p className="text-sm font-medium">{codingProblem.title || "Coding Challenge"}</p>
+                    <p className="text-xs uppercase font-bold tracking-wider text-[#F64302]">Technical Problem Ready</p>
+                    <p className="text-sm font-jetbrains font-bold text-foreground">{codingProblem.title || "Coding Challenge"}</p>
                   </div>
                   <Button
                     variant="outline"
                     onClick={() => setLayout("split")}
-                    className="gap-1.5 text-xs py-1 px-3 h-8"
+                    className="gap-1.5 text-xs py-1.5 px-4 h-9 rounded-xl border-black/10 dark:border-white/10 font-mono"
                   >
-                    <Code2 className="h-3.5 w-3.5" /> Open Code Editor
+                    <Code2 className="h-3.5 w-3.5 text-[#F64302]" /> Open Code Editor
                   </Button>
                 </div>
               )}

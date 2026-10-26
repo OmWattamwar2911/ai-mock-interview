@@ -16,7 +16,7 @@ export function Products() {
     <section
       ref={ref}
       id="features"
-      className="w-full min-h-screen md:h-screen bg-[#E8E5E9] dark:bg-[#141414] p-2 sm:p-3"
+      className="w-full min-h-screen md:h-screen bg-[#E8E5E9] dark:bg-[#141414] p-2 sm:p-3 pt-20 sm:pt-24 md:pt-24"
     >
       <div className="grid h-full w-full grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3">
         {/* ── COLUMN 1: Skill Gap & Topography ─────────────────────────────── */}

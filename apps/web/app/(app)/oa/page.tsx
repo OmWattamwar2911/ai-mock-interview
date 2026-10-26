@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import {
   Building2,
   Briefcase,
@@ -16,8 +16,15 @@ import {
   BookOpen,
   Award,
   AlertCircle,
+  Sparkles,
 } from "lucide-react";
 import { CodeEditorPanel, Language, Result } from "@/components/code-editor/code-editor-panel";
+import { PageHeader } from "@/components/ui/page-header";
+import { BentoCard } from "@/components/ui/bento-card";
+import { DataRow } from "@/components/ui/data-row";
+import { StatusChip } from "@/components/ui/status-chip";
+import { Toolbar } from "@/components/ui/toolbar";
+import { Button } from "@/components/ui/button";
 
 const COMPANIES = ["ALL", "Google", "Amazon", "Stripe", "Meta", "Microsoft", "Uber"];
 const ROLES = ["ALL", "Backend", "Systems", "Frontend", "Fullstack"];
@@ -69,6 +76,9 @@ export default function OaPracticePage() {
   const [referenceSolution, setReferenceSolution] = useState<Record<string, string> | null>(null);
   const [showSolution, setShowSolution] = useState(false);
   const [scoreBanner, setScoreBanner] = useState<{ score: number; passed: number; total: number; status: string } | null>(null);
+
+  // Mobile layout switch (questions vs editor)
+  const [mobileTab, setMobileTab] = useState<"list" | "editor">("editor");
 
   // OA Timer (60 minutes standard OA)
   const [timerSeconds, setTimerSeconds] = useState(60 * 60);
@@ -209,85 +219,92 @@ export default function OaPracticePage() {
     return data;
   };
 
+  // Check solved set from submissions
+  const solvedQuestionIds = new Set(
+    submissions.filter((s) => s.status === "PASSED" || s.score === 100).map((s) => s.questionId)
+  );
+
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem)] bg-background text-foreground overflow-hidden">
-      {/* Top Filter and OA Controls Bar */}
-      <header className="px-4 py-2 border-b border-border bg-surface flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-1.5 font-semibold text-sm">
-            <Code2 className="w-4 h-4 text-primary" />
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-[#f0eded] dark:bg-[#0b0b0b] text-foreground font-mono overflow-hidden">
+      {/* ── Top Bar with Filter Chips & Simulation Timer ──────────────────── */}
+      <header className="px-4 py-3 border-b border-black/[0.05] dark:border-white/[0.06] bg-[#EBE8EB] dark:bg-[#141414] flex flex-wrap items-center justify-between gap-3 text-xs shrink-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 font-jetbrains font-bold text-sm text-foreground mr-2">
+            <Code2 className="w-4 h-4 text-[#F64302]" />
             <span>OA Practice</span>
           </div>
 
-          <div className="h-4 w-[1px] bg-border mx-1" />
-
-          {/* Company Selector */}
-          <div className="flex items-center gap-1">
-            <Building2 className="w-3.5 h-3.5 text-muted" />
-            <select
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              aria-label="Filter by Company"
-              className="bg-elevated border border-border rounded px-2 py-1 text-xs focus:outline-none"
-            >
-              {COMPANIES.map((c) => (
-                <option key={c} value={c}>
-                  {c === "ALL" ? "All Companies" : c}
-                </option>
-              ))}
-            </select>
+          {/* Company Chips */}
+          <div className="flex items-center gap-1 overflow-x-auto py-0.5">
+            {COMPANIES.slice(0, 5).map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setCompany(c)}
+                className={`rounded-lg px-2.5 py-1 text-[11px] font-mono transition-colors ${
+                  company === c
+                    ? "bg-black text-white dark:bg-white dark:text-black font-bold shadow-sm"
+                    : "bg-white/60 dark:bg-black/30 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {c === "ALL" ? "All Companies" : c}
+              </button>
+            ))}
           </div>
 
-          {/* Role Selector */}
-          <div className="flex items-center gap-1">
-            <Briefcase className="w-3.5 h-3.5 text-muted" />
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              aria-label="Filter by Role"
-              className="bg-elevated border border-border rounded px-2 py-1 text-xs focus:outline-none"
-            >
-              {ROLES.map((r) => (
-                <option key={r} value={r}>
-                  {r === "ALL" ? "All Roles" : r}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Difficulty Selector */}
-          <div className="flex items-center gap-1">
-            <select
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-              aria-label="Filter by Difficulty"
-              className="bg-elevated border border-border rounded px-2 py-1 text-xs focus:outline-none"
-            >
-              {DIFFICULTIES.map((d) => (
-                <option key={d} value={d}>
-                  {d === "ALL" ? "All Difficulties" : d}
-                </option>
-              ))}
-            </select>
+          {/* Difficulty Chips */}
+          <div className="flex items-center gap-1 border-l border-black/10 dark:border-white/10 pl-2">
+            {DIFFICULTIES.map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setDifficulty(d)}
+                className={`rounded-lg px-2 py-0.5 text-[10px] font-mono font-bold uppercase transition-colors ${
+                  difficulty === d
+                    ? "bg-[#F64302] text-white shadow-sm"
+                    : "bg-white/60 dark:bg-black/30 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {d === "ALL" ? "All" : d}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Timer & History Controls */}
-        <div className="flex items-center gap-3">
-          {/* 60m Simulation Timer */}
+        {/* Right Timer & Submissions Toggle */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          {/* Mobile view switcher */}
+          <div className="flex md:hidden items-center rounded-lg bg-black/10 dark:bg-white/10 p-0.5 text-[11px]">
+            <button
+              onClick={() => setMobileTab("list")}
+              className={`px-2 py-1 rounded-md ${mobileTab === "list" ? "bg-white dark:bg-black font-bold shadow-sm" : "text-muted-foreground"}`}
+            >
+              Problems
+            </button>
+            <button
+              onClick={() => setMobileTab("editor")}
+              className={`px-2 py-1 rounded-md ${mobileTab === "editor" ? "bg-white dark:bg-black font-bold shadow-sm" : "text-muted-foreground"}`}
+            >
+              Editor
+            </button>
+          </div>
+
+          {/* Timer */}
           <div
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded font-mono font-bold text-xs border ${
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl font-mono text-xs border ${
               timerSeconds < 300
-                ? "bg-rose-500/10 border-rose-500 text-rose-400 animate-pulse"
-                : "bg-elevated border-border text-foreground"
+                ? "bg-rose-500/10 border-rose-500/30 text-rose-500 animate-pulse"
+                : "bg-white/70 dark:bg-black/40 border-black/10 dark:border-white/10 text-foreground"
             }`}
           >
-            <Timer className="w-3.5 h-3.5 text-muted" />
-            <span>{formatTimer(timerSeconds)}</span>
+            <Timer className="w-3.5 h-3.5 text-[#F64302]" />
+            <span className="font-bubbledot font-bold tracking-tight text-sm">
+              {formatTimer(timerSeconds)}
+            </span>
             <button
               onClick={() => setIsTimerRunning(!isTimerRunning)}
-              className="ml-1 hover:text-primary transition-colors"
-              title={isTimerRunning ? "Pause Timer" : "Start OA Timer"}
+              className="hover:text-[#F64302] transition-colors ml-0.5"
+              title={isTimerRunning ? "Pause timer" : "Start timer"}
             >
               {isTimerRunning ? "⏸" : "▶"}
             </button>
@@ -296,8 +313,8 @@ export default function OaPracticePage() {
                 setIsTimerRunning(false);
                 setTimerSeconds(60 * 60);
               }}
-              className="hover:text-muted transition-colors text-[10px]"
-              title="Reset Timer"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              title="Reset timer"
             >
               <RotateCcw className="w-3 h-3" />
             </button>
@@ -305,12 +322,14 @@ export default function OaPracticePage() {
 
           <button
             onClick={() => setShowSubmissions(!showSubmissions)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded border text-xs transition-colors ${
-              showSubmissions ? "bg-primary text-primary-foreground border-primary" : "bg-elevated border-border text-foreground hover:bg-surface"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-colors ${
+              showSubmissions
+                ? "bg-black text-white dark:bg-white dark:text-black border-transparent"
+                : "bg-white/70 dark:bg-black/40 border-black/10 dark:border-white/10 text-foreground hover:bg-white"
             }`}
           >
             <History className="w-3.5 h-3.5" />
-            <span>Submissions</span>
+            <span className="hidden sm:inline">Submissions</span>
           </button>
         </div>
       </header>
@@ -318,48 +337,58 @@ export default function OaPracticePage() {
       {/* Score Banner Notification */}
       {scoreBanner && (
         <div
-          className={`px-4 py-2 text-xs flex items-center justify-between border-b ${
+          className={`px-5 py-2.5 text-xs flex items-center justify-between border-b ${
             scoreBanner.score === 100
-              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-              : "bg-amber-500/10 border-amber-500/30 text-amber-300"
+              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+              : "bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400"
           }`}
         >
           <div className="flex items-center gap-2">
-            <Award className="w-4 h-4" />
-            <span className="font-semibold">
-              Submission Result: {scoreBanner.status} ({scoreBanner.score}%)
+            <Award className="w-4 h-4 text-[#F64302]" />
+            <span className="font-bold">
+              Evaluation Result: {scoreBanner.status} ({scoreBanner.score}%)
             </span>
-            <span className="text-muted">
-              Passed {scoreBanner.passed} of {scoreBanner.total} test cases (including hidden evaluation tests)
+            <span className="text-muted-foreground">
+              — Passed {scoreBanner.passed} of {scoreBanner.total} test cases
             </span>
           </div>
           <button
             onClick={() => setScoreBanner(null)}
-            className="text-muted hover:text-foreground text-xs"
+            className="text-muted-foreground hover:text-foreground text-xs font-bold"
           >
-            Dismiss
+            ✕
           </button>
         </div>
       )}
 
-      {/* Main Split Layout: Question Drawer + Code Editor Panel */}
+      {/* ── Split Layout: Questions Drawer + Code Editor ─────────────────── */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Drawer / Question Selector */}
-        <aside className="w-80 border-r border-border bg-surface flex flex-col shrink-0">
-          <div className="p-3 border-b border-border flex items-center justify-between">
-            <span className="font-semibold text-xs uppercase tracking-wider text-muted">
-              Questions ({questions.length})
+        <aside
+          className={`w-full md:w-80 border-r border-black/[0.05] dark:border-white/[0.06] bg-[#EBE8EB] dark:bg-[#141414] flex flex-col shrink-0 ${
+            mobileTab === "list" ? "flex" : "hidden md:flex"
+          }`}
+        >
+          <div className="p-3.5 border-b border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between">
+            <span className="font-jetbrains font-bold text-xs uppercase tracking-wider text-muted-foreground">
+              Challenges ({questions.length})
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto divide-y divide-border">
+          <div className="flex-1 overflow-y-auto p-2.5 space-y-2">
             {loading ? (
-              <div className="p-4 text-center text-xs text-muted">Loading questions...</div>
+              <div className="p-6 text-center text-xs text-muted-foreground">
+                Loading OA questions…
+              </div>
             ) : questions.length === 0 ? (
-              <div className="p-4 text-center text-xs text-muted">No questions found matching criteria.</div>
+              <div className="p-6 text-center text-xs text-muted-foreground">
+                No questions found matching criteria.
+              </div>
             ) : (
               questions.map((q) => {
                 const isSelected = selectedQuestion?.id === q.id;
+                const isSolved = solvedQuestionIds.has(q.id);
+
                 return (
                   <button
                     key={q.id}
@@ -368,35 +397,53 @@ export default function OaPracticePage() {
                       setShowSolution(false);
                       setReferenceSolution(null);
                       setScoreBanner(null);
+                      setMobileTab("editor");
                     }}
-                    className={`w-full text-left p-3 text-xs transition-colors hover:bg-elevated flex flex-col gap-1.5 ${
-                      isSelected ? "bg-elevated border-l-2 border-primary" : ""
+                    className={`w-full text-left p-3 rounded-xl text-xs transition-all duration-200 border flex flex-col gap-1.5 ${
+                      isSelected
+                        ? "bg-white dark:bg-black/60 border-[#F64302] shadow-sm"
+                        : "bg-white/60 dark:bg-black/30 border-black/[0.03] dark:border-white/[0.04] hover:bg-white dark:hover:bg-black/50"
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-1">
-                      <span className="font-medium text-foreground line-clamp-1">{q.title}</span>
+                    <div className="flex items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        {isSolved ? (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        ) : (
+                          <span className="h-1.5 w-1.5 rounded-full bg-black/20 dark:bg-white/20 shrink-0" />
+                        )}
+                        <span className="font-jetbrains font-semibold text-foreground truncate">
+                          {q.title}
+                        </span>
+                      </div>
                       <span
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
+                        className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase shrink-0 ${
                           q.difficulty === "EASY"
-                            ? "bg-emerald-500/10 text-emerald-400"
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                             : q.difficulty === "MEDIUM"
-                            ? "bg-amber-500/10 text-amber-400"
-                            : "bg-rose-500/10 text-rose-400"
+                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                            : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
                         }`}
                       >
                         {q.difficulty}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {q.companyTags.map((c) => (
-                        <span key={c} className="bg-surface text-muted text-[10px] px-1.5 py-0.2 rounded border border-border">
+                    <div className="flex items-center gap-1 flex-wrap pt-0.5">
+                      {q.companyTags.slice(0, 2).map((c) => (
+                        <span
+                          key={c}
+                          className="bg-black/5 dark:bg-white/5 text-muted-foreground text-[9px] px-1.5 py-0.5 rounded"
+                        >
                           {c}
                         </span>
                       ))}
-                      {q.roleTags.map((r) => (
-                        <span key={r} className="bg-surface text-muted text-[10px] px-1.5 py-0.2 rounded border border-border">
-                          {r}
+                      {q.skillTags.slice(0, 2).map((s) => (
+                        <span
+                          key={s}
+                          className="bg-black/5 dark:bg-white/5 text-muted-foreground text-[9px] px-1.5 py-0.5 rounded"
+                        >
+                          {s}
                         </span>
                       ))}
                     </div>
@@ -407,120 +454,31 @@ export default function OaPracticePage() {
           </div>
         </aside>
 
-        {/* Middle/Right: Code Editor & Submissions or Solution */}
-        <main className="flex-1 flex flex-col relative overflow-hidden">
+        {/* Right Code Editor & Problem Panel */}
+        <main
+          className={`flex-1 flex flex-col overflow-hidden bg-background ${
+            mobileTab === "editor" ? "flex" : "hidden md:flex"
+          }`}
+        >
           {selectedQuestion ? (
             <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Optional Solutions & Submissions bar */}
-              <div className="px-4 py-1.5 bg-surface border-b border-border flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="text-muted">Target Company:</span>
-                  <span className="font-semibold text-foreground">
-                    {selectedQuestion.companyTags.join(", ") || "General"}
-                  </span>
-                  <span className="text-muted ml-2">Roles:</span>
-                  <span className="text-foreground">{selectedQuestion.roleTags.join(", ")}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleToggleSolution}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded border border-border hover:bg-elevated text-xs transition-colors"
-                  >
-                    <BookOpen className="w-3.5 h-3.5 text-primary" />
-                    <span>{showSolution ? "Hide Solution" : "View Reference Solution"}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Reference Solution Drawer / Banner if open */}
-              {showSolution && (
-                <div className="p-4 bg-elevated/70 border-b border-border max-h-64 overflow-y-auto">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-xs text-primary flex items-center gap-1">
-                      <BookOpen className="w-3.5 h-3.5" /> Reference Solutions (Official Canonical Answers)
-                    </span>
-                    <button onClick={() => setShowSolution(false)} className="text-xs text-muted hover:text-foreground">
-                      Close
-                    </button>
-                  </div>
-                  {referenceSolution ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {Object.entries(referenceSolution).map(([lang, code]) => (
-                        <div key={lang} className="bg-surface rounded p-2 border border-border text-xs">
-                          <div className="font-bold text-[11px] uppercase text-muted mb-1">{lang}</div>
-                          <pre className="font-mono text-[11px] overflow-x-auto p-2 bg-background rounded text-foreground max-h-40">
-                            {code}
-                          </pre>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-xs text-muted">Loading reference solution...</div>
-                  )}
-                </div>
-              )}
-
-              {/* Submissions Modal / Overlay */}
-              {showSubmissions && (
-                <div className="p-4 bg-surface border-b border-border max-h-64 overflow-y-auto">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-xs flex items-center gap-1">
-                      <History className="w-3.5 h-3.5 text-primary" /> Submissions History
-                    </span>
-                    <button onClick={() => setShowSubmissions(false)} className="text-xs text-muted hover:text-foreground">
-                      Close
-                    </button>
-                  </div>
-                  {submissions.length === 0 ? (
-                    <div className="text-xs text-muted py-2">No submissions recorded for this question yet.</div>
-                  ) : (
-                    <div className="divide-y divide-border text-xs">
-                      {submissions.map((sub) => (
-                        <div key={sub.id} className="py-2 flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-2">
-                            {sub.status === "ACCEPTED" ? (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                            ) : (
-                              <XCircle className="w-4 h-4 text-rose-400" />
-                            )}
-                            <span className="font-semibold">{sub.status}</span>
-                            <span className="text-muted uppercase text-[10px]">({sub.language})</span>
-                            <span className="text-muted">
-                              Score: {sub.score}% ({sub.passedCount}/{sub.totalCount} tests)
-                            </span>
-                          </div>
-                          <span className="text-[10px] text-muted">
-                            {new Date(sub.createdAt).toLocaleString()}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* The Monaco Editor + Test Cases Panel */}
-              <div className="flex-1 overflow-hidden">
-                <CodeEditorPanel
-                  key={selectedQuestion.id}
-                  title={selectedQuestion.title}
-                  statement={selectedQuestion.text}
-                  constraints={selectedQuestion.constraints}
-                  examples={selectedQuestion.examples}
-                  starterCode={selectedQuestion.starterCode || {}}
-                  tests={selectedQuestion.testCases.map((t) => ({
-                    input: t.input,
-                    expected: t.expected,
-                    hidden: t.hidden,
-                  }))}
-                  onRun={handleRun}
-                  onSubmit={handleSubmit}
-                />
-              </div>
+              <CodeEditorPanel
+                key={selectedQuestion.id}
+                title={selectedQuestion.title}
+                statement={selectedQuestion.text}
+                constraints={selectedQuestion.constraints}
+                examples={selectedQuestion.examples}
+                difficulty={selectedQuestion.difficulty}
+                topicTags={selectedQuestion.skillTags || []}
+                starterCode={selectedQuestion.starterCode || {}}
+                tests={selectedQuestion.testCases || []}
+                onRun={handleRun}
+                onSubmit={handleSubmit}
+              />
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-muted text-xs">
-              Select a question to begin practice
+            <div className="flex h-full items-center justify-center text-muted-foreground text-xs">
+              Select a coding challenge from the sidebar to begin practicing.
             </div>
           )}
         </main>

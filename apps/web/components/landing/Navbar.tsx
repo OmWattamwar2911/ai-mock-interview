@@ -100,17 +100,25 @@ export function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-10 py-4 transition-colors duration-300">
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-10 py-3.5 transition-all duration-300 ${
+          isDarkSection
+            ? "bg-[#f0eded]/80 dark:bg-black/80 backdrop-blur-md border-b border-black/5 dark:border-white/10 shadow-sm"
+            : "bg-transparent"
+        }`}
+      >
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           {/* Left: Wind-rose brand */}
           <Link
             href="/"
-            className={`flex items-center gap-2.5 transition-colors duration-200 ${
-              isDarkSection ? "text-black dark:text-white" : "text-white"
+            className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl transition-all duration-200 ${
+              isDarkSection
+                ? "text-black dark:text-white bg-white/70 dark:bg-white/10 backdrop-blur-md border border-black/5 dark:border-white/10 shadow-sm"
+                : "text-white"
             }`}
           >
-            <WindRoseMark className="w-8 h-8" />
-            <span className="font-mono text-lg font-bold tracking-tight">rehearse</span>
+            <WindRoseMark className="w-7 h-7" />
+            <span className="font-mono text-base font-bold tracking-tight">rehearse</span>
           </Link>
 
           {/* Center Pill (hidden below lg) */}
@@ -168,7 +176,11 @@ export function Navbar() {
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-nav"
               aria-label="Toggle navigation menu"
-              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20 lg:hidden"
+              className={`relative flex h-10 w-10 items-center justify-center rounded-xl border backdrop-blur-md transition-colors lg:hidden ${
+                isDarkSection
+                  ? "border-black/10 bg-black/5 text-black hover:bg-black/10 dark:border-white/20 dark:bg-white/10 dark:text-white"
+                  : "border-white/20 bg-white/10 text-white hover:bg-white/20"
+              }`}
             >
               <Menu
                 className={`absolute h-5 w-5 transition-all duration-300 ${
