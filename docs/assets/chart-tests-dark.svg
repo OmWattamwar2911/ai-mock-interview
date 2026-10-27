@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="320" viewBox="0 0 800 320" role="img" aria-label="Rehearse Verified Test Results Chart">
+  <rect width="800" height="320" rx="16" fill="#0A0A0A" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+  <text x="30" y="38" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="800" fill="#EDEDED">AUTOMATED TEST SUITES — 100% PASS EXECUTION</text>
+  <text x="30" y="56" font-family="'JetBrains Mono', monospace" font-size="11" fill="#888888">Verified across Turbo packages and Python agent (2026-10-27).</text>
+  
+      <g transform="translate(30, 80)">
+        <text x="0" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#EDEDED">@rehearse/shared</text>
+        <text x="360" y="14" font-family="'JetBrains Mono', monospace" font-size="11" fill="#888888">Vitest</text>
+        <rect x="520" y="0" width="160" height="20" rx="6" fill="#10B981" fill-opacity="0.15"/>
+        <text x="600" y="14" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#10B981" text-anchor="middle">✓ 16/16 PASSED</text>
+      </g>
+    
+      <g transform="translate(30, 122)">
+        <text x="0" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#EDEDED">@rehearse/web (OA + Calib + SkillGap)</text>
+        <text x="360" y="14" font-family="'JetBrains Mono', monospace" font-size="11" fill="#888888">Node/TSX</text>
+        <rect x="520" y="0" width="160" height="20" rx="6" fill="#10B981" fill-opacity="0.15"/>
+        <text x="600" y="14" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#10B981" text-anchor="middle">✓ 22/22 PASSED</text>
+      </g>
+    
+      <g transform="translate(30, 164)">
+        <text x="0" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#EDEDED">@rehearse/compiler (Sandbox)</text>
+        <text x="360" y="14" font-family="'JetBrains Mono', monospace" font-size="11" fill="#888888">TSX Runner</text>
+        <rect x="520" y="0" width="160" height="20" rx="6" fill="#10B981" fill-opacity="0.15"/>
+        <text x="600" y="14" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#10B981" text-anchor="middle">✓ 5/5 PASSED</text>
+      </g>
+    
+      <g transform="translate(30, 206)">
+        <text x="0" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#EDEDED">@rehearse/ai-engine (ATS)</text>
+        <text x="360" y="14" font-family="'JetBrains Mono', monospace" font-size="11" fill="#888888">TSX Runner</text>
+        <rect x="520" y="0" width="160" height="20" rx="6" fill="#10B981" fill-opacity="0.15"/>
+        <text x="600" y="14" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#10B981" text-anchor="middle">✓ 4/4 PASSED</text>
+      </g>
+    
+      <g transform="translate(30, 248)">
+        <text x="0" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#EDEDED">interview-bot (State & Technical)</text>
+        <text x="360" y="14" font-family="'JetBrains Mono', monospace" font-size="11" fill="#888888">Python Unittest</text>
+        <rect x="520" y="0" width="160" height="20" rx="6" fill="#10B981" fill-opacity="0.15"/>
+        <text x="600" y="14" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#10B981" text-anchor="middle">✓ 17/17 PASSED</text>
+      </g>
+    
+</svg>

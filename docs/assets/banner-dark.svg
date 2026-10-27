@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="500" viewBox="0 0 1600 500" role="img" aria-label="Rehearse Hero Banner">
+  <defs>
+    <linearGradient id="glow-d" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F64302" stop-opacity="0.18" />
+      <stop offset="50%" stop-color="#F64302" stop-opacity="0.04" />
+      <stop offset="100%" stop-color="#0A0A0A" stop-opacity="0" />
+    </linearGradient>
+    <pattern id="grid-d" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="500" fill="#0A0A0A"/>
+  <rect width="1600" height="500" fill="url(#grid-d)"/>
+  <circle cx="1200" cy="180" r="340" fill="url(#glow-d)"/>
+
+  <!-- Left: Rehearse WindRose Logo & Wordmark -->
+  <g transform="translate(100, 100)">
+    <!-- Windrose Mark -->
+    <g transform="translate(0, 8) scale(1.6)">
+      <polygon points="16,2 16,16 11,16" fill="#EDEDED" opacity="0.9" />
+      <polygon points="16,2 21,16 16,16" fill="#EDEDED" opacity="0.4" />
+      <polygon points="30,16 16,16 16,11" fill="#EDEDED" opacity="0.9" />
+      <polygon points="30,16 16,21 16,16" fill="#EDEDED" opacity="0.4" />
+      <polygon points="16,30 16,16 21,16" fill="#EDEDED" opacity="0.9" />
+      <polygon points="16,30 11,16 16,16" fill="#EDEDED" opacity="0.4" />
+      <polygon points="2,16 16,16 16,21" fill="#EDEDED" opacity="0.9" />
+      <polygon points="2,16 16,11 16,16" fill="#EDEDED" opacity="0.4" />
+      <circle cx="16" cy="16" r="3.2" fill="#F64302" />
+    </g>
+
+    <!-- Wordmark -->
+    <text x="70" y="42" font-family="'JetBrains Mono', monospace, ui-monospace, sans-serif" font-size="44" font-weight="700" fill="#EDEDED" letter-spacing="-2px">rehearse</text>
+    <rect x="290" y="24" width="8" height="8" fill="#F64302" rx="1"/>
+
+    <!-- Category Pill -->
+    <rect x="0" y="80" width="220" height="26" rx="6" fill="#F64302" fill-opacity="0.12" stroke="#F64302" stroke-opacity="0.3"/>
+    <text x="12" y="97" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" fill="#F64302" letter-spacing="1px">AI INTERVIEW SIMULATOR</text>
+
+    <!-- Tagline -->
+    <text x="0" y="160" font-family="'JetBrains Mono', monospace, ui-monospace, sans-serif" font-size="52" font-weight="800" fill="#EDEDED" letter-spacing="-1.5px">Rehearse the Interview.</text>
+    <text x="0" y="222" font-family="'JetBrains Mono', monospace, ui-monospace, sans-serif" font-size="52" font-weight="800" fill="#F64302" letter-spacing="-1.5px">Own the Room.</text>
+
+    <!-- Description -->
+    <text x="0" y="275" font-family="'JetBrains Mono', monospace, ui-monospace, sans-serif" font-size="16" fill="#888888" letter-spacing="-0.2px">Multimodal voice agent, live in-browser Monaco coding sandbox,</text>
+    <text x="0" y="302" font-family="'JetBrains Mono', monospace, ui-monospace, sans-serif" font-size="16" fill="#888888" letter-spacing="-0.2px">and verifiable evidence-gated evaluation for engineering candidates.</text>
+  </g>
+
+  <!-- Right: Technical Telemetry Bento Tile -->
+  <g transform="translate(1080, 80)">
+    <rect width="420" height="340" rx="20" fill="#141414" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+    
+    <text x="32" y="48" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#888888" letter-spacing="1.5px">SYSTEM ARCHITECTURE METRICS</text>
+
+    <!-- Metric 1 -->
+    <g transform="translate(32, 75)">
+      <rect width="356" height="64" rx="12" fill="#0A0A0A" stroke="rgba(255,255,255,0.08)"/>
+      <text x="20" y="26" font-family="'JetBrains Mono', monospace" font-size="11" fill="#888888">TOTAL MEASURED LOC</text>
+      <text x="20" y="48" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="800" fill="#EDEDED">35,285 <tspan font-size="12" font-weight="400" fill="#888888">lines (224 files)</tspan></text>
+      <text x="290" y="40" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#F64302">PROD</text>
+    </g>
+
+    <!-- Metric 2 -->
+    <g transform="translate(32, 155)">
+      <rect width="356" height="64" rx="12" fill="#0A0A0A" stroke="rgba(255,255,255,0.08)"/>
+      <text x="20" y="26" font-family="'JetBrains Mono', monospace" font-size="11" fill="#888888">VERIFIED TEST SUITES</text>
+      <text x="20" y="48" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="800" fill="#EDEDED">64 / 64 PASS <tspan font-size="12" font-weight="400" fill="#10B981">(100%)</tspan></text>
+      <text x="280" y="40" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#10B981">STABLE</text>
+    </g>
+
+    <!-- Metric 3 -->
+    <g transform="translate(32, 235)">
+      <rect width="356" height="64" rx="12" fill="#0A0A0A" stroke="rgba(255,255,255,0.08)"/>
+      <text x="20" y="26" font-family="'JetBrains Mono', monospace" font-size="11" fill="#888888">SPEECH-TO-AUDIO TURN LATENCY</text>
+      <text x="20" y="48" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="800" fill="#EDEDED">~1.6s <tspan font-size="12" font-weight="400" fill="#888888">measured (target: &lt;1.0s)</tspan></text>
+      <text x="285" y="40" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#F64302">LIVEKIT</text>
+    </g>
+  </g>
+</svg>

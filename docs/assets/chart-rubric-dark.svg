@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300" role="img" aria-label="Rehearse Evaluation Scoring Rubric Weights">
+  <rect width="800" height="300" rx="16" fill="#0A0A0A" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+  <text x="30" y="38" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="800" fill="#EDEDED">EVIDENCE-BASED EVALUATION SCORECARD WEIGHTS</text>
+  <text x="30" y="56" font-family="'JetBrains Mono', monospace" font-size="11" fill="#888888">Source: apps/web/lib/evaluation.ts &amp; interview-bot/plugins/technical_coach.py (RUBRIC_VERSION 2026.1).</text>
+  
+      <g transform="translate(30, 80)">
+        <text x="0" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="600" fill="#EDEDED">Correctness & Passing Tests</text>
+        <text x="690" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#F64302">45%</text>
+        <rect x="360" y="4" width="300" height="10" rx="5" fill="#222"/>
+        <rect x="360" y="4" width="135" height="10" rx="5" fill="#F64302"/>
+      </g>
+    
+      <g transform="translate(30, 118)">
+        <text x="0" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="600" fill="#EDEDED">Approach & Clean Architecture</text>
+        <text x="690" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#3B82F6">20%</text>
+        <rect x="360" y="4" width="300" height="10" rx="5" fill="#222"/>
+        <rect x="360" y="4" width="60" height="10" rx="5" fill="#3B82F6"/>
+      </g>
+    
+      <g transform="translate(30, 156)">
+        <text x="0" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="600" fill="#EDEDED">Communication & Articulation</text>
+        <text x="690" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#10B981">15%</text>
+        <rect x="360" y="4" width="300" height="10" rx="5" fill="#222"/>
+        <rect x="360" y="4" width="45" height="10" rx="5" fill="#10B981"/>
+      </g>
+    
+      <g transform="translate(30, 194)">
+        <text x="0" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="600" fill="#EDEDED">Complexity (Big-O Asymptotics)</text>
+        <text x="690" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#F59E0B">10%</text>
+        <rect x="360" y="4" width="300" height="10" rx="5" fill="#222"/>
+        <rect x="360" y="4" width="30" height="10" rx="5" fill="#F59E0B"/>
+      </g>
+    
+      <g transform="translate(30, 232)">
+        <text x="0" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="600" fill="#EDEDED">Edge Cases & Hint Independence</text>
+        <text x="690" y="14" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="800" fill="#8B5CF6">10%</text>
+        <rect x="360" y="4" width="300" height="10" rx="5" fill="#222"/>
+        <rect x="360" y="4" width="30" height="10" rx="5" fill="#8B5CF6"/>
+      </g>
+    
+</svg>
