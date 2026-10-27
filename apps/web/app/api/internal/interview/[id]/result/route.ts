@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { jsonError, jsonOk } from "@/lib/http";
 import { z } from "zod";
+import { evaluateSession } from "@/lib/evaluation";
 
 function requireBotSecret(request: NextRequest): boolean {
     const secret = request.headers.get("x-internal-secret");
@@ -21,24 +22,23 @@ const resultSchema = z
         ),
         botSummary: z
             .object({
-                overallScore: z.number().optional().default(7.5),
-                overallScore100: z.number().optional().default(75.0),
-                verdict: z.string().optional().default("Hire"),
-                categoryScores: z.record(z.any()).optional().default({}),
-                strengths: z.array(z.string()).optional().default([]),
-                weaknesses: z.array(z.string()).optional().default([]),
-                improvementPlan: z.array(z.string()).optional().default([]),
-                supportingQuotes: z.array(z.union([z.string(), z.record(z.any())])).optional().default([]),
-                candidateQuotes: z.array(z.string()).optional().default([]),
-                perQuestion: z.array(z.any()).optional().default([]),
-                practicePlan7Day: z.array(z.union([z.string(), z.record(z.any())])).optional().default([]),
+                overallScore: z.number().nullable().optional(),
+                overallScore100: z.number().nullable().optional(),
+                verdict: z.string().optional(),
+                categoryScores: z.record(z.any()).optional(),
+                strengths: z.array(z.string()).optional(),
+                weaknesses: z.array(z.string()).optional(),
+                improvementPlan: z.array(z.string()).optional(),
+                supportingQuotes: z.array(z.union([z.string(), z.record(z.any())])).optional(),
+                candidateQuotes: z.array(z.string()).optional(),
+                perQuestion: z.array(z.any()).optional(),
+                practicePlan7Day: z.array(z.union([z.string(), z.record(z.any())])).optional(),
             })
             .passthrough()
-            .optional()
-            .default({}),
+            .optional(),
         observations: z.array(z.any()).optional().default([]),
         timeline: z.array(z.any()).optional().default([]),
-        testResults: z.record(z.any()).optional().default({}),
+        testResults: z.record(z.any()).optional(),
         status: z.enum(["COMPLETED", "FAILED", "EVALUATING"]).optional().default("COMPLETED"),
         endReason: z.string().optional().nullable(),
         errorMessage: z.string().optional().nullable(),
@@ -47,8 +47,8 @@ const resultSchema = z
 
 /**
  * POST /api/internal/interview/[id]/result
- * Receives the full transcript + observations + AI-generated summary from the bot
- * and persists them to the InterviewSession row and FeedbackReport.
+ * Receives the transcript + raw observations from the bot.
+ * Persists transcript and initiates evidence-based evaluation without injecting synthetic defaults.
  */
 export async function POST(
     request: NextRequest,
@@ -74,13 +74,14 @@ export async function POST(
     const finalStatus = status === "FAILED" ? "FAILED" : "COMPLETED";
 
     const enrichedSummary = {
-        ...botSummary,
+        ...(botSummary || {}),
         observations,
         timeline,
-        testResults,
+        testResults: testResults || (botSummary as any)?.testResults,
         endReason: endReason ?? session.endReason ?? "completed",
     };
 
+    // Update session state with incoming transcript and metadata
     await prisma.interviewSession.update({
         where: { id: params.id },
         data: {
@@ -93,44 +94,15 @@ export async function POST(
         },
     });
 
-    if (finalStatus === "COMPLETED" && botSummary) {
-        const score = typeof botSummary.overallScore === "number" ? botSummary.overallScore : 7.5;
-        const catScores = (botSummary.categoryScores && Object.keys(botSummary.categoryScores).length > 0)
-            ? botSummary.categoryScores
-            : {
-                communication: 8.0,
-                technicalDepth: 7.5,
-                problemSolving: 7.5,
-                behavioralSTAR: 8.0,
-            };
-
-        await prisma.feedbackReport.upsert({
-            where: { sessionId: params.id },
-            create: {
-                sessionId: params.id,
-                overallScore: score,
-                categoryScores: catScores as any,
-                strengths: botSummary.strengths || [],
-                weaknesses: botSummary.weaknesses || [],
-                improvementPlan: botSummary.improvementPlan || [],
-                skillGapInsights: session.skillGap as any,
-                perQuestionSummary: (botSummary.perQuestion as any) || [],
-                mistakesWithQuotes: botSummary.supportingQuotes ? ({ quotes: botSummary.supportingQuotes } as any) : undefined,
-                codeAnalysis: testResults ? ({ results: testResults } as any) : undefined,
-            },
-            update: {
-                overallScore: score,
-                categoryScores: catScores as any,
-                strengths: botSummary.strengths || [],
-                weaknesses: botSummary.weaknesses || [],
-                improvementPlan: botSummary.improvementPlan || [],
-                perQuestionSummary: (botSummary.perQuestion as any) || [],
-                mistakesWithQuotes: botSummary.supportingQuotes ? ({ quotes: botSummary.supportingQuotes } as any) : undefined,
-                codeAnalysis: testResults ? ({ results: testResults } as any) : undefined,
-            },
-        });
+    // Run strict evidence-based evaluation if completed or evaluating
+    if (finalStatus === "COMPLETED") {
+        try {
+            await evaluateSession(params.id, true);
+        } catch (evalErr) {
+            console.error(`[internal] Evidence evaluation failed for ${params.id}:`, evalErr);
+        }
     }
 
-    console.log(`[internal] Result saved for session ${params.id}, status=${finalStatus}`);
+    console.log(`[internal] Result processed cleanly for session ${params.id}, status=${finalStatus}`);
     return jsonOk({ success: true, status: finalStatus });
 }

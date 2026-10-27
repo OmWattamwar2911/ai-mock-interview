@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -12,8 +12,17 @@ import {
   AlertCircle,
   Play,
   RotateCcw,
+  RefreshCw,
+  Plus,
+  SkipForward,
 } from "lucide-react";
-import type { JdParsed, ResumeParsed, SkillGapResponse } from "@rehearse/shared";
+import {
+  calculateSkillGap,
+  skillGapResponseSchema,
+  type JdParsed,
+  type ResumeParsed,
+  type SkillGapResponse,
+} from "@rehearse/shared";
 import { Button } from "@/components/ui/button";
 import { ChipList } from "@/components/chip-list";
 import { Input } from "@/components/ui/input";
@@ -21,11 +30,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/ui/page-header";
 import { BentoCard } from "@/components/ui/bento-card";
 import { StatusChip } from "@/components/ui/status-chip";
-import { SkeletonCard } from "@/components/ui/skeleton-card";
 import { toast } from "@/components/ui/toast";
 
 type ResumeRow = { id: string; fileName: string; parsed: ResumeParsed };
 type JdRow = { id: string; title: string; parsed: JdParsed };
+
+interface ErrorState {
+  message: string;
+  errorId?: string;
+  canRetry?: boolean;
+  type?: "service" | "rate_limit" | "no_skills" | "generic";
+}
 
 const STEPS = [
   { step: 1, label: "Resume" },
@@ -34,11 +49,18 @@ const STEPS = [
   { step: 4, label: "Start Rehearsal" },
 ];
 
+const LOADING_STEPS = [
+  "Reading your resume...",
+  "Reading the job description...",
+  "Comparing skills & calculating alignment...",
+];
+
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loadingStepIdx, setLoadingStepIdx] = useState(0);
+  const [errorState, setErrorState] = useState<ErrorState | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
   const [resume, setResume] = useState<ResumeRow | null>(null);
@@ -51,14 +73,27 @@ export default function OnboardingPage() {
 
   const [gap, setGap] = useState<SkillGapResponse | null>(null);
 
+  // Rotate loading step messages while loading
+  useEffect(() => {
+    if (!loading) return;
+    setLoadingStepIdx(0);
+    const interval = setInterval(() => {
+      setLoadingStepIdx((prev) => (prev + 1) % LOADING_STEPS.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [loading]);
+
   const experienceChips = useMemo(
-    () => (resumeParsed?.experience ?? []).map((e) => [e.title, e.company].filter(Boolean).join(" @ ")).filter(Boolean),
-    [resumeParsed]
+    () =>
+      (resumeParsed?.experience ?? [])
+        .map((e) => [e.title, e.company].filter(Boolean).join(" @ "))
+        .filter(Boolean),
+    [resumeParsed],
   );
 
   async function uploadResume(file: File) {
     setLoading(true);
-    setError("");
+    setErrorState(null);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -70,7 +105,12 @@ export default function OnboardingPage() {
       toast.success("Resume parsed successfully!");
       setStep(2);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to parse resume");
+      console.error("[uploadResume] Error:", err);
+      setErrorState({
+        message: "Could not parse resume file. Please ensure it is a valid PDF or DOCX.",
+        errorId: `ERR-RES-${Date.now().toString(36)}`,
+        canRetry: true,
+      });
       toast.error("Failed to parse resume");
     } finally {
       setLoading(false);
@@ -80,7 +120,7 @@ export default function OnboardingPage() {
   async function submitJd() {
     if (!jdText.trim()) return;
     setLoading(true);
-    setError("");
+    setErrorState(null);
     try {
       const res = await fetch("/api/jds", {
         method: "POST",
@@ -88,13 +128,19 @@ export default function OnboardingPage() {
         body: JSON.stringify({ text: jdText, title: jdTitle || undefined }),
       });
       const data = (await res.json()) as { jobDescription?: JdRow; error?: { message: string } };
-      if (!res.ok || !data.jobDescription) throw new Error(data.error?.message ?? "Failed to parse JD");
+      if (!res.ok || !data.jobDescription)
+        throw new Error(data.error?.message ?? "Failed to parse JD");
       setJd(data.jobDescription);
       setJdParsed(data.jobDescription.parsed);
       toast.success("Job description requirements extracted!");
       setStep(3);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to parse JD");
+      console.error("[submitJd] Error:", err);
+      setErrorState({
+        message: "Could not parse job description. Please check the text and try again.",
+        errorId: `ERR-JD-${Date.now().toString(36)}`,
+        canRetry: true,
+      });
       toast.error("Failed to parse job description");
     } finally {
       setLoading(false);
@@ -103,47 +149,179 @@ export default function OnboardingPage() {
 
   async function uploadJdFile(file: File) {
     setLoading(true);
-    setError("");
+    setErrorState(null);
     try {
       const formData = new FormData();
       formData.append("file", file);
       if (jdTitle) formData.append("title", jdTitle);
       const res = await fetch("/api/jds", { method: "POST", body: formData });
       const data = (await res.json()) as { jobDescription?: JdRow; error?: { message: string } };
-      if (!res.ok || !data.jobDescription) throw new Error(data.error?.message ?? "Failed to parse JD");
+      if (!res.ok || !data.jobDescription)
+        throw new Error(data.error?.message ?? "Failed to parse JD");
       setJd(data.jobDescription);
       setJdParsed(data.jobDescription.parsed);
       toast.success("Job description parsed successfully!");
       setStep(3);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to parse JD");
+      console.error("[uploadJdFile] Error:", err);
+      setErrorState({
+        message: "Could not parse job description file. Try again with plain text or PDF.",
+        errorId: `ERR-JDFILE-${Date.now().toString(36)}`,
+        canRetry: true,
+      });
       toast.error("Failed to parse job description");
     } finally {
       setLoading(false);
     }
   }
 
-  async function analyze() {
+  async function analyze(recalculate = false) {
     if (!resume || !jd) return;
     setLoading(true);
-    setError("");
+    setErrorState(null);
+
+    // 20-second client-side timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20_000);
+
     try {
       const res = await fetch("/api/skill-gap", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ resumeId: resume.id, jdId: jd.id }),
+        signal: controller.signal,
+        body: JSON.stringify({
+          resumeId: resume.id,
+          jdId: jd.id,
+          recalculate,
+          resumeSkills: resumeParsed?.skills,
+          requiredSkills: jdParsed?.requiredSkills,
+          preferredSkills: jdParsed?.preferredSkills,
+        }),
       });
-      const data = (await res.json()) as { skillGap?: SkillGapResponse; error?: { message: string } };
-      if (!res.ok || !data.skillGap) throw new Error(data.error?.message ?? "Failed to calculate skill gap");
-      setGap(data.skillGap);
+
+      clearTimeout(timeoutId);
+
+      const data = (await res.json().catch(() => null)) as {
+        skillGap?: SkillGapResponse;
+        matched?: string[];
+        error?: { code: string; message: string };
+      } | null;
+
+      if (!res.ok) {
+        const status = res.status;
+        const errCode = data?.error?.code ?? "";
+        if (status === 429 || errCode === "RATE_LIMITED") {
+          throw new Error("RATE_LIMIT");
+        }
+        throw new Error(data?.error?.message ?? `HTTP ${status}`);
+      }
+
+      // Robust contract handling: supports both { skillGap: ... } and direct object
+      const parsedGap =
+        data?.skillGap ??
+        (data && Array.isArray((data as SkillGapResponse).matched)
+          ? (data as SkillGapResponse)
+          : null);
+
+      if (!parsedGap) {
+        throw new Error("INVALID_PAYLOAD");
+      }
+
+      setGap(parsedGap);
       setStep(4);
-      toast.success("Skill gap matrix calculated!");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to calculate skill gap");
-      toast.error("Failed to calculate skill gap");
+      setErrorState(null);
+      toast.success(recalculate ? "Skill gap recalculated!" : "Skill gap matrix calculated!");
+    } catch (err: unknown) {
+      clearTimeout(timeoutId);
+      console.error("[analyze] Skill gap calculation error:", err);
+
+      const isAbort =
+        (err as { name?: string })?.name === "AbortError" ||
+        String(err).toLowerCase().includes("abort") ||
+        String(err).toLowerCase().includes("timeout");
+      const isRate = String(err).includes("RATE_LIMIT") || String(err).includes("429");
+
+      const errorId = `ERR-SG-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+
+      if (isRate) {
+        // Fall back to rule-based directly on the client to never block user
+        const fallback = calculateSkillGap(
+          resumeParsed?.skills || [],
+          jdParsed?.requiredSkills || [],
+          jdParsed?.preferredSkills || [],
+        );
+        const fallbackWithNote = skillGapResponseSchema.parse({
+          ...fallback,
+          note: "We hit the AI usage limit. Showing automatic matching instead.",
+        });
+        setGap(fallbackWithNote);
+        setStep(4);
+        toast.info("Showing automatic matching due to AI limit");
+        return;
+      }
+
+      if (isAbort) {
+        setErrorState({
+          message: "Could not reach the analysis service. Try again",
+          errorId,
+          canRetry: true,
+          type: "service",
+        });
+        toast.error("Analysis timed out");
+      } else if (!resumeParsed?.skills?.length) {
+        setErrorState({
+          message: "Your resume has no readable skills. Add them below",
+          errorId,
+          canRetry: true,
+          type: "no_skills",
+        });
+      } else {
+        // Run safe client-side fallback so user is never stranded
+        const fallback = calculateSkillGap(
+          resumeParsed?.skills || [],
+          jdParsed?.requiredSkills || [],
+          jdParsed?.preferredSkills || [],
+        );
+        setGap(
+          skillGapResponseSchema.parse({
+            ...fallback,
+            note: "Showing automatic matching. Analysis service was unreachable.",
+          }),
+        );
+        setStep(4);
+        toast.info("Loaded automatic skill matching");
+      }
     } finally {
       setLoading(false);
     }
+  }
+
+  function skipToInterview() {
+    if (!gap) {
+      const fallback = calculateSkillGap(
+        resumeParsed?.skills || [],
+        jdParsed?.requiredSkills || [],
+        jdParsed?.preferredSkills || [],
+      );
+      setGap(
+        skillGapResponseSchema.parse({
+          ...fallback,
+          note: "Skipped skill gap analysis. Ready for rehearsal.",
+        }),
+      );
+    }
+    setStep(4);
+  }
+
+  function addSampleSkillsToResume() {
+    if (!resumeParsed) return;
+    const defaults = ["TypeScript", "JavaScript", "React", "Node.js", "SQL", "Git"];
+    setResumeParsed({
+      ...resumeParsed,
+      skills: Array.from(new Set([...resumeParsed.skills, ...defaults])),
+    });
+    setErrorState(null);
+    toast.success("Added sample skills to profile!");
   }
 
   return (
@@ -165,7 +343,7 @@ export default function OnboardingPage() {
               <div key={s.step} className="flex items-center gap-2 shrink-0">
                 <button
                   type="button"
-                  disabled={step < s.step}
+                  disabled={step < s.step && !gap}
                   onClick={() => setStep(s.step)}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-mono transition-all duration-200 ${
                     isCurrent
@@ -197,17 +375,70 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      {/* Error Banner */}
-      {error && (
-        <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs text-rose-500 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 shrink-0" />
-          <span>{error}</span>
+      {/* Specific Human Error Banner */}
+      {errorState && (
+        <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs text-rose-500 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in">
+          <div className="flex items-start sm:items-center gap-3">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 sm:mt-0 text-rose-500" />
+            <div className="space-y-0.5">
+              <span className="font-semibold text-rose-600 dark:text-rose-400">
+                {errorState.message}
+              </span>
+              {errorState.errorId && (
+                <p className="text-[10px] text-rose-500/70 font-mono">
+                  Reference: {errorState.errorId}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+            {errorState.canRetry && (
+              <Button
+                variant="outline"
+                className="h-8 rounded-xl font-mono text-xs border-rose-500/40 text-rose-500 hover:bg-rose-500/10 gap-1.5"
+                onClick={() => void analyze(false)}
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Try again</span>
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              className="h-8 rounded-xl font-mono text-xs border-black/15 dark:border-white/15 text-foreground hover:bg-black/5 dark:hover:bg-white/5 gap-1.5"
+              onClick={skipToInterview}
+            >
+              <SkipForward className="w-3.5 h-3.5" />
+              <span>Skip and start with resume & JD</span>
+            </Button>
+          </div>
         </div>
       )}
 
-      {/* Loading Skeleton */}
+      {/* Loading State with Animated Stepper */}
       {loading && (
-        <SkeletonCard lines={4} hasHeader hasLeadingIcon />
+        <div className="rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/[0.04] dark:border-white/[0.08] p-8 sm:p-12 space-y-6 flex flex-col items-center justify-center text-center">
+          <div className="relative flex h-14 w-14 items-center justify-center">
+            <RefreshCw className="h-8 w-8 text-[#F64302] animate-spin" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-jetbrains font-bold text-foreground">
+              {LOADING_STEPS[loadingStepIdx]}
+            </h3>
+            <p className="text-xs text-muted-foreground font-mono max-w-sm">
+              Cross-referencing candidate background against job requirements using deterministic matching and AI insights.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 pt-2">
+            {LOADING_STEPS.map((_, i) => (
+              <span
+                key={i}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === loadingStepIdx ? "w-6 bg-[#F64302]" : "w-2 bg-black/15 dark:bg-white/20"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Step 1: Upload Resume */}
@@ -340,23 +571,56 @@ export default function OnboardingPage() {
       {/* Step 3: Review Skills & Compute Gap */}
       {!loading && step === 3 && resumeParsed && jdParsed && (
         <BentoCard padded="spacious" className="space-y-6">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-jetbrains font-bold text-foreground">
-              Review extracted attributes
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-xl leading-relaxed">
-              Verify detected candidate skills against target requirements before calculating the skill gap matrix.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-jetbrains font-bold text-foreground">
+                Review extracted attributes
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-xl leading-relaxed">
+                Verify detected candidate skills against target requirements before calculating the skill gap matrix. You can add or remove skills below.
+              </p>
+            </div>
+            {resumeParsed.skills.length === 0 && (
+              <Button
+                variant="outline"
+                onClick={addSampleSkillsToResume}
+                className="h-8 rounded-xl font-mono text-xs border-[#F64302]/40 text-[#F64302] hover:bg-[#F64302]/10 gap-1.5 shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add sample skills</span>
+              </Button>
+            )}
           </div>
 
+          {/* Empty warnings if applicable */}
+          {resumeParsed.skills.length === 0 && (
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-600 dark:text-amber-400 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>Your resume has no readable skills. Add them below before computing the gap.</span>
+              </div>
+              <Button
+                variant="outline"
+                onClick={addSampleSkillsToResume}
+                className="h-7 px-2.5 text-[11px] rounded-lg border-amber-500/40 hover:bg-amber-500/10 text-amber-700 dark:text-amber-300"
+              >
+                Add skills
+              </Button>
+            </div>
+          )}
+
           <div className="grid gap-4 md:grid-cols-2">
+            {/* Candidate Skill Profile */}
             <div className="space-y-3 p-4 sm:p-5 rounded-2xl border border-black/5 dark:border-white/10 bg-white/60 dark:bg-black/40">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase text-foreground">
-                <FileText className="h-4 w-4 text-[#F64302]" />
-                <span>Candidate Skill Profile ({resumeParsed.skills.length})</span>
+              <div className="flex items-center justify-between text-xs font-bold uppercase text-foreground">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-[#F64302]" />
+                  <span>Candidate Skill Profile ({resumeParsed.skills.length})</span>
+                </div>
               </div>
               <ChipList
                 values={resumeParsed.skills}
+                placeholder="Add skill (e.g. React, Python) and press Enter"
                 onChange={(skills) => setResumeParsed({ ...resumeParsed, skills })}
               />
               <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground pt-3">
@@ -377,40 +641,57 @@ export default function OnboardingPage() {
               />
             </div>
 
+            {/* Target Role Requirements */}
             <div className="space-y-3 p-4 sm:p-5 rounded-2xl border border-black/5 dark:border-white/10 bg-white/60 dark:bg-black/40">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase text-foreground">
-                <FileText className="h-4 w-4 text-[#F64302]" />
-                <span>Target Role Requirements ({jdParsed.requiredSkills.length})</span>
+              <div className="flex items-center justify-between text-xs font-bold uppercase text-foreground">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-[#F64302]" />
+                  <span>Target Role Requirements ({jdParsed.requiredSkills.length})</span>
+                </div>
               </div>
               <ChipList
                 values={jdParsed.requiredSkills}
+                placeholder="Add required skill and press Enter"
                 onChange={(requiredSkills) => setJdParsed({ ...jdParsed, requiredSkills })}
               />
               <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground pt-3">
-                Preferred additional skills
+                Preferred additional skills ({jdParsed.preferredSkills.length})
               </p>
               <ChipList
                 values={jdParsed.preferredSkills}
+                placeholder="Add preferred skill and press Enter"
                 onChange={(preferredSkills) => setJdParsed({ ...jdParsed, preferredSkills })}
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-black/[0.05] dark:border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-black/[0.05] dark:border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                className="rounded-xl font-mono text-xs font-semibold"
+                onClick={() => setStep(2)}
+                disabled={loading}
+              >
+                Back
+              </Button>
+              <Button
+                variant="ghost"
+                className="rounded-xl font-mono text-xs text-muted-foreground hover:text-foreground gap-1.5"
+                onClick={skipToInterview}
+                disabled={loading}
+              >
+                <SkipForward className="w-3.5 h-3.5" />
+                <span>Skip to rehearsal</span>
+              </Button>
+            </div>
+
             <Button
-              variant="outline"
-              className="rounded-xl font-mono text-xs font-semibold"
-              onClick={() => setStep(2)}
+              className="rounded-xl bg-[#F64302] hover:bg-[#d93800] text-white font-mono text-xs font-bold uppercase tracking-wider shadow-md shadow-[#F64302]/20 gap-2"
+              onClick={() => void analyze(false)}
               disabled={loading}
             >
-              Back
-            </Button>
-            <Button
-              className="rounded-xl bg-[#F64302] hover:bg-[#d93800] text-white font-mono text-xs font-bold uppercase tracking-wider shadow-md shadow-[#F64302]/20"
-              onClick={() => void analyze()}
-              disabled={loading}
-            >
-              Calculate skill gap →
+              <span>Calculate skill gap →</span>
             </Button>
           </div>
         </BentoCard>
@@ -434,6 +715,14 @@ export default function OnboardingPage() {
               <p className="text-xs sm:text-sm text-white/70 font-mono leading-relaxed">
                 {gap.narrative}
               </p>
+              {gap.note && (
+                <div className="pt-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 text-[11px] text-amber-300 font-mono">
+                    <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
+                    <span>{gap.note}</span>
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col items-center justify-center shrink-0">
@@ -523,22 +812,56 @@ export default function OnboardingPage() {
             </div>
           </div>
 
-          {/* Action Row with Clear "Start Interview" CTA */}
+          {/* Extra Resume Skills (if detected) */}
+          {gap.extraSkills && gap.extraSkills.length > 0 && (
+            <div className="rounded-2xl bg-[#EBE8EB] dark:bg-[#141414] border border-black/[0.04] dark:border-white/[0.08] p-5 space-y-3">
+              <div className="flex items-center justify-between border-b border-black/[0.05] dark:border-white/[0.06] pb-2.5">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase text-foreground">
+                  <FileText className="w-4 h-4 text-[#F64302]" />
+                  <span>Additional Candidate Skills ({gap.extraSkills.length})</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground">Skills you bring beyond JD requirements</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {gap.extraSkills.map((s) => (
+                  <span
+                    key={s}
+                    className="rounded-lg bg-black/5 dark:bg-white/5 text-foreground border border-black/10 dark:border-white/10 px-2 py-1 text-xs font-mono font-medium"
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Action Row */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-            <Button
-              variant="outline"
-              className="rounded-xl font-mono text-xs font-semibold"
-              onClick={() => router.push("/documents")}
-            >
-              View saved documents
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                className="rounded-xl font-mono text-xs font-semibold gap-1.5"
+                onClick={() => setStep(3)}
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Adjust skills</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="rounded-xl font-mono text-xs font-semibold gap-1.5"
+                onClick={() => void analyze(true)}
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Recalculate</span>
+              </Button>
+            </div>
 
             <Button
               className="rounded-xl bg-[#F64302] hover:bg-[#d93800] text-white font-mono text-xs font-bold uppercase tracking-wider px-8 h-12 shadow-lg shadow-[#F64302]/25 gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
               onClick={() => router.push("/interview")}
             >
               <Play className="w-4 h-4 fill-current" />
-              <span>Start interview now →</span>
+              <span>Start rehearsal now →</span>
             </Button>
           </div>
         </div>

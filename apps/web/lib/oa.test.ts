@@ -7,14 +7,34 @@ async function runOaTests() {
 
   // 1. Verify Company Question Bank Integrity
   console.log(`  Verifying question bank: ${COMPANY_OA_QUESTIONS.length} original company questions found.`);
-  assert(COMPANY_OA_QUESTIONS.length >= 6, "Expected at least 6 company OA questions");
+  assert(COMPANY_OA_QUESTIONS.length >= 18, "Expected at least 18 company OA questions");
 
-  const expectedCompanies = ["Google", "Amazon", "Stripe", "Meta", "Microsoft", "Uber"];
+  const expectedCompanies = [
+    "Google",
+    "Amazon",
+    "Stripe",
+    "Meta",
+    "Microsoft",
+    "Uber",
+    "Apple",
+    "Netflix",
+    "Bloomberg",
+    "Salesforce",
+    "Adobe",
+    "LinkedIn",
+  ];
   for (const comp of expectedCompanies) {
     const found = COMPANY_OA_QUESTIONS.some((q) => q.companyTags.includes(comp));
     assert(found, `Missing company tag questions for ${comp}`);
   }
-  console.log("  ✓ All required target companies (Google, Amazon, Stripe, Meta, Microsoft, Uber) represented.");
+  console.log("  ✓ All required target companies (Google, Amazon, Stripe, Meta, Microsoft, Uber, Apple, Netflix, Bloomberg, Salesforce, Adobe, LinkedIn) represented.");
+
+  const expectedRoles = ["Backend", "Frontend", "Fullstack", "Systems", "DevOps", "Data Engineer"];
+  for (const r of expectedRoles) {
+    const found = COMPANY_OA_QUESTIONS.some((q) => q.roleTags.includes(r));
+    assert(found, `Missing role tag questions for ${r}`);
+  }
+  console.log("  ✓ All key engineering roles (Backend, Frontend, Fullstack, Systems, DevOps, Data Engineer) represented.");
 
   // 2. Validate Question Details, Starter Code & Test Cases
   for (const q of COMPANY_OA_QUESTIONS) {
@@ -94,7 +114,47 @@ async function runOaTests() {
 
   console.log(`  Stripe OA Reference Solution: Passed ${passedCount}/${totalCount} tests (Score: ${score}%)`);
   assert.equal(score, 100, `Expected 100% score for reference solution, got ${score}%`);
-  console.log("  ✓ Sandbox execution verified 100% pass on both visible and hidden evaluation test cases.");
+
+  // Test Apple Flash Wear-Leveling Reference Solution
+  const appleQ = COMPANY_OA_QUESTIONS.find((q) => q.companyTags.includes("Apple"));
+  assert(appleQ, "Apple question missing");
+  const applePy = appleQ.referenceSolution?.python;
+  assert(applePy, "Python reference solution missing for Apple question");
+
+  for (const test of appleQ.testCases) {
+    const res = await driver.execute(
+      "python",
+      applePy,
+      test.input,
+      { cpuTimeSec: 2, memoryKb: 128_000 }
+    );
+    const cleanStdout = res.stdout.replace(/\r\n/g, "\n").trim();
+    const cleanExpected = test.expected.replace(/\r\n/g, "\n").trim();
+    assert.equal(res.status, "ACCEPTED", `Apple test failed execution: ${res.stderr}`);
+    assert.equal(cleanStdout, cleanExpected, `Apple test mismatch: expected "${cleanExpected}", got "${cleanStdout}"`);
+  }
+  console.log(`  Apple OA Reference Solution: Passed ${appleQ.testCases.length}/${appleQ.testCases.length} tests (Score: 100%)`);
+
+  // Test Meta Virtual DOM Feed Reference Solution
+  const metaQ = COMPANY_OA_QUESTIONS.find((q) => q.title === "Virtual Feed DOM Windowing Engine");
+  assert(metaQ, "Meta Virtual Feed question missing");
+  const metaPy = metaQ.referenceSolution?.python;
+  assert(metaPy, "Python reference solution missing for Meta Virtual Feed question");
+
+  for (const test of metaQ.testCases) {
+    const res = await driver.execute(
+      "python",
+      metaPy,
+      test.input,
+      { cpuTimeSec: 2, memoryKb: 128_000 }
+    );
+    const cleanStdout = res.stdout.replace(/\r\n/g, "\n").trim();
+    const cleanExpected = test.expected.replace(/\r\n/g, "\n").trim();
+    assert.equal(res.status, "ACCEPTED", `Meta test failed execution: ${res.stderr}`);
+    assert.equal(cleanStdout, cleanExpected, `Meta test mismatch: expected "${cleanExpected}", got "${cleanStdout}"`);
+  }
+  console.log(`  Meta OA Reference Solution: Passed ${metaQ.testCases.length}/${metaQ.testCases.length} tests (Score: 100%)`);
+  console.log("  ✓ Sandbox execution verified 100% pass across multiple company reference solutions.");
 
   console.log("✅ All OA Practice verification tests passed successfully!");
 }

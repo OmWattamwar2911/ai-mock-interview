@@ -14,7 +14,10 @@ export async function GET(request: Request) {
 
   const whereClause: Prisma.QuestionWhereInput = {
     source: "BANK",
+    type: "CODING",
+    isActive: true,
     deletedAt: null,
+    title: { not: null },
   };
 
   if (company && company !== "ALL") {
@@ -47,25 +50,36 @@ export async function GET(request: Request) {
       orderBy: { createdAt: "asc" },
     });
 
-    // Sanitize test cases so hidden tests are never exposed in list/details
-    const sanitizedQuestions = questions.map((q) => {
-      const rawTests = Array.isArray(q.testCases) ? (q.testCases as any[]) : [];
-      const visibleTests = rawTests
-        .filter((t) => !t.hidden)
-        .map((t, idx) => ({
-          id: `sample-${idx}`,
-          input: String(t.input ?? ""),
-          expected: String(t.expected ?? ""),
-          hidden: false,
-        }));
+    // Strictly validate and sanitize test cases so hidden tests are never exposed in list/details
+    const sanitizedQuestions = questions
+      .filter((q) => {
+        if (!q.title || q.title.trim().length < 3) return false;
+        if (!q.text || q.text.trim().length < 10) return false;
+        const starters = q.starterCode && typeof q.starterCode === "object" ? Object.keys(q.starterCode as object) : [];
+        if (starters.length === 0) return false;
+        const rawTests = Array.isArray(q.testCases) ? (q.testCases as any[]) : [];
+        if (rawTests.length === 0) return false;
+        if (!rawTests.some((t) => !t.hidden)) return false;
+        return true;
+      })
+      .map((q) => {
+        const rawTests = Array.isArray(q.testCases) ? (q.testCases as any[]) : [];
+        const visibleTests = rawTests
+          .filter((t) => !t.hidden)
+          .map((t, idx) => ({
+            id: `sample-${idx}`,
+            input: String(t.input ?? ""),
+            expected: String(t.expected ?? ""),
+            hidden: false,
+          }));
 
-      return {
-        ...q,
-        testCases: visibleTests,
-        totalTestCount: rawTests.length,
-        hiddenTestCount: rawTests.filter((t) => t.hidden).length,
-      };
-    });
+        return {
+          ...q,
+          testCases: visibleTests,
+          totalTestCount: rawTests.length,
+          hiddenTestCount: rawTests.filter((t) => t.hidden).length,
+        };
+      });
 
     return jsonOk({ questions: sanitizedQuestions });
   } catch (err: any) {

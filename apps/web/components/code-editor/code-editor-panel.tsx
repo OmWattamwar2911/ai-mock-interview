@@ -54,9 +54,12 @@ export function CodeEditorPanel({
   constraints,
   examples,
   difficulty,
+  company,
+  role,
   topicTags = [],
   starterCode = {},
   tests = [],
+  isLiveSession = false,
   synced = false,
   statusMessage = null,
   hintsUsed = 0,
@@ -73,9 +76,12 @@ export function CodeEditorPanel({
   constraints?: string | null;
   examples?: unknown;
   difficulty?: string;
+  company?: string;
+  role?: string;
   topicTags?: string[];
   starterCode?: Record<string, string> | null;
   tests?: TestCase[];
+  isLiveSession?: boolean;
   synced?: boolean;
   statusMessage?: string | null;
   hintsUsed?: number;
@@ -88,9 +94,24 @@ export function CodeEditorPanel({
   onExplainApproach?: () => void;
 }) {
   const safeStarter = starterCode || {};
-  const [language, setLanguage] = useState<Language>("python");
+  const showLiveSession = isLiveSession ?? Boolean(synced || statusMessage !== null);
+  const supportedLanguages: Language[] = (["python", "javascript", "java", "cpp", "c"] as Language[]).filter(
+    (lang) => Boolean(safeStarter[lang])
+  );
+  const activeLanguages: Language[] = supportedLanguages.length > 0 ? supportedLanguages : ["python", "javascript"];
+
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("rehearse_editor_language") as Language | null;
+      if (saved && activeLanguages.includes(saved)) {
+        return saved;
+      }
+    }
+    return activeLanguages[0] || "python";
+  });
+
   const [source, setSource] = useState(
-    safeStarter.python ?? safeStarter.javascript ?? safeStarter.typescript ?? ""
+    safeStarter[language] ?? safeStarter.python ?? safeStarter.javascript ?? ""
   );
   const [input, setInput] = useState("");
   const [tab, setTab] = useState<"tests" | "custom" | "output">("tests");
@@ -114,10 +135,23 @@ export function CodeEditorPanel({
   };
 
   useEffect(() => {
+    if (!activeLanguages.includes(language)) {
+      setLanguage(activeLanguages[0] || "python");
+    }
+  }, [starterCode]);
+
+  useEffect(() => {
     const next = (starterCode || {})[language] ?? "";
     setSource(next);
     onChange?.(language, next, 1);
   }, [language, starterCode, onChange]);
+
+  const handleLanguageChange = (newLang: Language) => {
+    setLanguage(newLang);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("rehearse_editor_language", newLang);
+    }
+  };
 
   async function run(submit: boolean) {
     setBusy(true);
@@ -148,63 +182,81 @@ export function CodeEditorPanel({
     <div className="grid min-h-[620px] overflow-hidden rounded-xl border border-border bg-surface lg:grid-cols-[minmax(300px,0.85fr)_minmax(460px,1.15fr)] shadow-sm">
       {/* Problem Description Column */}
       <section className="flex flex-col border-b border-border p-5 lg:border-b-0 lg:border-r overflow-y-auto max-h-[720px]">
-        {/* Top Problem Header with Sync Indicator */}
+        {/* Top Problem Header with Sync Indicator (Only in Live Interview Sessions) */}
         <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
-          <div className="flex items-center gap-2">
-            <span
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider font-mono ${
-                synced
-                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                  : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-              }`}
-            >
-              {synced ? (
-                <>
-                  <CheckCircle2 className="h-3 w-3 text-emerald-400" /> Aria can see this problem
-                </>
-              ) : (
-                <>
-                  <RotateCw className="h-3 w-3 animate-spin text-amber-400" /> Syncing with Aria...
-                </>
-              )}
-            </span>
-          </div>
+          {showLiveSession ? (
+            <div className="flex items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider font-mono ${
+                  synced
+                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                }`}
+              >
+                {synced ? (
+                  <>
+                    <CheckCircle2 className="h-3 w-3 text-emerald-400" /> Aria can see this problem
+                  </>
+                ) : (
+                  <>
+                    <RotateCw className="h-3 w-3 animate-spin text-amber-400" /> Syncing with Aria...
+                  </>
+                )}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-mono text-muted-foreground font-semibold flex items-center gap-1.5">
+                <Terminal className="h-3.5 w-3.5 text-primary" /> Problem Overview
+              </span>
+            </div>
+          )}
 
-          <div className="flex items-center gap-2 font-mono text-xs text-muted">
+          <div className="flex items-center gap-2 font-mono text-xs text-muted ml-auto">
             <Clock className="h-3.5 w-3.5 text-primary" />
             <span className="font-semibold text-foreground">{formatTimer(secondsSpent)}</span>
           </div>
         </div>
 
         {/* Title and Badges */}
-        <div className="mt-3.5 flex flex-wrap items-center gap-2">
+        <div className="mt-3.5 flex flex-wrap items-center gap-1.5 border-b border-border/40 pb-3">
           {difficulty && (
             <span
               className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
                 difficulty.toUpperCase() === "EASY"
-                  ? "bg-emerald-500/15 text-emerald-400"
+                  ? "bg-emerald-500/15 text-emerald-500 dark:text-emerald-400"
                   : difficulty.toUpperCase() === "HARD"
-                  ? "bg-rose-500/15 text-rose-400"
-                  : "bg-amber-500/15 text-amber-400"
+                  ? "bg-rose-500/15 text-rose-500 dark:text-rose-400"
+                  : "bg-amber-500/15 text-amber-500 dark:text-amber-400"
               }`}
             >
               {difficulty}
             </span>
           )}
+          {company && (
+            <span className="text-[10px] rounded bg-black/5 dark:bg-white/10 px-2 py-0.5 font-mono font-semibold text-foreground">
+              {company}
+            </span>
+          )}
+          {role && (
+            <span className="text-[10px] rounded bg-primary/10 text-primary px-2 py-0.5 font-mono font-semibold">
+              {role}
+            </span>
+          )}
           {topicTags.map((tag) => (
-            <span key={tag} className="text-[10px] rounded bg-muted/20 px-2 py-0.5 font-mono text-muted">
+            <span key={tag} className="text-[10px] rounded bg-muted/20 px-2 py-0.5 font-mono text-muted-foreground">
               {tag}
             </span>
           ))}
-          <span className="text-[10px] rounded bg-muted/20 px-2 py-0.5 font-mono text-muted ml-auto">
+          <span className="text-[10px] rounded bg-muted/20 px-2 py-0.5 font-mono text-muted-foreground ml-auto">
             {tests.length} Test Cases
           </span>
         </div>
 
-        <h2 className="mt-2.5 text-lg font-bold text-foreground tracking-tight">{title || statement}</h2>
+        <h2 className="mt-3 text-base font-bold text-foreground tracking-tight">{title || statement}</h2>
 
         {title && statement !== title ? (
-          <p className="mt-2 text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">{statement}</p>
+          <p className="mt-2.5 text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed font-sans">{statement}</p>
         ) : null}
 
         {constraints ? (
@@ -250,56 +302,58 @@ export function CodeEditorPanel({
 
       {/* Code Editor Column */}
       <section className="flex min-h-0 flex-col">
-        {/* Real-time Bot Reading Status Bar */}
-        <div className="flex items-center justify-between border-b border-border bg-surface/90 px-4 py-2 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500" />
-            </span>
-            <span className="text-muted text-[11px] font-mono">
-              {statusMessage || "Aria is reading your code"}
-            </span>
-          </div>
+        {/* Real-time Bot Reading Status Bar (Only in Live Interview Sessions) */}
+        {showLiveSession && (
+          <div className="flex flex-wrap items-center justify-between border-b border-border bg-surface/90 px-4 py-2 text-xs gap-2">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500" />
+              </span>
+              <span className="text-muted text-[11px] font-mono">
+                {statusMessage || "Aria is reading your code"}
+              </span>
+            </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] font-mono text-muted">
-              Hints used: <strong className="text-foreground">{hintsUsed}</strong>/{maxHints}
-            </span>
-            {onRequestHint && (
-              <button
-                type="button"
-                onClick={onRequestHint}
-                disabled={hintsUsed >= maxHints}
-                className="inline-flex items-center gap-1 rounded bg-violet-500/10 hover:bg-violet-500/20 text-violet-300 border border-violet-500/30 px-2 py-0.5 text-[11px] font-medium transition-colors disabled:opacity-40"
-              >
-                <HelpCircle className="h-3 w-3" />
-                Ask Aria for a hint
-              </button>
-            )}
-            {onExplainApproach && (
-              <button
-                type="button"
-                onClick={onExplainApproach}
-                className="inline-flex items-center gap-1 rounded border border-border hover:bg-elevated px-2 py-0.5 text-[11px] font-medium transition-colors"
-              >
-                <MessageSquare className="h-3 w-3 text-primary" />
-                Explain my approach
-              </button>
-            )}
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="text-[11px] font-mono text-muted whitespace-nowrap">
+                Hints used: <strong className="text-foreground">{hintsUsed}</strong>/{maxHints}
+              </span>
+              {onRequestHint && (
+                <button
+                  type="button"
+                  onClick={onRequestHint}
+                  disabled={hintsUsed >= maxHints}
+                  className="inline-flex items-center gap-1 rounded bg-violet-500/10 hover:bg-violet-500/20 text-violet-300 border border-violet-500/30 px-2 py-0.5 text-[11px] font-medium transition-colors disabled:opacity-40 whitespace-nowrap"
+                >
+                  <HelpCircle className="h-3 w-3" />
+                  Ask Aria for a hint
+                </button>
+              )}
+              {onExplainApproach && (
+                <button
+                  type="button"
+                  onClick={onExplainApproach}
+                  className="inline-flex items-center gap-1 rounded border border-border hover:bg-elevated px-2 py-0.5 text-[11px] font-medium transition-colors whitespace-nowrap"
+                >
+                  <MessageSquare className="h-3 w-3 text-primary" />
+                  Explain my approach
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Editor Controls Toolbar */}
-        <div className="flex items-center justify-between border-b border-border bg-background/50 px-4 py-2">
-          <label className="flex items-center gap-2 text-xs font-medium text-muted">
+        {/* Editor Controls Toolbar (Responsive with wrap and no right cut-off) */}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-background/50 px-4 py-2 min-w-0">
+          <label className="flex items-center gap-2 text-xs font-medium text-muted shrink-0">
             Language:
             <select
               value={language}
-              onChange={(e) => setLanguage(e.target.value as Language)}
+              onChange={(e) => handleLanguageChange(e.target.value as Language)}
               className="rounded-md border border-border bg-background px-2.5 py-1 text-xs text-foreground outline-none font-mono"
             >
-              {(["python", "javascript", "java", "cpp", "c"] as Language[]).map((item) => (
+              {activeLanguages.map((item) => (
                 <option key={item} value={item}>
                   {item === "cpp" ? "C++" : item.toUpperCase()}
                 </option>
@@ -307,21 +361,23 @@ export function CodeEditorPanel({
             </select>
           </label>
 
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
             <button
               type="button"
-              disabled={busy}
+              disabled={busy || tests.length === 0}
+              title={tests.length === 0 ? "This problem has no test cases available" : "Run sample test cases"}
               onClick={() => void run(false)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-elevated disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <Play className="h-3.5 w-3.5 text-emerald-400" />
               Run Sample Tests
             </button>
             <button
               type="button"
-              disabled={busy}
+              disabled={busy || tests.length === 0}
+              title={tests.length === 0 ? "This problem has no test cases available" : "Submit solution against all test cases"}
               onClick={() => void run(true)}
-              className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
             >
               <Send className="h-3.5 w-3.5" />
               Submit All Tests

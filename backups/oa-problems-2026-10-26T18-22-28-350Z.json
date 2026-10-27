@@ -1,0 +1,1581 @@
+[
+  {
+    "id": "cmv2iypdz0007w9k8sw7a0wp5",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "Compare cache-aside, write-through, and write-back. What failure modes does each have?",
+    "difficulty": "HARD",
+    "skillTags": [
+      "System Design",
+      "Caching"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "staleness",
+      "write amplification",
+      "cache stampede"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.176Z"
+  },
+  {
+    "id": "cmv2iype60009w9k86i1plylq",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "Explain rebase versus merge. When is rebase unsafe?",
+    "difficulty": "EASY",
+    "skillTags": [
+      "Git"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "history rewrite",
+      "shared branches",
+      "conflict resolution"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.183Z"
+  },
+  {
+    "id": "cmv2iype9000aw9k85v682brt",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "Why is storing JWTs in localStorage risky, and how do httpOnly cookies plus CSRF protection compare?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "OAuth 2.0",
+      "JWT"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "XSS",
+      "CSRF",
+      "SameSite",
+      "refresh rotation"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.186Z"
+  },
+  {
+    "id": "cmv2iypec000bw9k85a4rnvc6",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "A payment service must not double-charge. How do you design for at-least-once delivery without duplicate charges?",
+    "difficulty": "HARD",
+    "skillTags": [
+      "Distributed Systems",
+      "CAP Theorem"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "idempotency keys",
+      "exactly-once illusion",
+      "outbox"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.189Z"
+  },
+  {
+    "id": "cmv2iypef000cw9k8jle0w3n9",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "What is the GIL and how does it affect CPU-bound versus I/O-bound Python programs?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Python"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "thread vs process",
+      "asyncio",
+      "C extensions"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.192Z"
+  },
+  {
+    "id": "cmv2iypei000dw9k8znt34lrg",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "Explain how garbage collection generations work in HotSpot and when you would tune heap sizes.",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Java",
+      "JVM"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "young/old gen",
+      "STW pauses",
+      "GC logs"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.194Z"
+  },
+  {
+    "id": "cmv2iypel000ew9k89yx9xje3",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "How do you process a Kafka topic with exactly-once-like consumer semantics in practice?",
+    "difficulty": "HARD",
+    "skillTags": [
+      "System Design",
+      "Message Queues"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "offsets",
+      "transactions",
+      "idempotent producer"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.197Z"
+  },
+  {
+    "id": "cmv2iypen000fw9k8lrobnvd6",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "How does the CSS cascade interact with specificity and inheritance? Give a debugging approach for an unexpected style.",
+    "difficulty": "EASY",
+    "skillTags": [
+      "CSS3",
+      "HTML5"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "specificity",
+      "source order",
+      "devtools computed"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.200Z"
+  },
+  {
+    "id": "cmv2iypeq000gw9k8lzkdht79",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "When would you use Redis as a cache versus as a primary data store? Discuss persistence options.",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Redis",
+      "Caching"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "RDB/AOF",
+      "eviction",
+      "durability"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.202Z"
+  },
+  {
+    "id": "cmv2iypew000iw9k8ib5am1d0",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "Tell me about a time you disagreed with a tech lead on an approach. What did you do, and what was the outcome?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Communication"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "situation",
+      "tradeoff argument",
+      "respect",
+      "result"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.208Z"
+  },
+  {
+    "id": "cmv2iypez000jw9k8sf4674w8",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "Describe an incident you owned end to end. How did you communicate during the outage and after?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Ownership"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "timeline",
+      "mitigation",
+      "postmortem",
+      "follow-up"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.211Z"
+  },
+  {
+    "id": "cmv2iypf1000kw9k8y3jtpc0h",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "Talk about a technology you had to learn quickly for a project. How did you get productive?",
+    "difficulty": "EASY",
+    "skillTags": [
+      "Learning"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "learning plan",
+      "mentors/docs",
+      "delivery"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.214Z"
+  },
+  {
+    "id": "cmv2iypf4000lw9k8x0oftw1r",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "You notice a teammate repeatedly shipping untested code. How do you handle it without creating a hostile environment?",
+    "difficulty": "HARD",
+    "skillTags": [
+      "Leadership"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "direct feedback",
+      "process change",
+      "empathy"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.216Z"
+  },
+  {
+    "id": "cmv2iypf7000mw9k8euf0hx34",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "You have three high-priority tickets and one production fire. Walk me through how you sequence the day.",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Prioritization"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "impact",
+      "stakeholders",
+      "timeboxing"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.219Z"
+  },
+  {
+    "id": "cmv2iypfb000nw9k85b6nkb7j",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "Give an example of working with a designer or PM when requirements were ambiguous.",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Collaboration"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "clarifying questions",
+      "prototype",
+      "alignment"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.223Z"
+  },
+  {
+    "id": "cmv2iypfe000ow9k8zjxkkvk6",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "Tell me about a decision you made that turned out to be wrong. What did you change afterward?",
+    "difficulty": "HARD",
+    "skillTags": [
+      "Failure"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "accountability",
+      "learning",
+      "process"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.227Z"
+  },
+  {
+    "id": "cmv2iypfi000pw9k84oah8l1n",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "How do you explain a technical constraint to a non-technical stakeholder?",
+    "difficulty": "EASY",
+    "skillTags": [
+      "Communication"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "plain language",
+      "options",
+      "risk"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.230Z"
+  },
+  {
+    "id": "cmv2iypfl000qw9k8x0korb7s",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "Describe how you onboarded or mentored someone. What did you do in the first two weeks?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Mentorship"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "plan",
+      "feedback loops",
+      "autonomy"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.233Z"
+  },
+  {
+    "id": "cmv2iypfo000rw9k8kbccodu5",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "Two senior engineers are blocked on a design review. You are the facilitator. What is your process?",
+    "difficulty": "HARD",
+    "skillTags": [
+      "Conflict"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "decision record",
+      "timebox",
+      "escalation"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.236Z"
+  },
+  {
+    "id": "cmv2iypfr000sw9k8b56e6amt",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "A deadline moved up by a week. How do you renegotiate scope?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Delivery"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "must-haves",
+      "quality bar",
+      "communication"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.239Z"
+  },
+  {
+    "id": "cmv2iypft000tw9k8a88sx4dw",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "You are asked to log extra user data that is not in the privacy policy. What do you do?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Ethics"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "legal/privacy",
+      "push back",
+      "alternatives"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.242Z"
+  },
+  {
+    "id": "cmv2iypdn0004w9k82bntmezc",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "Walk through what happens on the Node.js event loop when a Promise, a setTimeout(0), and a nextTick callback are all queued.",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Node.js",
+      "Event Loop"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "microtasks",
+      "nextTick queue",
+      "timers phase"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.164Z"
+  },
+  {
+    "id": "cmv2iypds0005w9k8pno3h79q",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "How would you diagnose and fix a slow query that does a sequential scan on a 50M-row table?",
+    "difficulty": "HARD",
+    "skillTags": [
+      "PostgreSQL",
+      "SQL"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "EXPLAIN ANALYZE",
+      "indexes",
+      "selectivity",
+      "statistics"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.168Z"
+  },
+  {
+    "id": "cmv2iypdv0006w9k86nkuj5x0",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "Design idempotent POST-like write semantics using HTTP. Which status codes and headers matter?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "REST APIs",
+      "HTTP"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "Idempotency-Key",
+      "PUT vs POST",
+      "409/200/201"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.172Z"
+  },
+  {
+    "id": "cmv2iypfw000uw9k8t7bwl9n8",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "Why this role, and what kind of problems do you want to spend the next two years on?",
+    "difficulty": "EASY",
+    "skillTags": [
+      "Motivation"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "role fit",
+      "growth",
+      "product interest"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.245Z"
+  },
+  {
+    "id": "cmv2iypfz000vw9k8y9s1oc6y",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "Tell me about a time you reduced operational toil. How did you measure success?",
+    "difficulty": "HARD",
+    "skillTags": [
+      "Systems thinking"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "metrics",
+      "automation",
+      "adoption"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.247Z"
+  },
+  {
+    "id": "cmv2iypg2000ww9k8xuh8h693",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "Share a time you received difficult feedback. What changed in your work afterward?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Feedback"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "listening",
+      "action",
+      "follow-up"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.250Z"
+  },
+  {
+    "id": "cmv2iypg4000xw9k87e979rq5",
+    "type": "BEHAVIOURAL",
+    "title": null,
+    "text": "You join a codebase with no docs. How do you start contributing in the first month?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Ambiguity"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "maps",
+      "small PRs",
+      "questions"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.253Z"
+  },
+  {
+    "id": "cmv2iypgg0010w9k8s22wk53k",
+    "type": "CODING",
+    "title": null,
+    "text": "Valid Parentheses: given a string containing ()[]{}, determine if the input is valid.",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Stack"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "stack",
+      "matching pairs"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\nint main(){char s[10000]; scanf(\"%s\",s); char st[10000]; int t=0; for(int i=0;s[i];i++){ char c=s[i]; if(c=='('||c=='['||c=='{') st[t++]=c; else { if(!t){printf(\"false\");return 0;} char p=st[--t]; if((c==')'&&p!='(')||(c==']'&&p!='[')||(c=='}'&&p!='{')){printf(\"false\");return 0;} } } printf(t?\"false\":\"true\"); }",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; bool isValid(string s){return false;} int main(){string s; cin>>s; cout<<(isValid(s)?\"true\":\"false\");}",
+      "java": "import java.util.*; public class Main{ static boolean isValid(String s){return false;} public static void main(String[] a){ System.out.println(isValid(new Scanner(System.in).next())?\"true\":\"false\"); }}",
+      "python": "def is_valid(s):\n    pass\nimport sys\nprint('true' if is_valid(sys.stdin.read().strip()) else 'false')",
+      "javascript": "function isValid(s){return false}\nconst fs=require('fs');\nconsole.log(isValid(fs.readFileSync(0,'utf8').trim())?'true':'false');"
+    },
+    "testCases": [
+      {
+        "input": "()",
+        "hidden": false,
+        "expected": "true"
+      },
+      {
+        "input": "()[]{}",
+        "hidden": false,
+        "expected": "true"
+      },
+      {
+        "input": "(]",
+        "hidden": false,
+        "expected": "false"
+      },
+      {
+        "input": "([)]",
+        "hidden": true,
+        "expected": "false"
+      },
+      {
+        "input": "{[]}",
+        "hidden": true,
+        "expected": "true"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.265Z"
+  },
+  {
+    "id": "cmv2iyph10015w9k8ejmd08qd",
+    "type": "CODING",
+    "title": null,
+    "text": "Maximum Depth of a binary tree given as level-order with null as -1. Input: n then n values.",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Trees"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "BFS/DFS depth"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\nint main(){int n;scanf(\"%d\",&n); int v[1000]; for(int i=0;i<n;i++) scanf(\"%d\",&v[i]); int d=0; int q[1000]; q[0]=0; int qs=0,qe=1; while(qs<qe){ int sz=qe-qs; d++; for(int k=0;k<sz;k++){ int i=q[qs++]; int l=2*i+1,r=2*i+2; if(l<n && v[l]!=-1) q[qe++]=l; if(r<n && v[r]!=-1) q[qe++]=r; } } printf(\"%d\", n==0||v[0]==-1?0:d); }",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; int depth(vector<int> v){return 0;} int main(){int n;cin>>n;vector<int> v(n);for(int i=0;i<n;i++)cin>>v[i];cout<<depth(v);}",
+      "java": "import java.util.*; public class Main{ static int depth(int[] v){return 0;} public static void main(String[] a){ Scanner sc=new Scanner(System.in); int n=sc.nextInt(); int[] v=new int[n]; for(int i=0;i<n;i++) v[i]=sc.nextInt(); System.out.println(depth(v)); }}",
+      "python": "def depth(vals):\n    return 0\nimport sys\np=list(map(int, sys.stdin.read().split())); print(depth(p[1:]))",
+      "javascript": "function depth(vals){return 0}\nconst p=require('fs').readFileSync(0,'utf8').trim().split(/\\s+/).map(Number);\nconsole.log(depth(p.slice(1)));"
+    },
+    "testCases": [
+      {
+        "input": "7 3 9 20 -1 -1 15 7",
+        "hidden": false,
+        "expected": "3"
+      },
+      {
+        "input": "3 1 -1 2",
+        "hidden": false,
+        "expected": "2"
+      },
+      {
+        "input": "1 1",
+        "hidden": false,
+        "expected": "1"
+      },
+      {
+        "input": "1 -1",
+        "hidden": true,
+        "expected": "0"
+      },
+      {
+        "input": "5 1 2 3 4 5",
+        "hidden": true,
+        "expected": "3"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.285Z"
+  },
+  {
+    "id": "cmv2iypgs0013w9k8hc0ohq7k",
+    "type": "CODING",
+    "title": null,
+    "text": "Climbing Stairs: you can climb 1 or 2 steps. Given n, return the number of distinct ways to climb to the top. Input: n",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Dynamic Programming"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "recurrence",
+      "O(n) DP"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\nint main(){int n;scanf(\"%d\",&n); long a=1,b=1; for(int i=2;i<=n;i++){ long c=a+b; a=b; b=c;} printf(\"%ld\", n==0?1:b); }",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; int climb(int n){return 0;} int main(){int n;cin>>n;cout<<climb(n);}",
+      "java": "import java.util.*; public class Main{ static int climb(int n){return 0;} public static void main(String[] a){ System.out.println(climb(new Scanner(System.in).nextInt())); }}",
+      "python": "def climb(n):\n    return 0\nimport sys\nprint(climb(int(sys.stdin.read())))",
+      "javascript": "function climb(n){return 0}\nconsole.log(climb(Number(require('fs').readFileSync(0,'utf8'))));"
+    },
+    "testCases": [
+      {
+        "input": "2",
+        "hidden": false,
+        "expected": "2"
+      },
+      {
+        "input": "3",
+        "hidden": false,
+        "expected": "3"
+      },
+      {
+        "input": "1",
+        "hidden": false,
+        "expected": "1"
+      },
+      {
+        "input": "5",
+        "hidden": true,
+        "expected": "8"
+      },
+      {
+        "input": "10",
+        "hidden": true,
+        "expected": "89"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.277Z"
+  },
+  {
+    "id": "cmv2iyph60016w9k8bsklftmo",
+    "type": "CODING",
+    "title": null,
+    "text": "FizzBuzz: print n lines for 1..n. Multiples of 3 -> Fizz, 5 -> Buzz, both -> FizzBuzz, else the number. Input: n",
+    "difficulty": "EASY",
+    "skillTags": [
+      "Math"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "modulo",
+      "order of checks"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\nint main(){int n;scanf(\"%d\",&n); for(int i=1;i<=n;i++){ if(i%15==0) printf(\"FizzBuzz\\n\"); else if(i%3==0) printf(\"Fizz\\n\"); else if(i%5==0) printf(\"Buzz\\n\"); else printf(\"%d\\n\",i);} }",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; int main(){int n;cin>>n; for(int i=1;i<=n;i++){ if(i%15==0)cout<<\"FizzBuzz\\n\"; else if(i%3==0)cout<<\"Fizz\\n\"; else if(i%5==0)cout<<\"Buzz\\n\"; else cout<<i<<\"\\n\"; }}",
+      "java": "import java.util.*; public class Main{ public static void main(String[] a){ int n=new Scanner(System.in).nextInt(); for(int i=1;i<=n;i++){ if(i%15==0) System.out.println(\"FizzBuzz\"); else if(i%3==0) System.out.println(\"Fizz\"); else if(i%5==0) System.out.println(\"Buzz\"); else System.out.println(i);} }}",
+      "python": "n=int(input())\nfor i in range(1,n+1):\n    if i%15==0: print('FizzBuzz')\n    elif i%3==0: print('Fizz')\n    elif i%5==0: print('Buzz')\n    else: print(i)",
+      "javascript": "const n=Number(require('fs').readFileSync(0,'utf8'));\nfor(let i=1;i<=n;i++){\n  let s=''; if(i%3===0)s+='Fizz'; if(i%5===0)s+='Buzz'; console.log(s||i);\n}"
+    },
+    "testCases": [
+      {
+        "input": "3",
+        "hidden": false,
+        "expected": "1\n2\nFizz"
+      },
+      {
+        "input": "5",
+        "hidden": false,
+        "expected": "1\n2\nFizz\n4\nBuzz"
+      },
+      {
+        "input": "1",
+        "hidden": false,
+        "expected": "1"
+      },
+      {
+        "input": "15",
+        "hidden": true,
+        "expected": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.290Z"
+  },
+  {
+    "id": "cmv2iypdd0002w9k8bzkz9l4e",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "How does React's reconciliation algorithm decide when to reuse, update, or unmount a component?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "React",
+      "JavaScript"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "Virtual DOM diff",
+      "keys",
+      "component type identity",
+      "state preservation"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.153Z"
+  },
+  {
+    "id": "cmv2iypg7000yw9k8zhn2sqsa",
+    "type": "CODING",
+    "title": null,
+    "text": "Two Sum: given an array of integers and a target, return the indices of two numbers that add up to the target.",
+    "difficulty": "EASY",
+    "skillTags": [
+      "Arrays",
+      "Hash Maps"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "O(n) hashmap",
+      "correct indices",
+      "edge cases"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\nint main(){int n,t;scanf(\"%d %d\",&n,&t);int a[200];for(int i=0;i<n;i++)scanf(\"%d\",&a[i]);int x=0,y=1;for(int i=0;i<n;i++)for(int j=i+1;j<n;j++)if(a[i]+a[j]==t){x=i;y=j;}\nprintf(\"%d %d\",x,y);return 0;}",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; vector<int> twoSum(vector<int> n,int t){return {0,1};}\nint main(){int n,t;cin>>n>>t;vector<int> a(n);for(int i=0;i<n;i++)cin>>a[i];auto r=twoSum(a,t);cout<<r[0]<<' '<<r[1];}",
+      "java": "import java.util.*;\npublic class Main {\n  static int[] twoSum(int[] nums, int target){ return new int[]{0,1}; }\n  public static void main(String[] a){ Scanner sc=new Scanner(System.in); int n=sc.nextInt(); int t=sc.nextInt(); int[] nums=new int[n]; for(int i=0;i<n;i++) nums[i]=sc.nextInt(); int[] r=twoSum(nums,t); System.out.println(r[0]+\" \"+r[1]); }\n}",
+      "python": "def two_sum(nums, target):\n    pass\n\nimport sys\nline = sys.stdin.read().strip().split()\nn = int(line[0]); target = int(line[1]); nums = list(map(int, line[2:]))\nprint(' '.join(map(str, two_sum(nums, target))))",
+      "javascript": "function twoSum(nums, target) {}\nconst fs = require('fs');\nconst p = fs.readFileSync(0,'utf8').trim().split(/\\s+/).map(Number);\nconst n=p[0], t=p[1], nums=p.slice(2);\nconsole.log(twoSum(nums,t).join(' '));"
+    },
+    "testCases": [
+      {
+        "input": "4 9 2 7 11 15",
+        "hidden": false,
+        "expected": "0 1"
+      },
+      {
+        "input": "3 6 3 2 4",
+        "hidden": false,
+        "expected": "0 2"
+      },
+      {
+        "input": "2 6 3 3",
+        "hidden": false,
+        "expected": "0 1"
+      },
+      {
+        "input": "5 0 -1 0 1 2 3",
+        "hidden": true,
+        "expected": "0 1"
+      },
+      {
+        "input": "4 8 1 4 5 3",
+        "hidden": true,
+        "expected": "1 3"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": "Assume exactly one solution. You may not use the same element twice.",
+    "examples": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "output": "[0,1]"
+      }
+    ],
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.256Z"
+  },
+  {
+    "id": "cmv2iyphe0018w9k8ar29xgl2",
+    "type": "CODING",
+    "title": null,
+    "text": "Kth Largest Element: input n k then n integers. Return the kth largest.",
+    "difficulty": "HARD",
+    "skillTags": [
+      "Heaps"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "heap or quickselect"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\n#include <stdlib.h>\nint cmp(const void*a,const void*b){return *(int*)a-*(int*)b;} int main(){int n,k;scanf(\"%d %d\",&n,&k); int a[10000]; for(int i=0;i<n;i++) scanf(\"%d\",&a[i]); qsort(a,n,sizeof(int),cmp); printf(\"%d\",a[n-k]); }",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; int main(){int n,k;cin>>n>>k; vector<int> a(n); for(int i=0;i<n;i++)cin>>a[i]; nth_element(a.begin(), a.begin()+n-k, a.end()); cout<<a[n-k];}",
+      "java": "import java.util.*; public class Main{ public static void main(String[] a){ Scanner sc=new Scanner(System.in); int n=sc.nextInt(); int k=sc.nextInt(); int[] arr=new int[n]; for(int i=0;i<n;i++) arr[i]=sc.nextInt(); Arrays.sort(arr); System.out.println(arr[n-k]); }}",
+      "python": "def kth(nums,k):\n    return sorted(nums)[-k]\nimport sys\np=list(map(int, sys.stdin.read().split())); n,k=p[0],p[1]; print(kth(p[2:],k))",
+      "javascript": "function kth(nums,k){return nums.sort((a,b)=>a-b)[nums.length-k]}\nconst p=require('fs').readFileSync(0,'utf8').trim().split(/\\s+/).map(Number);\nconsole.log(kth(p.slice(2), p[1]));"
+    },
+    "testCases": [
+      {
+        "input": "6 2 3 2 1 5 6 4",
+        "hidden": false,
+        "expected": "5"
+      },
+      {
+        "input": "9 4 3 2 3 1 2 4 5 5 6",
+        "hidden": false,
+        "expected": "4"
+      },
+      {
+        "input": "1 1 1",
+        "hidden": false,
+        "expected": "1"
+      },
+      {
+        "input": "4 1 7 1 9 3",
+        "hidden": true,
+        "expected": "9"
+      },
+      {
+        "input": "5 3 1 1 1 1 2",
+        "hidden": true,
+        "expected": "1"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.299Z"
+  },
+  {
+    "id": "cmv2iype30008w9k8o9etyf00",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "What is the difference between a liveness probe and a readiness probe, and what goes wrong if you mix them up?",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Docker",
+      "Kubernetes"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "restart vs traffic",
+      "startup probe",
+      "cascading failure"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.180Z"
+  },
+  {
+    "id": "cmv2iypet000hw9k80wvxu10o",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "A client sees intermittent 502s behind a load balancer. How do you distinguish app crashes from idle timeout vs DNS issues?",
+    "difficulty": "HARD",
+    "skillTags": [
+      "Networking",
+      "TCP/IP"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "keep-alive",
+      "idle timeout",
+      "health checks",
+      "connection reset"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.205Z"
+  },
+  {
+    "id": "cmv2iypgw0014w9k8xy9ku94h",
+    "type": "CODING",
+    "title": null,
+    "text": "Number of Islands: given a grid of 0/1 as rows of characters, count islands of 4-connected 1s. First line: rows cols, then rows of 0/1 strings.",
+    "difficulty": "HARD",
+    "skillTags": [
+      "Graphs"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "DFS/BFS flood fill"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\nchar g[50][50]; int r,c; void dfs(int i,int j){ if(i<0||j<0||i>=r||j>=c||g[i][j]!='1') return; g[i][j]='0'; dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);} int main(){scanf(\"%d %d\",&r,&c); for(int i=0;i<r;i++) scanf(\"%s\",g[i]); int n=0; for(int i=0;i<r;i++) for(int j=0;j<c;j++) if(g[i][j]=='1'){n++; dfs(i,j);} printf(\"%d\",n);}",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; int islands(vector<string> g){return 0;} int main(){int r,c;cin>>r>>c; vector<string> g(r); for(int i=0;i<r;i++) cin>>g[i]; cout<<islands(g);}",
+      "java": "import java.util.*; public class Main{ static int islands(char[][] g){return 0;} public static void main(String[] a){ Scanner sc=new Scanner(System.in); int r=sc.nextInt(); int c=sc.nextInt(); char[][] g=new char[r][c]; for(int i=0;i<r;i++){ String s=sc.next(); g[i]=s.toCharArray(); } System.out.println(islands(g)); }}",
+      "python": "def islands(grid):\n    return 0\nimport sys\nlines=sys.stdin.read().strip().splitlines()\nr,c=map(int, lines[0].split()); grid=lines[1:]\nprint(islands(grid))",
+      "javascript": "function islands(grid){return 0}\nconst lines=require('fs').readFileSync(0,'utf8').trim().split(/\\n/);\nconsole.log(islands(lines.slice(1)));"
+    },
+    "testCases": [
+      {
+        "input": "4 5\n11110\n11010\n11000\n00000",
+        "hidden": false,
+        "expected": "1"
+      },
+      {
+        "input": "4 5\n11000\n11000\n00100\n00011",
+        "hidden": false,
+        "expected": "3"
+      },
+      {
+        "input": "1 1\n1",
+        "hidden": false,
+        "expected": "1"
+      },
+      {
+        "input": "1 1\n0",
+        "hidden": true,
+        "expected": "0"
+      },
+      {
+        "input": "3 3\n101\n010\n101",
+        "hidden": true,
+        "expected": "5"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.281Z"
+  },
+  {
+    "id": "cmv2iypgo0012w9k8afdxhnz7",
+    "type": "CODING",
+    "title": null,
+    "text": "Given a sorted array of integers and a target, return the index of the target or -1 if missing. Input: n target then n numbers.",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Binary Search"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "binary search",
+      "off-by-one"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\nint main(){int n,t;scanf(\"%d %d\",&n,&t); int a[200000]; for(int i=0;i<n;i++) scanf(\"%d\",&a[i]); int l=0,r=n-1,ans=-1; while(l<=r){int m=(l+r)/2; if(a[m]==t){ans=m;break;} if(a[m]<t)l=m+1; else r=m-1;} printf(\"%d\",ans);}",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; int search(vector<int> a,int t){return -1;} int main(){int n,t;cin>>n>>t;vector<int> a(n);for(int i=0;i<n;i++)cin>>a[i];cout<<search(a,t);}",
+      "java": "import java.util.*; public class Main{ static int search(int[] n,int t){return -1;} public static void main(String[] a){ Scanner sc=new Scanner(System.in); int n=sc.nextInt(); int t=sc.nextInt(); int[] arr=new int[n]; for(int i=0;i<n;i++) arr[i]=sc.nextInt(); System.out.println(search(arr,t)); }}",
+      "python": "def search(nums, target):\n    return -1\nimport sys\np=list(map(int, sys.stdin.read().split())); n,t=p[0],p[1]; nums=p[2:]; print(search(nums,t))",
+      "javascript": "function search(nums,t){return -1}\nconst p=require('fs').readFileSync(0,'utf8').trim().split(/\\s+/).map(Number);\nconsole.log(search(p.slice(2), p[1]));"
+    },
+    "testCases": [
+      {
+        "input": "6 9 -1 0 3 5 9 12",
+        "hidden": false,
+        "expected": "4"
+      },
+      {
+        "input": "6 2 -1 0 3 5 9 12",
+        "hidden": false,
+        "expected": "-1"
+      },
+      {
+        "input": "1 5 5",
+        "hidden": false,
+        "expected": "0"
+      },
+      {
+        "input": "4 1 1 2 3 4",
+        "hidden": true,
+        "expected": "0"
+      },
+      {
+        "input": "5 7 1 3 5 7 9",
+        "hidden": true,
+        "expected": "3"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.273Z"
+  },
+  {
+    "id": "cmv2iyphi0019w9k84g8pjw7w",
+    "type": "CODING",
+    "title": null,
+    "text": "Longest Substring Without Repeating Characters: given a string, return the length of the longest substring without repeating characters.",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Sliding Window"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "sliding window",
+      "last index map"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\nint main(){char s[10000]; scanf(\"%s\",s); int last[256]; for(int i=0;i<256;i++) last[i]=-1; int start=0,best=0; for(int i=0;s[i];i++){ unsigned char c=s[i]; if(last[c]>=start) start=last[c]+1; last[c]=i; int len=i-start+1; if(len>best) best=len; } printf(\"%d\",best); }",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; int length(string s){return 0;} int main(){string s; cin>>s; cout<<length(s);}",
+      "java": "import java.util.*; public class Main{ static int length(String s){return 0;} public static void main(String[] a){ System.out.println(length(new Scanner(System.in).next())); }}",
+      "python": "def length(s):\n    return 0\nimport sys\nprint(length(sys.stdin.read().strip()))",
+      "javascript": "function length(s){return 0}\nconsole.log(length(require('fs').readFileSync(0,'utf8').trim()));"
+    },
+    "testCases": [
+      {
+        "input": "abcabcbb",
+        "hidden": false,
+        "expected": "3"
+      },
+      {
+        "input": "bbbbb",
+        "hidden": false,
+        "expected": "1"
+      },
+      {
+        "input": "pwwkew",
+        "hidden": false,
+        "expected": "3"
+      },
+      {
+        "input": "",
+        "hidden": true,
+        "expected": "0"
+      },
+      {
+        "input": "dvdf",
+        "hidden": true,
+        "expected": "3"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.303Z"
+  },
+  {
+    "id": "cmv2iypdj0003w9k8cahockv5",
+    "type": "CONCEPTUAL",
+    "title": null,
+    "text": "Explain the difference between type narrowing with discriminated unions versus type predicates. When would you choose each?",
+    "difficulty": "HARD",
+    "skillTags": [
+      "TypeScript"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "control flow analysis",
+      "user-defined type guards",
+      "exhaustiveness"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": null,
+    "testCases": null,
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.159Z"
+  },
+  {
+    "id": "cmv2iypgk0011w9k86s8ce2w7",
+    "type": "CODING",
+    "title": null,
+    "text": "Reverse Linked List values: given a space-separated list of integers, reverse the sequence.",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Linked Lists"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "iterative reverse",
+      "O(n)"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\nint main(){int a[10000],n=0; while(scanf(\"%d\",&a[n])==1) n++; for(int i=n-1;i>=0;i--){ if(i<n-1) printf(\" \"); printf(\"%d\",a[i]); } }",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; int main(){vector<int> a; int x; while(cin>>x) a.push_back(x); reverse(a.begin(),a.end()); for(size_t i=0;i<a.size();i++){ if(i) cout<<' '; cout<<a[i]; }}",
+      "java": "import java.util.*; public class Main{ public static void main(String[] a){ Scanner sc=new Scanner(System.in); ArrayList<Integer> l=new ArrayList<>(); while(sc.hasNextInt()) l.add(sc.nextInt()); Collections.reverse(l); for(int i=0;i<l.size();i++){ if(i>0) System.out.print(\" \"); System.out.print(l.get(i)); } }}",
+      "python": "def reverse_list(nums):\n    return nums[::-1]\nimport sys\nprint(' '.join(map(str, reverse_list(list(map(int, sys.stdin.read().split()))))))",
+      "javascript": "function reverseList(nums){return nums.reverse()}\nconst fs=require('fs'); const nums=fs.readFileSync(0,'utf8').trim().split(/\\s+/).filter(Boolean).map(Number);\nconsole.log(reverseList(nums).join(' '));"
+    },
+    "testCases": [
+      {
+        "input": "1 2 3 4 5",
+        "hidden": false,
+        "expected": "5 4 3 2 1"
+      },
+      {
+        "input": "1 2",
+        "hidden": false,
+        "expected": "2 1"
+      },
+      {
+        "input": "1",
+        "hidden": false,
+        "expected": "1"
+      },
+      {
+        "input": "9 8 7 6",
+        "hidden": true,
+        "expected": "6 7 8 9"
+      },
+      {
+        "input": "0 0 1",
+        "hidden": true,
+        "expected": "1 0 0"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.268Z"
+  },
+  {
+    "id": "cmv2iypgc000zw9k8vnbmvdog",
+    "type": "CODING",
+    "title": null,
+    "text": "Valid Palindrome: given a string, return true if it is a palindrome considering only alphanumeric characters, ignoring case.",
+    "difficulty": "EASY",
+    "skillTags": [
+      "Strings"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "two pointers",
+      "filter alnum",
+      "casefold"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\n#include <ctype.h>\nint main(){char s[10000]; int n=0; int c; while((c=getchar())!=EOF) s[n++]=c; s[n]=0; int i=0,j=n-1,ok=1; while(i<j){ while(i<j&&!isalnum(s[i]))i++; while(i<j&&!isalnum(s[j]))j--; if(tolower(s[i])!=tolower(s[j])) ok=0; i++; j--; } printf(ok?\"true\":\"false\"); }",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; bool isPalindrome(string s){return false;} int main(){string s,t; while(getline(cin,t)) s+=t; cout<<(isPalindrome(s)?\"true\":\"false\");}",
+      "java": "import java.util.*;\npublic class Main{ static boolean isPalindrome(String s){return false;} public static void main(String[] a){ Scanner sc=new Scanner(System.in); String s=sc.useDelimiter(\"\\\\A\").next(); System.out.println(isPalindrome(s)?\"true\":\"false\"); }}",
+      "python": "def is_palindrome(s):\n    pass\nimport sys\ns=sys.stdin.read()\nprint('true' if is_palindrome(s) else 'false')",
+      "javascript": "function isPalindrome(s){return false}\nconst fs=require('fs'); const s=fs.readFileSync(0,'utf8');\nconsole.log(isPalindrome(s)?'true':'false');"
+    },
+    "testCases": [
+      {
+        "input": "A man, a plan, a canal: Panama",
+        "hidden": false,
+        "expected": "true"
+      },
+      {
+        "input": "race a car",
+        "hidden": false,
+        "expected": "false"
+      },
+      {
+        "input": " ",
+        "hidden": false,
+        "expected": "true"
+      },
+      {
+        "input": "0P",
+        "hidden": true,
+        "expected": "false"
+      },
+      {
+        "input": "ab_a",
+        "hidden": true,
+        "expected": "true"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.260Z"
+  },
+  {
+    "id": "cmv2iypha0017w9k8m0tswhc7",
+    "type": "CODING",
+    "title": null,
+    "text": "Container With Most Water: heights as integers, return max area. Input: n then n heights.",
+    "difficulty": "MEDIUM",
+    "skillTags": [
+      "Two Pointers"
+    ],
+    "companyTags": [],
+    "roleTags": [],
+    "expectedPoints": [
+      "two pointers",
+      "min height * width"
+    ],
+    "source": "BANK",
+    "isActive": true,
+    "createdById": null,
+    "starterCode": {
+      "c": "#include <stdio.h>\nint main(){int n;scanf(\"%d\",&n); int h[10000]; for(int i=0;i<n;i++) scanf(\"%d\",&h[i]); int l=0,r=n-1,best=0; while(l<r){ int a=(h[l]<h[r]?h[l]:h[r])*(r-l); if(a>best) best=a; if(h[l]<h[r]) l++; else r--; } printf(\"%d\",best); }",
+      "cpp": "#include <bits/stdc++.h>\nusing namespace std; int area(vector<int> h){return 0;} int main(){int n;cin>>n;vector<int> h(n);for(int i=0;i<n;i++)cin>>h[i];cout<<area(h);}",
+      "java": "import java.util.*; public class Main{ static int area(int[] h){return 0;} public static void main(String[] a){ Scanner sc=new Scanner(System.in); int n=sc.nextInt(); int[] h=new int[n]; for(int i=0;i<n;i++) h[i]=sc.nextInt(); System.out.println(area(h)); }}",
+      "python": "def area(h):\n    return 0\nimport sys\np=list(map(int, sys.stdin.read().split())); print(area(p[1:]))",
+      "javascript": "function area(h){return 0}\nconst p=require('fs').readFileSync(0,'utf8').trim().split(/\\s+/).map(Number);\nconsole.log(area(p.slice(1)));"
+    },
+    "testCases": [
+      {
+        "input": "9 1 8 6 2 5 4 8 3 7",
+        "hidden": false,
+        "expected": "49"
+      },
+      {
+        "input": "2 1 1",
+        "hidden": false,
+        "expected": "1"
+      },
+      {
+        "input": "4 1 2 1 3",
+        "hidden": false,
+        "expected": "4"
+      },
+      {
+        "input": "5 2 3 4 5 18",
+        "hidden": true,
+        "expected": "8"
+      },
+      {
+        "input": "3 1 100 1",
+        "hidden": true,
+        "expected": "2"
+      }
+    ],
+    "referenceSolution": null,
+    "constraints": null,
+    "examples": null,
+    "deletedAt": null,
+    "createdAt": "2026-10-10T15:04:07.294Z"
+  }
+]

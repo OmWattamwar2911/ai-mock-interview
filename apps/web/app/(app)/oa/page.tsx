@@ -26,8 +26,30 @@ import { StatusChip } from "@/components/ui/status-chip";
 import { Toolbar } from "@/components/ui/toolbar";
 import { Button } from "@/components/ui/button";
 
-const COMPANIES = ["ALL", "Google", "Amazon", "Stripe", "Meta", "Microsoft", "Uber"];
-const ROLES = ["ALL", "Backend", "Systems", "Frontend", "Fullstack"];
+const COMPANIES = [
+  "ALL",
+  "Google",
+  "Amazon",
+  "Meta",
+  "Microsoft",
+  "Apple",
+  "Netflix",
+  "Uber",
+  "Stripe",
+  "Bloomberg",
+  "LinkedIn",
+  "Salesforce",
+  "Adobe",
+];
+const ROLES = [
+  "ALL",
+  "Backend",
+  "Frontend",
+  "Fullstack",
+  "Systems",
+  "DevOps",
+  "Data Engineer",
+];
 const DIFFICULTIES = ["ALL", "EASY", "MEDIUM", "HARD"];
 
 type OaQuestion = {
@@ -115,13 +137,21 @@ export default function OaPracticePage() {
         const res = await fetch(`/api/oa/questions?${query.toString()}`);
         if (res.ok) {
           const data = await res.json();
-          const items: OaQuestion[] = data.questions || [];
+          const rawItems: OaQuestion[] = data.questions || [];
+          // Never render a card without a title
+          const items = rawItems.filter((q) => Boolean(q.title && q.title.trim().length > 0));
           setQuestions(items);
-          if (items.length > 0 && (!selectedQuestion || !items.find((q) => q.id === selectedQuestion.id))) {
-            setSelectedQuestion(items[0]);
-            setShowSolution(false);
-            setReferenceSolution(null);
-            setScoreBanner(null);
+
+          if (items.length > 0) {
+            const savedId = typeof window !== "undefined" ? localStorage.getItem("rehearse_last_oa_question_id") : null;
+            const matched = items.find((q) => q.id === (selectedQuestion?.id || savedId));
+            const nextSelect = matched || items[0];
+            setSelectedQuestion(nextSelect);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("rehearse_last_oa_question_id", nextSelect.id);
+            }
+          } else {
+            setSelectedQuestion(null);
           }
         }
       } catch (err) {
@@ -234,22 +264,38 @@ export default function OaPracticePage() {
             <span>OA Practice</span>
           </div>
 
-          {/* Company Chips */}
-          <div className="flex items-center gap-1 overflow-x-auto py-0.5">
-            {COMPANIES.slice(0, 5).map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setCompany(c)}
-                className={`rounded-lg px-2.5 py-1 text-[11px] font-mono transition-colors ${
-                  company === c
-                    ? "bg-black text-white dark:bg-white dark:text-black font-bold shadow-sm"
-                    : "bg-white/60 dark:bg-black/30 text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {c === "ALL" ? "All Companies" : c}
-              </button>
-            ))}
+          {/* Company Filter Dropdown */}
+          <div className="flex items-center gap-1.5">
+            <Building2 className="w-3.5 h-3.5 text-muted-foreground shrink-0 hidden sm:inline" />
+            <select
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              aria-label="Filter by Company"
+              className="rounded-lg px-2.5 py-1 text-[11px] font-mono bg-white/70 dark:bg-black/40 border border-black/10 dark:border-white/10 text-foreground focus:outline-none focus:ring-1 focus:ring-[#F64302]"
+            >
+              {COMPANIES.map((c) => (
+                <option key={c} value={c} className="bg-background text-foreground">
+                  {c === "ALL" ? "All Companies" : c}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Role Filter Dropdown */}
+          <div className="flex items-center gap-1.5">
+            <Briefcase className="w-3.5 h-3.5 text-muted-foreground shrink-0 hidden sm:inline" />
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              aria-label="Filter by Role"
+              className="rounded-lg px-2.5 py-1 text-[11px] font-mono bg-white/70 dark:bg-black/40 border border-black/10 dark:border-white/10 text-foreground focus:outline-none focus:ring-1 focus:ring-[#F64302]"
+            >
+              {ROLES.map((r) => (
+                <option key={r} value={r} className="bg-background text-foreground">
+                  {r === "ALL" ? "All Roles" : r}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Difficulty Chips */}
@@ -381,8 +427,20 @@ export default function OaPracticePage() {
                 Loading OA questions…
               </div>
             ) : questions.length === 0 ? (
-              <div className="p-6 text-center text-xs text-muted-foreground">
-                No questions found matching criteria.
+              <div className="p-6 text-center text-xs text-muted-foreground flex flex-col items-center gap-3">
+                <AlertCircle className="w-6 h-6 text-muted-foreground/60" />
+                <p>No challenges match these filters.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCompany("ALL");
+                    setRole("ALL");
+                    setDifficulty("ALL");
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-black text-white dark:bg-white dark:text-black font-semibold text-[11px] hover:opacity-90 transition-opacity"
+                >
+                  Clear filters
+                </button>
               </div>
             ) : (
               questions.map((q) => {
@@ -394,6 +452,9 @@ export default function OaPracticePage() {
                     key={q.id}
                     onClick={() => {
                       setSelectedQuestion(q);
+                      if (typeof window !== "undefined") {
+                        localStorage.setItem("rehearse_last_oa_question_id", q.id);
+                      }
                       setShowSolution(false);
                       setReferenceSolution(null);
                       setScoreBanner(null);
@@ -430,15 +491,23 @@ export default function OaPracticePage() {
                     </div>
 
                     <div className="flex items-center gap-1 flex-wrap pt-0.5">
-                      {q.companyTags.slice(0, 2).map((c) => (
+                      {q.companyTags.map((c) => (
                         <span
                           key={c}
-                          className="bg-black/5 dark:bg-white/5 text-muted-foreground text-[9px] px-1.5 py-0.5 rounded"
+                          className="bg-black/5 dark:bg-white/5 text-foreground font-semibold text-[9px] px-1.5 py-0.5 rounded"
                         >
                           {c}
                         </span>
                       ))}
-                      {q.skillTags.slice(0, 2).map((s) => (
+                      {q.roleTags?.slice(0, 2).map((r) => (
+                        <span
+                          key={r}
+                          className="bg-[#F64302]/10 text-[#F64302] font-semibold text-[9px] px-1.5 py-0.5 rounded"
+                        >
+                          {r}
+                        </span>
+                      ))}
+                      {q.skillTags.slice(0, 1).map((s) => (
                         <span
                           key={s}
                           className="bg-black/5 dark:bg-white/5 text-muted-foreground text-[9px] px-1.5 py-0.5 rounded"
@@ -469,16 +538,34 @@ export default function OaPracticePage() {
                 constraints={selectedQuestion.constraints}
                 examples={selectedQuestion.examples}
                 difficulty={selectedQuestion.difficulty}
+                company={selectedQuestion.companyTags?.[0]}
+                role={selectedQuestion.roleTags?.[0]}
                 topicTags={selectedQuestion.skillTags || []}
                 starterCode={selectedQuestion.starterCode || {}}
                 tests={selectedQuestion.testCases || []}
+                isLiveSession={false}
                 onRun={handleRun}
                 onSubmit={handleSubmit}
               />
             </div>
           ) : (
-            <div className="flex h-full items-center justify-center text-muted-foreground text-xs">
-              Select a coding challenge from the sidebar to begin practicing.
+            <div className="flex h-full items-center justify-center text-muted-foreground text-xs flex-col gap-2.5 p-6 text-center">
+              <Code2 className="w-8 h-8 text-muted-foreground/40" />
+              <p className="font-semibold text-foreground text-sm">No challenge selected</p>
+              <p className="text-muted-foreground max-w-sm">
+                No coding challenges match your active filter criteria. Clear filters or select another role or company to continue practicing.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setCompany("ALL");
+                  setRole("ALL");
+                  setDifficulty("ALL");
+                }}
+                className="mt-2 px-3 py-1.5 rounded-lg bg-[#F64302] text-white font-semibold text-xs hover:opacity-90 transition-opacity"
+              >
+                Clear all filters
+              </button>
             </div>
           )}
         </main>

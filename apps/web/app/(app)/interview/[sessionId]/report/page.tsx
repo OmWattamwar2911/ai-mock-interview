@@ -126,32 +126,34 @@ export default async function InterviewReportPage({ params }: { params: { sessio
         ];
 
   const speechAnalytics = botSummary.speechAnalytics || {
-    talkTimeCandidatePct: 54,
-    talkTimeBotPct: 46,
-    candidateWpm: 125,
-    fillerWordCount: 4,
-    averageResponseDelaySec: 1.4,
-    confidenceScore: 7.8,
+    talkTimeCandidatePct: 0,
+    talkTimeBotPct: 0,
+    candidateWpm: null,
+    fillerWordCount: 0,
+    fillerWords: {},
+    averageResponseDelaySec: null,
+    confidenceScore: null,
+    hasEnoughSpeechToMeasure: false,
   };
 
   const skillsCoverage = botSummary.skillsCoverage || {
-    demonstrated: (session.resume?.parsed as any)?.skills?.slice(0, 4) || ["Backend Architecture", "PostgreSQL", "APIs"],
-    mentioned: (session.jd?.parsed as any)?.requiredSkills?.slice(0, 3) || ["Distributed Systems", "TypeScript"],
-    notCovered: (session.jd?.parsed as any)?.requiredSkills?.slice(3, 6) || ["Kafka", "GraphQL"],
+    demonstrated: [],
+    mentioned: [],
+    notCovered: (session.jd?.parsed as any)?.requiredSkills?.slice(0, 4) || [],
   };
 
   const testResults = botSummary.testResults || (report.codeAnalysis as any)?.results || null;
   const rawCatScores = (categoryScores as Record<string, any>) || {};
 
   const standardCategories: { key: string; label: string; score: number | null }[] = [
-    { key: "communication", label: "Communication & Articulation", score: rawCatScores.communication ?? 7.5 },
-    { key: "confidenceClarity", label: "Confidence & Clarity", score: rawCatScores.confidenceClarity ?? rawCatScores.confidence ?? 8.0 },
-    { key: "resumeKnowledge", label: "Resume Knowledge & Depth", score: rawCatScores.resumeKnowledge ?? (isPartial && completedParts < 2 ? null : 7.2) },
-    { key: "roleFit", label: "Role & JD Alignment", score: rawCatScores.roleFit ?? (isPartial && completedParts < 2 ? null : 7.0) },
-    { key: "technicalKnowledge", label: "Technical Depth", score: rawCatScores.technicalKnowledge ?? rawCatScores.technicalDepth ?? (testResults ? 7.5 : null) },
-    { key: "coding", label: "Coding & Complexity", score: rawCatScores.coding ?? (testResults ? (testResults.passedCount ? 8.0 : 6.5) : null) },
-    { key: "problemSolving", label: "Problem Solving", score: rawCatScores.problemSolving ?? (testResults ? 7.5 : null) },
-    { key: "behavioralSTAR", label: "Behavioral & STAR Method", score: rawCatScores.behavioralSTAR ?? (isPartial && completedParts < 4 ? null : 7.8) },
+    { key: "communication", label: "Communication & Articulation", score: rawCatScores.communication ?? null },
+    { key: "confidenceClarity", label: "Confidence & Clarity", score: rawCatScores.confidenceClarity ?? rawCatScores.confidence ?? null },
+    { key: "resumeKnowledge", label: "Resume Knowledge & Depth", score: rawCatScores.resumeKnowledge ?? null },
+    { key: "roleFit", label: "Role & JD Alignment", score: rawCatScores.roleFit ?? null },
+    { key: "technicalKnowledge", label: "Technical Depth", score: rawCatScores.technicalKnowledge ?? rawCatScores.technicalDepth ?? null },
+    { key: "coding", label: "Coding & Complexity", score: rawCatScores.coding ?? null },
+    { key: "problemSolving", label: "Problem Solving", score: rawCatScores.problemSolving ?? null },
+    { key: "behavioralSTAR", label: "Behavioral & STAR Method", score: rawCatScores.behavioralSTAR ?? null },
   ];
 
   return (

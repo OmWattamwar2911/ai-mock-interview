@@ -10,6 +10,7 @@
     "test": "turbo test",
     "db:migrate": "pnpm --filter @rehearse/web exec prisma migrate dev",
     "db:seed": "pnpm --filter @rehearse/web exec prisma db seed",
+    "oa:validate": "pnpm --filter @rehearse/web oa:validate",
     "docker:up": "docker compose up"
   },
   "devDependencies": {

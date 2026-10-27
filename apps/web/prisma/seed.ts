@@ -1,8 +1,8 @@
 import { config as loadEnv } from "dotenv";
 import { resolve } from "node:path";
 import { hash } from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
-import { SKILLS_TAXONOMY } from "@rehearse/shared";
+import { PrismaClient, Prisma } from "@prisma/client";
+import { SKILLS_TAXONOMY, validateOaCodingProblem } from "@rehearse/shared";
 import { BANK_QUESTIONS } from "./bank-questions";
 import { COMPANY_OA_QUESTIONS } from "./company-oa-questions";
 
@@ -21,7 +21,8 @@ async function upsertUser(email: string, name: string, password: string, role: "
 }
 
 async function seedOaQuestions() {
-  for (const q of COMPANY_OA_QUESTIONS) {
+  for (const rawQ of COMPANY_OA_QUESTIONS) {
+    const q = validateOaCodingProblem(rawQ);
     const existing = await prisma.question.findFirst({
       where: { title: q.title, source: "BANK" },
     });
@@ -40,7 +41,8 @@ async function seedOaQuestions() {
           starterCode: q.starterCode,
           testCases: q.testCases,
           referenceSolution: q.referenceSolution,
-          expectedPoints: q.expectedPoints,
+          expectedPoints: (q.expectedPoints ?? {}) as Prisma.InputJsonValue,
+          isActive: true,
           deletedAt: null,
         },
       });
@@ -60,8 +62,9 @@ async function seedOaQuestions() {
         starterCode: q.starterCode,
         testCases: q.testCases,
         referenceSolution: q.referenceSolution,
-        expectedPoints: q.expectedPoints,
+        expectedPoints: (q.expectedPoints ?? {}) as Prisma.InputJsonValue,
         source: "BANK",
+        isActive: true,
       },
     });
   }
@@ -69,6 +72,12 @@ async function seedOaQuestions() {
 
 async function seedBank() {
   for (const question of BANK_QUESTIONS) {
+    try {
+      validateOaCodingProblem(question);
+    } catch {
+      // Skip non-coding or un-titled prompts to prevent polluting the active challenge bank
+      continue;
+    }
     const existing = await prisma.question.findFirst({
       where: { text: question.text, source: "BANK" },
     });
@@ -84,6 +93,7 @@ async function seedBank() {
           testCases: question.testCases,
           constraints: question.constraints,
           examples: question.examples,
+          isActive: true,
           deletedAt: null,
         },
       });
@@ -97,6 +107,7 @@ async function seedBank() {
         skillTags: question.skillTags,
         expectedPoints: question.expectedPoints,
         source: "BANK",
+        isActive: true,
         starterCode: question.starterCode,
         testCases: question.testCases,
         constraints: question.constraints,
@@ -123,6 +134,46 @@ async function main() {
   const candidate = await upsertUser(candidateEmail, "Demo Candidate", candidatePassword, "CANDIDATE");
   await seedBank();
   await seedOaQuestions();
+
+  const existingResume = await prisma.resume.findFirst({ where: { userId: candidate.id } });
+  if (!existingResume) {
+    await prisma.resume.create({
+      data: {
+        userId: candidate.id,
+        fileName: "Demo_Resume.pdf",
+        fileType: "application/pdf",
+        encryptedText: "mock-encrypted-text",
+        parsed: {
+          skills: ["TypeScript", "JavaScript", "React", "Node.js", "PostgreSQL", "Docker", "Git"],
+          experience: [
+            { title: "Software Engineer", company: "Acme Corp", bullets: ["Built web applications with React and Node.js"] },
+          ],
+          education: [
+            { degree: "B.S. in Computer Science", institution: "Tech University", year: 2024 },
+          ],
+          summary: "Full Stack Engineer specializing in TypeScript, React, Node.js, and PostgreSQL.",
+        },
+      },
+    });
+  }
+
+  const existingJd = await prisma.jobDescription.findFirst({ where: { userId: candidate.id } });
+  if (!existingJd) {
+    await prisma.jobDescription.create({
+      data: {
+        userId: candidate.id,
+        title: "Full Stack Software Engineer",
+        encryptedText: "mock-encrypted-jd-text",
+        parsed: {
+          title: "Full Stack Software Engineer",
+          requiredSkills: ["TypeScript", "React", "Node.js", "PostgreSQL"],
+          preferredSkills: ["Docker", "Kubernetes", "AWS"],
+          responsibilities: ["Develop scalable microservices", "Build responsive UI components"],
+          keywords: ["Full Stack", "TypeScript", "React"],
+        },
+      },
+    });
+  }
 
   const bankCount = await prisma.question.count({ where: { source: "BANK", deletedAt: null } });
 

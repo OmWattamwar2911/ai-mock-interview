@@ -24,7 +24,7 @@ export async function POST(
             data: { status: "EVALUATING", errorMessage: null },
         });
 
-        const result = await evaluateSession(session.id, session.endReason || "completed");
+        const result = await evaluateSession(session.id, true);
 
         return jsonOk({
             success: true,

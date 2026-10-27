@@ -82,7 +82,7 @@ export function ScoreNumeral({
             </span>
           </div>
           <p className="font-mono text-xs text-muted-foreground mt-1">
-            {percentage}% Readiness benchmark
+            {percentage}% Achieved
           </p>
         </div>
 

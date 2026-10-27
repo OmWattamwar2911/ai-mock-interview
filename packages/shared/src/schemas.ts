@@ -71,6 +71,8 @@ export const skillGapResponseSchema = z.object({
   partial: z.array(z.string()),
   matchScore: z.number(),
   narrative: z.string(),
+  extraSkills: z.array(z.string()).default([]),
+  note: z.string().optional(),
 });
 
 export const atsBreakdownSchema = z.object({
@@ -189,3 +191,64 @@ export const technicalProblemSchema = z.object({
 });
 
 export type TechnicalProblem = z.infer<typeof technicalProblemSchema>;
+
+export const oaTestCaseSchema = z.object({
+  input: z.string(),
+  expected: z.string(),
+  hidden: z.boolean().default(false),
+  explanation: z.string().optional(),
+});
+
+export const oaCodingProblemSchema = z.object({
+  type: z.literal("CODING").default("CODING"),
+  title: z
+    .string({ required_error: "Problem title is required" })
+    .trim()
+    .min(3, "Problem title must be at least 3 characters"),
+  text: z
+    .string({ required_error: "Problem statement/description is required" })
+    .trim()
+    .min(10, "Problem statement/description must be at least 10 characters"),
+  difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
+  skillTags: z
+    .array(z.string().trim().min(1))
+    .min(1, "At least one skill tag is required"),
+  companyTags: z.array(z.string()).default([]),
+  roleTags: z.array(z.string()).default([]),
+  constraints: z.string().trim().min(1, "Constraints are required"),
+  examples: z
+    .array(
+      z.object({
+        input: z.string(),
+        output: z.string(),
+        explanation: z.string().optional(),
+      })
+    )
+    .min(1, "At least one example is required"),
+  starterCode: z
+    .record(z.string())
+    .refine(
+      (code) => typeof code === "object" && code !== null && Boolean(code.python) && Boolean(code.javascript),
+      "Starter code must provide implementations for at least python and javascript"
+    ),
+  testCases: z
+    .array(oaTestCaseSchema)
+    .min(1, "At least one test case is required")
+    .refine(
+      (tests) => tests.some((t) => !t.hidden),
+      "At least one visible sample test case (hidden: false) is required"
+    ),
+  referenceSolution: z.record(z.string()).optional(),
+  expectedPoints: z.unknown().optional(),
+});
+
+export type OaCodingProblem = z.infer<typeof oaCodingProblemSchema>;
+
+export function validateOaCodingProblem(data: unknown): OaCodingProblem {
+  const result = oaCodingProblemSchema.safeParse(data);
+  if (!result.success) {
+    const issues = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
+    throw new Error(`OA Coding Problem Validation Error: ${issues}`);
+  }
+  return result.data;
+}

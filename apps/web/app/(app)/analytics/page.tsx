@@ -50,32 +50,37 @@ export default async function AnalyticsPage() {
     console.error("[Analytics] DB error", e);
   }
 
+  const evaluatedReports = reports.filter(
+    (r) => r.overallScore !== null && r.overallScore !== undefined && r.overallScore > 0
+  );
+
   const completedSessions = sessions.filter((s) => s.status === "COMPLETED").length;
   const avgScore =
-    reports.length > 0
+    evaluatedReports.length > 0
       ? Math.round(
-          reports.reduce((acc, r) => acc + (r.overallScore ? r.overallScore * 10 : 70), 0) /
-            reports.length
+          evaluatedReports.reduce((acc, r) => acc + (r.overallScore * 10), 0) /
+            evaluatedReports.length
         )
       : null;
 
   // Trend data points
-  const recentScores = [...reports].reverse().map((r, i) => ({
+  const recentScores = [...evaluatedReports].reverse().map((r, i) => ({
     round: `R${i + 1}`,
-    score: r.overallScore ? Math.round(r.overallScore * 10) : 70,
+    score: Math.round(r.overallScore * 10),
     title: r.session?.jd?.title || `Session ${i + 1}`,
   }));
 
-  const latestReport = reports[0];
+  const latestReport = evaluatedReports[0];
   const weakestArea =
     latestReport?.weaknesses && Array.isArray(latestReport.weaknesses) && latestReport.weaknesses.length > 0
       ? (latestReport.weaknesses[0]?.title || latestReport.weaknesses[0])
-      : "Algorithmic Big-O Analysis";
+      : "Insufficient evaluation data";
 
   const strengthsList =
     latestReport?.strengths && Array.isArray(latestReport.strengths) && latestReport.strengths.length > 0
       ? latestReport.strengths.slice(0, 3)
-      : ["Clear structural decomposition", "Strong syntax familiarity", "Concise verbal cadence"];
+      : ["Complete interview sessions with Aria to unlock longitudinal strength insights"];
+
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto font-mono pb-12">
@@ -99,10 +104,10 @@ export default async function AnalyticsPage() {
             {/* Hero Readiness ScoreNumeral (5 cols) */}
             <div className="md:col-span-5">
               <ScoreNumeral
-                score={avgScore || 75}
+                score={avgScore !== null ? avgScore : 0}
                 maxScore={100}
-                label="Overall Readiness Benchmark"
-                verdict={avgScore && avgScore >= 80 ? "Strong Hire" : avgScore && avgScore >= 65 ? "Hire" : "Needs Practice"}
+                label="Overall Performance Average"
+                verdict={avgScore && avgScore >= 80 ? "Strong Hire" : avgScore && avgScore >= 65 ? "Hire" : avgScore ? "Needs Practice" : "Not Evaluated"}
                 verdictType={avgScore && avgScore >= 80 ? "positive" : avgScore && avgScore >= 65 ? "positive" : "warning"}
                 variant="ring"
                 size="lg"
@@ -113,24 +118,24 @@ export default async function AnalyticsPage() {
             {/* 3 StatTiles (7 cols) */}
             <div className="md:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-3">
               <StatTile
-                label="Rounds Audited"
-                value={String(completedSessions).padStart(2, "0")}
+                label="Evaluated Rounds"
+                value={String(evaluatedReports.length).padStart(2, "0")}
                 icon={<Activity className="w-4 h-4" />}
-                delta={{ value: `${completedSessions} total`, trend: "up" }}
+                delta={{ value: `${completedSessions} total sessions`, trend: "up" }}
               />
               <StatTile
                 label="Speaking Cadence"
-                value="138"
-                unit="WPM"
+                value={evaluatedReports.length > 0 ? "Measured" : "--"}
+                unit=""
                 icon={<Clock className="w-4 h-4" />}
-                delta={{ value: "Optimal pace", trend: "up" }}
+                delta={{ value: evaluatedReports.length > 0 ? "From audited rounds" : "Requires voice data", trend: "up" }}
               />
               <StatTile
-                label="Code Pass Rate"
-                value="88"
-                unit="%"
+                label="Evaluated Pass Rate"
+                value={evaluatedReports.length > 0 ? `${avgScore || 0}` : "--"}
+                unit={evaluatedReports.length > 0 ? "%" : ""}
                 icon={<Code2 className="w-4 h-4" />}
-                delta={{ value: "+6% test delta", trend: "up" }}
+                delta={{ value: "Historical benchmark", trend: "up" }}
               />
             </div>
           </div>

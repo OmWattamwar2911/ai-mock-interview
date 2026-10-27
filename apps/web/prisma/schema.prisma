@@ -306,7 +306,7 @@ model AssessmentCodingSubmission {
 
 model Question {
   id             String         @id @default(cuid())
-  type           QuestionType
+  type           QuestionType   @default(CODING)
   title          String?
   text           String
   difficulty     Difficulty
@@ -315,6 +315,7 @@ model Question {
   roleTags       String[]       @default([])
   expectedPoints Json
   source         QuestionSource @default(BANK)
+  isActive       Boolean        @default(true)
   createdById    String?
   starterCode       Json?
   testCases         Json?
@@ -329,6 +330,7 @@ model Question {
   oaSubmissions OaSubmission[]
 
   @@index([type, difficulty])
+  @@index([isActive])
 }
 
 model SessionQuestion {

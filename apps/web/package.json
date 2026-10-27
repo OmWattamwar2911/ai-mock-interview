@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "tsx lib/oa.test.ts",
+    "test": "tsx lib/oa-validator.test.ts && tsx lib/oa.test.ts && tsx lib/skill-gap-route.test.ts && tsx lib/evaluation.test.ts",
+    "oa:validate": "tsx ../../scripts/validate-oa-problems.ts",
     "test:analyzer": "tsx lib/analyzer.test.ts"
   },
   "dependencies": {
