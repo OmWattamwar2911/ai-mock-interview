@@ -1,6 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
+  trustHost: true,
   pages: {
     signIn: "/login",
     error: "/login",
@@ -9,15 +10,15 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
-        token.id = user.id;
+        token.role = (user as any).role || "CANDIDATE";
+        token.id = user.id || token.sub;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.role = typeof token.role === "string" ? token.role : "CANDIDATE";
-        session.user.id = typeof token.id === "string" ? token.id : "";
+        session.user.id = (token.id as string) || (token.sub as string) || "";
       }
       return session;
     },

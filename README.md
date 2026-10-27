@@ -95,27 +95,35 @@ Technical interview preparation is currently fragmented between static coding pl
 ## Product Walkthrough
 
 <p align="center">
-  <img src="docs/screenshots/dashboard.webp" alt="Rehearse Dashboard" width="49%">
-  <img src="docs/screenshots/prep-skill-gap.webp" alt="Skill Gap Analysis" width="49%">
+  <img src="docs/screenshots/dashboard.webp" alt="Rehearse Candidate Dashboard" width="49%">
+  <img src="docs/screenshots/prep-skill-gap.webp" alt="Deterministic Skill Gap Alignment" width="49%">
 </p>
 <p align="center">
-  <em>Figure 1: Candidate Preparation Dashboard and Deterministic Skill Gap Audit Engine.</em>
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/interview-live.webp" alt="Live Interview Voice Interface" width="49%">
-  <img src="docs/screenshots/oa-practice.webp" alt="Online Assessment Sandbox" width="49%">
-</p>
-<p align="center">
-  <em>Figure 2: Real-time LiveKit Voice Interview with Aria (left) and Multi-Company OA Practice Environment (right).</em>
+  <em>Figure 1: Candidate Preparation Dashboard with longitudinal session tracking (left) and Deterministic Skill Gap Matrix with role alignment score (right) (fictional demo data).</em>
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/report.webp" alt="Evidence-Based Report Scorecard" width="49%">
-  <img src="docs/screenshots/analytics.webp" alt="Performance Trajectory Analytics" width="49%">
+  <img src="docs/screenshots/interview-live.webp" alt="Live LiveKit Voice Interview and Synchronized Monaco Editor" width="49%">
+  <img src="docs/screenshots/oa-practice.webp" alt="Multi-Company Online Assessment Practice Sandbox" width="49%">
 </p>
 <p align="center">
-  <em>Figure 3: Evidence-Gated Performance Audit Report (left) and Longitudinal Trajectory Analytics (right).</em>
+  <em>Figure 2: Real-time LiveKit Voice Rehearsal with Aria and synchronized Monaco code editor in split layout (left) and Multi-Company Online Assessment Sandbox with live execution (right) (fictional demo data).</em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/report.webp" alt="Evidence-Gated Scorecard Report" width="49%">
+  <img src="docs/screenshots/analytics.webp" alt="Longitudinal Performance Trajectory Analytics" width="49%">
+</p>
+<p align="center">
+  <em>Figure 3: Evidence-Gated Performance Audit Scorecard with verified transcript citations (left) and Longitudinal Trajectory Analytics across 5 rehearsal rounds (right) (fictional demo data).</em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/report-partial.webp" alt="Honest Partial Session Evaluation" width="49%">
+  <img src="docs/screenshots/dashboard-mobile.webp" alt="Responsive Mobile Dashboard" width="49%">
+</p>
+<p align="center">
+  <em>Figure 4: Honest evaluation audit enforcing the 'No Evidence, No Score' benchmark policy on partial sessions (left) and Responsive Mobile Dashboard (right) (fictional demo data).</em>
 </p>
 
 [Back to top](#table-of-contents)

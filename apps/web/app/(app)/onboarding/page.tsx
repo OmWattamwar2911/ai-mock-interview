@@ -73,6 +73,42 @@ export default function OnboardingPage() {
 
   const [gap, setGap] = useState<SkillGapResponse | null>(null);
 
+  // Prefetch candidate's existing resume and JD if available
+  useEffect(() => {
+    async function loadExisting() {
+      try {
+        const [resRes, jdRes] = await Promise.all([
+          fetch("/api/resumes"),
+          fetch("/api/jds"),
+        ]);
+        if (resRes.ok && jdRes.ok) {
+          const resData = await resRes.json();
+          const jdData = await jdRes.json();
+          if (resData.resumes?.length > 0 && jdData.jobDescriptions?.length > 0) {
+            const latestResume = resData.resumes[0];
+            const latestJd = jdData.jobDescriptions[0];
+            setResume(latestResume);
+            setResumeParsed(latestResume.parsed);
+            setJd(latestJd);
+            setJdParsed(latestJd.parsed);
+
+            // Compute skill alignment directly so candidate lands on Step 4 (Skill Gap)
+            const computedGap = calculateSkillGap(
+              latestResume.parsed?.skills || [],
+              latestJd.parsed?.requiredSkills || [],
+              latestJd.parsed?.preferredSkills || []
+            );
+            setGap(computedGap as any);
+            setStep(4);
+          }
+        }
+      } catch (e) {
+        console.warn("Could not prefetch existing documents:", e);
+      }
+    }
+    loadExisting();
+  }, []);
+
   // Rotate loading step messages while loading
   useEffect(() => {
     if (!loading) return;
